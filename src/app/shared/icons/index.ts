@@ -15,7 +15,13 @@ import {
     Menu,
     Palette,
     Bell,
-    Search
+    Search,
+    RefreshCw,
+    Activity,
+    Star,
+    StarOff,
+    ExternalLink,
+    AlertTriangle
 } from 'lucide-angular';
 
 /**
@@ -39,5 +45,11 @@ export const APP_ICONS = {
     Menu,
     Palette,
     Bell,
-    Search
+    Search,
+    RefreshCw,
+    Activity,
+    Star,
+    StarOff,
+    ExternalLink,
+    AlertTriangle
 };
