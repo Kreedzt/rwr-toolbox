@@ -1,73 +1,92 @@
 <main class="w-dvw h-dvh">
     <div class="drawer">
-        <input
-            id="menu-drawer"
-            #drawerInput
-            type="checkbox"
-            class="drawer-toggle"
-        />
+        <input id="menu-drawer" type="checkbox" class="drawer-toggle" />
 
         <div class="drawer-content">
+            <!-- Navbar -->
             <div class="navbar bg-base-100 shadow-sm">
                 <div class="flex-none">
                     <label class="btn btn-square btn-ghost" for="menu-drawer">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block h-5 w-5 stroke-current"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            ></path>
-                        </svg>
+                        <i-lucide name="menu" class="h-5 w-5"></i-lucide>
                     </label>
                 </div>
                 <div class="flex-1">
-                    <a class="btn btn-ghost text-xl">daisyUI</a>
+                    <a class="btn btn-ghost text-xl">RWR Toolbox</a>
                 </div>
-                <div class="flex-none">
-                    <button class="btn btn-square btn-ghost">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block h-5 w-5 stroke-current"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                            ></path>
-                        </svg>
+                <div class="flex-none gap-2">
+                    <button class="btn btn-square btn-ghost" title="Theme">
+                        <i-lucide name="palette" class="h-5 w-5"></i-lucide>
+                    </button>
+                    <button class="btn btn-square btn-ghost" title="Notifications">
+                        <i-lucide name="bell" class="h-5 w-5"></i-lucide>
                     </button>
                 </div>
             </div>
-            <div>
+
+            <!-- Page Content -->
+            <div class="p-4">
                 <router-outlet></router-outlet>
             </div>
         </div>
 
+        <!-- Sidebar Menu -->
         <div class="drawer-side">
-            <label
-                for="menu-drawer"
-                aria-label="close sidebar"
-                class="drawer-overlay"
-            ></label>
+            <label for="menu-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
             <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                <li>
-                    <a routerLink="/home" (click)="drawerInput.checked = false">
-                        Home
-                    </a>
+                <!-- App Info -->
+                <li class="menu-title">
+                    <span class="text-lg font-bold">RWR Toolbox</span>
                 </li>
-                <li>
-                    <a routerLink="/404" (click)="drawerInput.checked = false">
-                        404
-                    </a>
+
+                <!-- Main Menu Items -->
+                @for (item of menuItems; track item.label) {
+                    @if (item.divider) {
+                        <li class="my-2 border-t border-base-300"></li>
+                    } @else if (item.children && item.link) {
+                        <!-- Item with Children (Submenu) -->
+                        <li>
+                            <details>
+                                <summary [class.active]="isActive(item.link!)">
+                                    <i-lucide [name]="item.icon" class="h-5 w-5"></i-lucide>
+                                    <span>{{ item.label }}</span>
+                                </summary>
+                                <ul>
+                                    @for (child of item.children; track child.label) {
+                                        <li>
+                                            <a
+                                                [routerLink]="child.link!"
+                                                (click)="closeDrawer()"
+                                                [class.active]="isActive(child.link!)"
+                                            >
+                                                <i-lucide [name]="child.icon" class="h-4 w-4"></i-lucide>
+                                                <span>{{ child.label }}</span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </details>
+                        </li>
+                    } @else if (!item.children && item.link && !item.divider) {
+                        <!-- Simple Item (No Children) -->
+                        <li>
+                            <a
+                                [routerLink]="item.link"
+                                (click)="closeDrawer()"
+                                [class.active]="isActive(item.link)"
+                            >
+                                <i-lucide [name]="item.icon" class="h-5 w-5"></i-lucide>
+                                <span>{{ item.label }}</span>
+                                @if (item.badge) {
+                                    <span class="badge badge-sm">{{ item.badge }}</span>
+                                }
+                            </a>
+                        </li>
+                    }
+                }
+
+                <!-- Footer -->
+                <li class="mt-auto menu-title">
+                    <span class="text-xs">© {{ currentYear }} RWR Toolbox</span>
                 </li>
             </ul>
         </div>

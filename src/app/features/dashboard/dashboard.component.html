@@ -1,0 +1,74 @@
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="hero bg-base-200 rounded-box">
+        <div class="hero-content text-center">
+            <div class="max-w-md">
+                <h1 class="text-5xl font-bold">Welcome to RWR Toolbox</h1>
+                <p class="py-6">
+                    Your comprehensive toolkit for managing Running With Rifles game data, servers, and mods.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-primary">
+                    <i-lucide name="server" class="h-8 w-8"></i-lucide>
+                </div>
+                <div class="stat-title">Active Servers</div>
+                <div class="stat-value text-primary">--</div>
+                <div class="stat-desc">Loading...</div>
+            </div>
+        </div>
+
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-secondary">
+                    <i-lucide name="users" class="h-8 w-8"></i-lucide>
+                </div>
+                <div class="stat-title">Players Online</div>
+                <div class="stat-value text-secondary">--</div>
+                <div class="stat-desc">Loading...</div>
+            </div>
+        </div>
+
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure">
+                    <i-lucide name="package" class="h-8 w-8"></i-lucide>
+                </div>
+                <div class="stat-title">Local Mods</div>
+                <div class="stat-value">--</div>
+                <div class="stat-desc">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Quick Actions</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <button class="btn btn-primary gap-2" routerLink="/servers">
+                    <i-lucide name="server" class="h-4 w-4"></i-lucide>
+                    Browse Servers
+                </button>
+                <button class="btn btn-secondary gap-2" routerLink="/players">
+                    <i-lucide name="search" class="h-4 w-4"></i-lucide>
+                    Find Players
+                </button>
+                <button class="btn btn-accent gap-2" routerLink="/data/extract">
+                    <i-lucide name="download" class="h-4 w-4"></i-lucide>
+                    Extract Data
+                </button>
+                <button class="btn btn-neutral gap-2" routerLink="/settings">
+                    <i-lucide name="settings" class="h-4 w-4"></i-lucide>
+                    Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
