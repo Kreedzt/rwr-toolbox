@@ -1,37 +1,37 @@
-<div class="container mx-auto p-4">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Players</h1>
+<div class="container mx-auto p-2 sm:p-4" *transloco="let t">
+    <!-- Header (Compact) -->
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-xl sm:text-2xl font-bold">{{ t('players.title') }}</h1>
         <div class="join">
             <button
-                class="btn join-item"
+                class="btn btn-sm sm:btn-md join-item"
                 (click)="onRefresh()"
                 [disabled]="loading()">
-                <i-lucide name="refresh-cw" [class.animate-spin]="loading()"></i-lucide>
-                Refresh
+                <i-lucide name="refresh-cw" [class.animate-spin]="loading()" class="h-4 w-4"></i-lucide>
+                <span class="hidden xs:inline">{{ t('players.refresh') }}</span>
             </button>
         </div>
     </div>
 
     <!-- Error Alert -->
     @if (error()) {
-        <div class="alert alert-warning mb-4">
-            <i-lucide name="alert-triangle"></i-lucide>
+        <div class="alert alert-warning mb-4 py-2 text-sm">
+            <i-lucide name="alert-triangle" class="h-4 w-4"></i-lucide>
             <span>{{ error() }}</span>
         </div>
     }
 
-    <!-- Database Selection and Search -->
-    <div class="card bg-base-200 mb-6">
-        <div class="card-body">
-            <div class="flex flex-col md:flex-row gap-4">
+    <!-- Selection and Search (Compact) -->
+    <div class="card bg-base-200 mb-4 shadow-sm">
+        <div class="card-body p-3 sm:p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <!-- Database Selector -->
                 <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Database</span>
+                    <label class="label py-1">
+                        <span class="label-text text-xs">{{ t('players.database') }}</span>
                     </label>
                     <select
-                        class="select select-bordered"
+                        class="select select-bordered select-sm"
                         [value]="selectedDatabase()"
                         (change)="onDatabaseChange($event)">
                         @for (db of databases; track db) {
@@ -41,27 +41,26 @@
                 </div>
 
                 <!-- Search -->
-                <div class="form-control flex-1">
-                    <label class="label">
-                        <span class="label-text">Search</span>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs">{{ t('players.search') }}</span>
                     </label>
                     <input
                         type="text"
-                        placeholder="Search by username..."
-                        class="input input-bordered"
+                        [placeholder]="t('players.search_placeholder')"
+                        class="input input-bordered input-sm"
                         (input)="onSearchChange($event)">
                 </div>
 
                 <!-- Favorites Toggle -->
-                <div class="form-control">
-                    <label class="label"></label>
-                    <label class="label cursor-pointer justify-start gap-4">
+                <div class="form-control flex justify-end">
+                    <label class="label cursor-pointer justify-start gap-3 py-1 mt-auto">
                         <input
                             type="checkbox"
-                            class="checkbox checkbox-primary"
+                            class="checkbox checkbox-primary checkbox-sm"
                             [checked]="filter().isFavorite"
                             (change)="onFavoritesToggleChange($event)">
-                        <span class="label-text">Show Favorites Only</span>
+                        <span class="label-text text-xs">{{ t('players.show_favorites') }}</span>
                     </label>
                 </div>
             </div>
@@ -70,49 +69,54 @@
 
     <!-- Loading State -->
     @if (loading()) {
-        <div class="flex justify-center items-center h-64">
-            <span class="loading loading-spinner loading-lg"></span>
+        <div class="flex justify-center items-center h-32">
+            <span class="loading loading-spinner loading-md"></span>
         </div>
     }
 
-    <!-- Players Table -->
+    <!-- Players Table (Optimized for 800px) -->
     @if (!loading() && filteredPlayers().length > 0) {
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
+        <div class="overflow-x-auto border border-base-300 rounded-lg">
+            <table class="table table-zebra table-xs sm:table-sm">
                 <thead>
                     <tr>
-                        <th>Favorite</th>
-                        <th (click)="onSortChange('username')" class="cursor-pointer">
-                            Username
+                        <th class="w-10"></th>
+                        <th (click)="onSortChange('username')" class="cursor-pointer hover:bg-base-300">
+                            {{ t('players.username') }}
                             @if (sort().field === 'username') {
-                                <span>{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
                             }
                         </th>
-                        <th (click)="onSortChange('kills')" class="cursor-pointer">
-                            Kills
+                        <th (click)="onSortChange('kills')" class="cursor-pointer hover:bg-base-300">
+                            {{ t('players.kills') }}
                             @if (sort().field === 'kills') {
-                                <span>{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
                             }
                         </th>
-                        <th (click)="onSortChange('deaths')" class="cursor-pointer">
-                            Deaths
+                        <th (click)="onSortChange('deaths')" class="cursor-pointer hover:bg-base-300 hidden xs:table-cell">
+                            {{ t('players.deaths') }}
                             @if (sort().field === 'deaths') {
-                                <span>{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
                             }
                         </th>
-                        <th (click)="onSortChange('kd')" class="cursor-pointer">
-                            K/D
+                        <th (click)="onSortChange('kd')" class="cursor-pointer hover:bg-base-300">
+                            {{ t('players.kd') }}
                             @if (sort().field === 'kd') {
-                                <span>{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
                             }
                         </th>
-                        <th (click)="onSortChange('timePlayed')" class="cursor-pointer">
-                            Time Played
+                        <th (click)="onSortChange('timePlayed')" class="cursor-pointer hover:bg-base-300 hidden sm:table-cell">
+                            {{ t('players.time_played') }}
                             @if (sort().field === 'timePlayed') {
-                                <span>{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
                             }
                         </th>
-                        <th>Score</th>
+                        <th (click)="onSortChange('score')" class="cursor-pointer hover:bg-base-300 hidden md:table-cell">
+                            {{ t('players.score') }}
+                            @if (sort().field === 'score') {
+                                <span class="ml-1 opacity-50">{{ sort().direction === 'asc' ? '↑' : '↓' }}</span>
+                            }
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,56 +124,71 @@
                         <tr>
                             <td>
                                 <button
-                                    class="btn btn-ghost btn-sm"
-                                    (click)="onToggleFavorite(player)">
+                                    class="btn btn-ghost btn-xs btn-square"
+                                    (click)="onToggleFavorite(player)"
+                                    [title]="t('players.favorite')">
                                     <i-lucide
                                         name="star"
+                                        class="h-3.5 w-3.5"
                                         [class.fill-warning]="isFavorite(player.id)"
                                         [class.text-warning]="isFavorite(player.id)">
                                     </i-lucide>
                                 </button>
                             </td>
-                            <td class="font-medium">{{ player.username }}</td>
-                            <td>{{ player.kills.toLocaleString() }}</td>
-                            <td>{{ player.deaths.toLocaleString() }}</td>
-                            <td>{{ player.kd.toFixed(2) }}</td>
-                            <td>{{ player.timePlayedFormatted }}</td>
-                            <td>{{ player.score.toLocaleString() }}</td>
+                            <td class="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                                {{ player.username }}
+                            </td>
+                            <td class="font-mono text-[10px]">{{ player.kills.toLocaleString() }}</td>
+                            <td class="font-mono text-[10px] hidden xs:table-cell opacity-60">{{ player.deaths.toLocaleString() }}</td>
+                            <td class="font-mono text-[10px]">
+                                <span [class.text-success]="player.kd >= 1.5"
+                                      [class.text-warning]="player.kd >= 1.0 && player.kd < 1.5"
+                                      [class.text-error]="player.kd < 1.0">
+                                    {{ player.kd.toFixed(2) }}
+                                </span>
+                            </td>
+                            <td class="text-[10px] hidden sm:table-cell opacity-70">{{ player.timePlayedFormatted }}</td>
+                            <td class="font-mono text-[10px] hidden md:table-cell opacity-60">{{ player.score.toLocaleString() }}</td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-center items-center mt-6 gap-4">
-            <button
-                class="btn btn-sm"
-                (click)="onPreviousPage()"
-                [disabled]="!hasPreviousPage()">
-                Previous
-            </button>
-            <span class="text-sm">Page {{ currentPage() }}</span>
-            <button
-                class="btn btn-sm"
-                (click)="onNextPage()"
-                [disabled]="!hasNextPage()">
-                Next
-            </button>
-        </div>
+        <!-- Pagination (Compact) -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3 px-1">
+            <div class="text-[10px] text-base-content/50 order-2 sm:order-1">
+                {{ t('players.showing_count', { count: filteredPlayers().length }) }}
+            </div>
 
-        <!-- Stats -->
-        <div class="mt-4 text-center text-gray-500">
-            Showing {{ filteredPlayers().length }} players
+            <div class="flex items-center gap-2 order-1 sm:order-2">
+                <button
+                    class="btn btn-xs"
+                    (click)="onPreviousPage()"
+                    [disabled]="!hasPreviousPage()">
+                    <i-lucide name="chevron-left" class="h-3 w-3"></i-lucide>
+                    <span class="hidden xs:inline">{{ t('players.previous') }}</span>
+                </button>
+                <span class="text-[10px] font-medium min-w-[60px] text-center">
+                    {{ t('players.page', { current: currentPage() }) }}
+                </span>
+                <button
+                    class="btn btn-xs"
+                    (click)="onNextPage()"
+                    [disabled]="!hasNextPage()">
+                    <span class="hidden xs:inline">{{ t('players.next') }}</span>
+                    <i-lucide name="chevron-right" class="h-3 w-3"></i-lucide>
+                </button>
+            </div>
         </div>
     }
 
     <!-- Empty State -->
     @if (!loading() && filteredPlayers().length === 0) {
-        <div class="text-center py-12">
-            <i-lucide name="users" class="mx-auto h-16 w-16 text-gray-400"></i-lucide>
-            <h3 class="mt-4 text-lg font-semibold">No players found</h3>
-            <p class="text-gray-500">Try adjusting your search or refresh the list</p>
+        <div class="text-center py-10 opacity-40">
+            <i-lucide name="users" class="mx-auto h-12 w-12 mb-2"></i-lucide>
+            <h3 class="text-base font-semibold">{{ t('players.no_players') }}</h3>
+            <p class="text-xs">{{ t('players.no_players_desc') }}</p>
         </div>
     }
 </div>

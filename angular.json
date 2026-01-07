@@ -18,12 +18,11 @@
             "outputPath": "dist/rwr-toolbox",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
-            "tsConfig": "tsconfig.app.json",
-            "assets": [
-              { "glob": "**/*", "input": "src/assets" },
-              { "glob": "**/*.json", "input": "src/i18n", "output": "/i18n" }
+            "polyfills": [
+              "zone.js"
             ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": ["src/assets"],
             "styles": ["src/styles.css"]
           },
           "configurations": {

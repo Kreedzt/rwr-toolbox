@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import {
     Player,
     PlayerFilter,
@@ -18,13 +19,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
     selector: 'app-players',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule],
+    imports: [CommonModule, LucideAngularModule, TranslocoDirective],
     templateUrl: './players.component.html',
     styleUrl: './players.component.css'
 })
 export class PlayersComponent implements OnInit {
     private playerService = inject(PlayerService);
     private settingsService = inject(SettingsService);
+    private translocoService = inject(TranslocoService);
 
     // Convert observables to signals
     private players$ = this.playerService.players$;
@@ -163,11 +165,12 @@ export class PlayersComponent implements OnInit {
      * Get database display label
      */
     getDatabaseLabel(db: PlayerDatabase): string {
-        const labels: Record<PlayerDatabase, string> = {
-            invasion: 'Invasion',
-            pacific: 'Pacific',
-            prereset_invasion: 'Pre-reset Invasion'
+        const keyMap: Record<PlayerDatabase, string> = {
+            invasion: 'players.db_invasion',
+            pacific: 'players.db_pacific',
+            prereset_invasion: 'players.db_prereset'
         };
-        return labels[db] || db;
+        const key = keyMap[db] || db;
+        return this.translocoService.translate(key);
     }
 }

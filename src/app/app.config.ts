@@ -1,10 +1,12 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 
 import { routes } from './app.routes';
 import { APP_ICONS } from './shared/icons';
+import { TranslocoHttpLoader } from './transloco-loader';
+import { provideTransloco } from '@jsverse/transloco';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -14,6 +16,15 @@ export const appConfig: ApplicationConfig = {
             provide: LUCIDE_ICONS,
             multi: true,
             useValue: new LucideIconProvider(APP_ICONS)
-        }
+        },
+        provideTransloco({
+            config: {
+                availableLangs: ['en', 'zh'],
+                defaultLang: localStorage.getItem('locale') || 'en',
+                reRenderOnLangChange: true,
+                prodMode: !isDevMode(),
+            },
+            loader: TranslocoHttpLoader
+        })
     ],
 };

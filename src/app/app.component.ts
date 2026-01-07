@@ -1,20 +1,18 @@
-import { Component, HostListener, signal, inject, OnInit } from '@angular/core';
+import { Component, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { MAIN_MENU_ITEMS } from './shared/constants/menu-items';
-import { I18nService } from './core/services/i18n.service';
-import { I18nPipe } from './shared/pipes/i18n.pipe';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterOutlet, RouterLink, LucideAngularModule, I18nPipe],
+    imports: [CommonModule, RouterOutlet, RouterLink, LucideAngularModule, TranslocoDirective],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     private router = inject(Router);
-    private i18n = inject(I18nService);
 
     menuItems = MAIN_MENU_ITEMS;
     currentYear = new Date().getFullYear();
@@ -22,11 +20,6 @@ export class AppComponent implements OnInit {
     // UI state
     showStatusPanel = signal(false);
     showShortcutsModal = signal(false);
-
-    async ngOnInit(): Promise<void> {
-        // Initialize i18n on app startup
-        await this.i18n.initialize();
-    }
 
     isActive(link: string | any[]): boolean {
         return this.router.isActive(typeof link === 'string' ? link : link.join('/'), true);

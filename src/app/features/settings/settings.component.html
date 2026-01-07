@@ -1,14 +1,14 @@
-<div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">{{ 'settings.title' | i18n }}</h1>
+<div class="p-6 max-w-4xl mx-auto" *transloco="let t">
+    <h1 class="text-2xl font-bold mb-6">{{ t('menu.settings') }}</h1>
 
     <div class="space-y-6">
         <!-- Language Settings -->
         <div class="card bg-base-100 shadow-lg">
             <div class="card-body">
-                <h2 class="card-title mb-4">{{ 'settings.language' | i18n }}</h2>
+                <h2 class="card-title mb-4">{{ t('settings.language') }}</h2>
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text">{{ 'settings.language' | i18n }}</span>
+                        <span class="label-text">{{ t('settings.language') }}</span>
                     </label>
                     <select
                         class="select select-bordered"
@@ -22,7 +22,7 @@
                         }
                     </select>
                     <label class="label">
-                        <span class="label-text-alt">{{ 'onboarding.step1Description' | i18n }}</span>
+                        <span class="label-text-alt">{{ t('settings.reload_hint') }}</span>
                     </label>
                 </div>
             </div>
@@ -31,18 +31,17 @@
         <!-- Theme Settings (placeholder) -->
         <div class="card bg-base-100 shadow-lg">
             <div class="card-body">
-                <h2 class="card-title mb-4">{{ 'settings.theme' | i18n }}</h2>
-                <p class="text-sm opacity-70">Theme settings coming soon...</p>
+                <h2 class="card-title mb-4">{{ t('settings.theme') }}</h2>
+                <p class="text-sm opacity-70">{{ t('settings.coming_soon') }}</p>
             </div>
         </div>
 
         <!-- Path Settings (placeholder) -->
         <div class="card bg-base-100 shadow-lg">
             <div class="card-body">
-                <h2 class="card-title mb-4">{{ 'settings.paths' | i18n }}</h2>
-                <p class="text-sm opacity-70">Path settings coming soon...</p>
+                <h2 class="card-title mb-4">{{ t('settings.paths') }}</h2>
+                <p class="text-sm opacity-70">{{ t('settings.coming_soon') }}</p>
             </div>
         </div>
     </div>
 </div>
-

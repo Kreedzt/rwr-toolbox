@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { DashboardService, DashboardStats, Activity } from './services/dashboard.service';
 
 @Component({
     selector: 'app-dashboard',
-    imports: [CommonModule, LucideAngularModule, RouterLink],
+    imports: [CommonModule, LucideAngularModule, RouterLink, TranslocoDirective],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.css'
 })

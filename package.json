@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^20.3.15",
     "@angular/platform-browser-dynamic": "^20.3.15",
     "@angular/router": "^20.3.15",
+    "@jsverse/transloco": "8.2.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-http": "^2",

@@ -1,142 +1,153 @@
-<div class="space-y-4">
+<div class="space-y-4" *transloco="let t">
     <!-- Stats Grid -->
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Active Servers -->
-        <div class="stats stats-vertical shadow-sm bg-base-100">
-            <div class="stat">
-                <div class="stat-figure text-primary">
+        <div class="stats shadow-sm bg-base-100 border border-base-200">
+            <div class="stat p-4">
+                <div class="stat-figure text-primary opacity-50">
                     <i-lucide name="server" class="h-6 w-6"></i-lucide>
                 </div>
-                <div class="stat-title">Active Servers</div>
-                <div class="stat-value text-primary" title="Active Servers">{{ stats().serverCount }}</div>
-                <div class="stat-desc text-xs">
+                <div class="stat-title text-xs uppercase tracking-wider font-semibold">{{ t('common.active_servers') }}</div>
+                <div class="stat-value text-2xl text-primary">{{ stats().serverCount }}</div>
+                <div class="stat-desc text-xs mt-1">
                     @if (stats().apiStatus === 'loading') {
                         <span class="loading loading-spinner loading-xs"></span>
-                        Loading...
                     } @else if (stats().apiStatus === 'online') {
-                        <span class="text-success">● Online</span>
+                        <span class="text-success flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                            Online
+                        </span>
                     } @else {
-                        <span class="text-error">● Offline</span>
+                        <span class="text-error flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                            Offline
+                        </span>
                     }
                 </div>
             </div>
         </div>
 
         <!-- Players Online -->
-        <div class="stats stats-vertical shadow-sm bg-base-100">
-            <div class="stat">
-                <div class="stat-figure text-secondary">
+        <div class="stats shadow-sm bg-base-100 border border-base-200">
+            <div class="stat p-4">
+                <div class="stat-figure text-secondary opacity-50">
                     <i-lucide name="users" class="h-6 w-6"></i-lucide>
                 </div>
-                <div class="stat-title">Players Online</div>
-                <div class="stat-value text-secondary" title="Players Online">{{ stats().playerCount }}</div>
-                <div class="stat-desc text-xs">Across all servers</div>
+                <div class="stat-title text-xs uppercase tracking-wider font-semibold">{{ t('common.players_online') }}</div>
+                <div class="stat-value text-2xl text-secondary">{{ stats().playerCount }}</div>
+                <div class="stat-desc text-xs mt-1 truncate">Total global</div>
             </div>
         </div>
 
         <!-- Local Mods -->
-        <div class="stats stats-vertical shadow-sm bg-base-100">
-            <div class="stat">
-                <div class="stat-figure text-accent">
+        <div class="stats shadow-sm bg-base-100 border border-base-200">
+            <div class="stat p-4">
+                <div class="stat-figure text-accent opacity-50">
                     <i-lucide name="package" class="h-6 w-6"></i-lucide>
                 </div>
-                <div class="stat-title">Local Mods</div>
-                <div class="stat-value text-accent" title="Local Mods">{{ stats().modCount }}</div>
-                <div class="stat-desc text-xs">Installed mods</div>
+                <div class="stat-title text-xs uppercase tracking-wider font-semibold">Local Mods</div>
+                <div class="stat-value text-2xl text-accent">{{ stats().modCount }}</div>
+                <div class="stat-desc text-xs mt-1 truncate">Installed</div>
             </div>
         </div>
 
         <!-- API Status -->
-        <div class="stats stats-vertical shadow-sm bg-base-100">
-            <div class="stat">
-                <div class="stat-figure">
+        <div class="stats shadow-sm bg-base-100 border border-base-200">
+            <div class="stat p-4">
+                <div class="stat-figure opacity-50">
                     @if (stats().apiStatus === 'loading') {
-                        <span class="loading loading-spinner loading-lg"></span>
+                        <span class="loading loading-spinner loading-md"></span>
                     } @else if (stats().apiStatus === 'online') {
                         <i-lucide name="check-circle" class="h-6 w-6 text-success"></i-lucide>
                     } @else {
                         <i-lucide name="x-circle" class="h-6 w-6 text-error"></i-lucide>
                     }
                 </div>
-                <div class="stat-title">API Status</div>
-                <div class="stat-value text-sm">
-                    @if (stats().apiStatus === 'loading') {
-                        Loading...
-                    } @else if (stats().apiStatus === 'online') {
+                <div class="stat-title text-xs uppercase tracking-wider font-semibold">{{ t('common.api_connection') }}</div>
+                <div class="stat-value text-lg">
+                    @if (stats().apiStatus === 'online') {
                         <span class="text-success">Online</span>
                     } @else {
                         <span class="text-error">Offline</span>
                     }
                 </div>
-                <div class="stat-desc text-xs">Last update: {{ stats().lastUpdate | date:'short' }}</div>
+                <div class="stat-desc text-xs mt-1 truncate">
+                    {{ stats().lastUpdate | date:'HH:mm:ss' }}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Quick Actions -->
-        <div class="card card-compact bg-base-100 shadow-sm col-span-2">
-            <div class="card-body">
-                <h2 class="card-title text-sm">Quick Actions</h2>
-                <div class="grid grid-cols-4 gap-3 mt-2">
-                    <button class="btn btn-primary btn-sm gap-2" routerLink="/servers">
+        <div class="card card-compact bg-base-100 shadow-sm border border-base-200 lg:col-span-2">
+            <div class="card-body p-4">
+                <h2 class="card-title text-xs uppercase opacity-50 font-bold mb-2">Quick Actions</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-1">
+                    <button class="btn btn-primary btn-sm gap-2 h-10" routerLink="/servers">
                         <i-lucide name="server" class="h-4 w-4"></i-lucide>
-                        Browse Servers
+                        <span class="truncate">{{ t('menu.servers') }}</span>
                     </button>
-                    <button class="btn btn-secondary btn-sm gap-2" routerLink="/players">
+                    <button class="btn btn-secondary btn-sm gap-2 h-10" routerLink="/players">
                         <i-lucide name="search" class="h-4 w-4"></i-lucide>
-                        Find Players
+                        <span class="truncate">{{ t('menu.players') }}</span>
                     </button>
-                    <button class="btn btn-accent btn-sm gap-2" routerLink="/data/extract">
+                    <button class="btn btn-accent btn-sm gap-2 h-10" routerLink="/data/extract">
                         <i-lucide name="download" class="h-4 w-4"></i-lucide>
-                        Extract Data
+                        <span class="truncate">{{ t('menu.extract') }}</span>
                     </button>
-                    <button class="btn btn-neutral btn-sm gap-2" routerLink="/settings">
+                    <button class="btn btn-neutral btn-sm gap-2 h-10" routerLink="/settings">
                         <i-lucide name="settings" class="h-4 w-4"></i-lucide>
-                        Settings
+                        <span class="truncate">{{ t('menu.settings') }}</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Refresh Button -->
-        <div class="card card-compact bg-base-100 shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-sm">Actions</h2>
-                <button class="btn btn-outline btn-sm w-full" (click)="refresh()">
+        <!-- Refresh Button Card -->
+        <div class="card card-compact bg-base-100 shadow-sm border border-base-200">
+            <div class="card-body p-4 flex flex-row lg:flex-col items-center justify-between lg:justify-center gap-4">
+                <div class="lg:text-center">
+                    <h2 class="card-title text-xs uppercase opacity-50 font-bold">Data Sync</h2>
+                    <p class="text-xs opacity-60 hidden lg:block">Force manual refresh</p>
+                </div>
+                <button class="btn btn-outline btn-sm w-36 lg:w-full gap-2 h-10" (click)="refresh()">
                     <i-lucide name="refresh-cw" class="h-4 w-4"></i-lucide>
-                    Refresh Data
+                    Refresh
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Recent Activity -->
-    <div class="card card-compact bg-base-100 shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title text-sm">Recent Activity</h2>
+    <div class="card card-compact bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+        <div class="card-body p-4">
+            <h2 class="card-title text-xs uppercase opacity-50 font-bold mb-2">{{ t('common.recent_activity') }}</h2>
             @if (activities().length === 0) {
-                <div class="text-center py-8 text-base-content/60 text-sm">
-                    <i-lucide name="inbox" class="h-12 w-12 mx-auto mb-2 opacity-50"></i-lucide>
-                    No recent activity
+                <div class="text-center py-8 text-base-content/40 text-xs">
+                    <i-lucide name="inbox" class="h-10 w-10 mx-auto mb-2 opacity-20"></i-lucide>
+                    No activity recorded
                 </div>
             } @else {
-                <ul class="timeline timeline-sm timeline-compact mt-4">
-                    @for (activity of activities(); track trackActivity($index, activity)) {
-                        <li>
-                            <div class="timeline-middle">
-                                <i-lucide [name]="activity.icon" class="h-3 w-3 text-primary"></i-lucide>
-                            </div>
-                            <div class="timeline-end timeline-box bg-base-200 text-sm p-3">
-                                <div class="font-medium">{{ activity.title }}</div>
-                                <div class="text-xs text-base-content/60 mt-1">{{ activity.description }}</div>
-                            </div>
-                            <hr class="bg-base-300"/>
-                        </li>
-                    }
-                </ul>
+                <div class="max-h-56 overflow-y-auto mt-2 pr-2">
+                    <ul class="timeline timeline-sm timeline-compact timeline-vertical">
+                        @for (activity of activities(); track trackActivity($index, activity)) {
+                            <li class="min-h-14">
+                                <div class="timeline-middle">
+                                    <i-lucide [name]="activity.icon" class="h-4 w-4 text-primary opacity-70"></i-lucide>
+                                </div>
+                                <div class="timeline-end timeline-box bg-base-200 text-sm p-3 border-none shadow-none w-full">
+                                    <div class="font-bold truncate text-sm">{{ activity.title }}</div>
+                                    <div class="text-xs opacity-60 truncate mt-0.5">{{ activity.description }}</div>
+                                </div>
+                                @if (!$last) { <hr class="bg-base-300"/> }
+                            </li>
+                        }
+                    </ul>
+                </div>
             }
         </div>
     </div>
 </div>
+

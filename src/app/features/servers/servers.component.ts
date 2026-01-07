@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { TranslocoDirective } from '@jsverse/transloco';
 import {
     Server,
     ServerFilter,
@@ -19,7 +20,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
     selector: 'app-servers',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule],
+    imports: [CommonModule, LucideAngularModule, TranslocoDirective],
     templateUrl: './servers.component.html',
     styleUrl: './servers.component.css'
 })

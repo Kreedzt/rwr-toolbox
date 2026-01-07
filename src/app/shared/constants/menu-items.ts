@@ -2,7 +2,7 @@ import { MenuItem } from '../interfaces/menu-item.interface';
 
 /**
  * Main navigation menu structure for RWR Toolbox
- * Labels and descriptions use i18n keys that will be translated by the i18n pipe
+ * Labels and descriptions are keys for Transloco translation
  */
 export const MAIN_MENU_ITEMS: MenuItem[] = [
     {
@@ -10,45 +10,45 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         icon: 'layout-dashboard',
         link: '/dashboard',
         shortcut: 'Ctrl+1',
-        description: 'menu.dashboardDescription'
+        description: 'menu.dashboard_desc'
     },
     {
         label: 'menu.servers',
         icon: 'server',
         link: '/servers',
         shortcut: 'Ctrl+2',
-        description: 'menu.serversDescription'
+        description: 'menu.servers_desc'
     },
     {
         label: 'menu.players',
         icon: 'users',
         link: '/players',
         shortcut: 'Ctrl+3',
-        description: 'menu.playersDescription'
+        description: 'menu.players_desc'
     },
     {
         label: 'menu.data',
         icon: 'database',
         link: '/data',
-        description: 'menu.dataDescription',
+        description: 'menu.data_desc',
         children: [
             {
-                label: 'data.localData',
+                label: 'menu.local_data',
                 icon: 'hard-drive',
                 link: '/data/local',
-                description: 'data.browseLocalData'
+                description: 'menu.local_data_desc'
             },
             {
-                label: 'data.extract',
+                label: 'menu.extract',
                 icon: 'download',
                 link: '/data/extract',
-                description: 'data.extractResources'
+                description: 'menu.extract_desc'
             },
             {
-                label: 'data.workshop',
+                label: 'menu.workshop',
                 icon: 'folder-open',
                 link: '/data/workshop',
-                description: 'data.viewWorkshopContent'
+                description: 'menu.workshop_desc'
             }
         ]
     },
@@ -56,19 +56,19 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         label: 'menu.mods',
         icon: 'package',
         link: '/mods',
-        description: 'menu.modsDescription',
+        description: 'menu.mods_desc',
         children: [
             {
-                label: 'mods.install',
+                label: 'menu.install',
                 icon: 'cloud-download',
                 link: '/mods/install',
-                description: 'mods.installToGame'
+                description: 'menu.install_desc'
             },
             {
-                label: 'mods.bundle',
+                label: 'menu.bundle',
                 icon: 'box',
                 link: '/mods/bundle',
-                description: 'mods.packageForDistribution'
+                description: 'menu.bundle_desc'
             }
         ]
     },
@@ -77,7 +77,7 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         icon: 'keyboard',
         link: '/hotkeys',
         shortcut: 'Ctrl+4',
-        description: 'menu.configureHotkeys'
+        description: 'menu.hotkeys_desc'
     },
     {
         divider: true
@@ -87,7 +87,7 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         icon: 'settings',
         link: '/settings',
         shortcut: 'Ctrl+5',
-        description: 'menu.settingsDescription'
+        description: 'menu.settings_desc'
     },
     {
         divider: true
@@ -97,6 +97,6 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         icon: 'info',
         link: '/about',
         shortcut: 'Ctrl+6',
-        description: 'menu.aboutDescription'
+        description: 'menu.about_desc'
     }
 ];
