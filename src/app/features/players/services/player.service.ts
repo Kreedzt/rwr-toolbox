@@ -190,22 +190,37 @@ export class PlayerService {
             const username = this.extractCellText(cellArray[1]);
             if (!username) continue;
 
+            const parseNumber = (text: string): number => {
+                const cleaned = (text || '').toString().replace(/,/g, '').trim();
+                const n = Number(cleaned);
+                return Number.isFinite(n) ? n : 0;
+            };
+
+            const rowNumber = parseInt(this.extractCellText(cellArray[0])) || (i + 1);
+            const timePlayedText = this.extractCellText(cellArray[6]) || '';
+            const distanceMovedText = this.extractCellText(cellArray[12]) || '';
+
             const player: Player = {
                 id: `${database}:${username}`,
-                rowNumber: i + 1,
+                rowNumber,
                 username,
                 kills: parseInt(this.extractCellText(cellArray[2])) || 0,
                 deaths: parseInt(this.extractCellText(cellArray[3])) || 0,
                 score: parseInt(this.extractCellText(cellArray[4])) || 0,
                 kd: parseFloat(this.extractCellText(cellArray[5])) || 0,
-                timePlayed: this.parseTimeToSeconds(this.extractCellText(cellArray[6])),
-                timePlayedFormatted: this.extractCellText(cellArray[6]),
+                timePlayed: this.parseTimeToSeconds(timePlayedText),
+                timePlayedFormatted: timePlayedText,
                 longestKillStreak: parseInt(this.extractCellText(cellArray[7])) || 0,
                 targetsDestroyed: parseInt(this.extractCellText(cellArray[8])) || 0,
                 vehiclesDestroyed: parseInt(this.extractCellText(cellArray[9])) || 0,
                 soldiersHealed: parseInt(this.extractCellText(cellArray[10])) || 0,
                 teamkills: parseInt(this.extractCellText(cellArray[11])) || 0,
-                distanceMoved: this.parseDistanceToMeters(this.extractCellText(cellArray[12]))
+                distanceMoved: this.parseDistanceToMeters(distanceMovedText),
+                shotsFired: cellArray.length > 13 ? parseNumber(this.extractCellText(cellArray[13])) : undefined,
+                throwablesThrown: cellArray.length > 14 ? parseNumber(this.extractCellText(cellArray[14])) : undefined,
+                rankProgression: cellArray.length > 15 ? parseNumber(this.extractCellText(cellArray[15])) : undefined,
+                rankName: cellArray.length > 16 ? (this.extractCellText(cellArray[16]) || undefined) : undefined,
+                rankIcon: cellArray.length > 17 ? (this.extractImgSrc(cellArray[17]) || undefined) : undefined
             };
 
             players.push(player);

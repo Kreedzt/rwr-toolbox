@@ -16,7 +16,9 @@ export const SERVER_COLUMNS: ServerColumn[] = [
     { key: 'botCount', label: 'Bots', i18nKey: 'servers.column.bots', alignment: 'center' },
     { key: 'country', label: 'Country', i18nKey: 'servers.column.country', alignment: 'left' },
     { key: 'mode', label: 'Mode', i18nKey: 'servers.column.mode', alignment: 'left' },
+    { key: 'realm', label: 'Realm', i18nKey: 'servers.column.realm', alignment: 'left' },
     { key: 'map', label: 'Map', i18nKey: 'servers.column.map', alignment: 'left' },
+    { key: 'mapId', label: 'Map ID', i18nKey: 'servers.column.mapId', alignment: 'left' },
     { key: 'playerCount', label: 'Players', i18nKey: 'servers.column.playerCount', alignment: 'center' },
     { key: 'playerNames', label: 'Player List', i18nKey: 'servers.column.playerList', alignment: 'left' },
     { key: 'comment', label: 'Comment', i18nKey: 'servers.column.comment', alignment: 'left' },
@@ -24,9 +26,7 @@ export const SERVER_COLUMNS: ServerColumn[] = [
     { key: 'mod', label: 'Mod', i18nKey: 'servers.column.mod', alignment: 'center' },
     { key: 'steamLink', label: 'URL', i18nKey: 'servers.column.url', alignment: 'left' },
     { key: 'version', label: 'Version', i18nKey: 'servers.column.version', alignment: 'left' },
-    { key: 'lastUpdate', label: 'Last Update', i18nKey: 'servers.column.lastUpdate', alignment: 'left' },
     { key: 'ping', label: 'Ping', i18nKey: 'servers.column.ping', alignment: 'center' },
-    { key: 'status', label: 'Status', i18nKey: 'servers.column.status', alignment: 'center' },
     {
         key: 'action',
         label: 'Action',
@@ -47,7 +47,9 @@ export const DEFAULT_SERVER_COLUMN_VISIBILITY: ServerColumnVisibility = {
     botCount: false,
     country: false,
     mode: false,
+    realm: false,
     map: true,
+    mapId: false,
     playerCount: true,
     playerNames: true,
     comment: false,
@@ -55,9 +57,7 @@ export const DEFAULT_SERVER_COLUMN_VISIBILITY: ServerColumnVisibility = {
     mod: false,
     steamLink: false,
     version: false,
-    lastUpdate: false,
     ping: false,
-    status: false,
     action: true
 };
 

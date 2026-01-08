@@ -32,12 +32,22 @@ export interface Server {
     port: number;
     /** Country code */
     country: string;
+    /** Map ID */
+    mapId: string;
     /** Map name */
     map: string;
     /** Current player count */
     currentPlayers: number;
     /** Maximum player capacity */
     maxPlayers: number;
+    /** Game mode */
+    mode: string;
+    /** Specific field for official servers */
+    realm: string;
+    /** Dedicated server flag */
+    dedicated: boolean;
+    /** Server has mod flag */
+    mod: boolean;
     /** Bot count */
     botCount: number;
     /** Game version */
@@ -117,7 +127,9 @@ export type ServerColumnKey =
     | 'botCount'
     | 'country'
     | 'mode'
+    | 'realm'
     | 'map'
+    | 'mapId'
     | 'playerCount'
     | 'playerNames'
     | 'comment'
@@ -125,9 +137,7 @@ export type ServerColumnKey =
     | 'mod'
     | 'steamLink'
     | 'version'
-    | 'lastUpdate'
     | 'ping'
-    | 'status'
     | 'action';
 
 /**

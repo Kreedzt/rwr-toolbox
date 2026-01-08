@@ -180,7 +180,7 @@
                             <td class="font-medium max-w-[120px] sm:max-w-[200px] truncate sticky left-10 z-20 border-r border-base-300"
                                 [class.bg-base-100]="i % 2 === 0"
                                 [class.bg-base-200]="i % 2 === 1">
-                                {{ server.name }}
+                                <span [innerHTML]="highlight(server.name)"></span>
                             </td>
                             <!-- Middle cells (scrollable) -->
                             @for (column of columns; track column.key) {
@@ -188,7 +188,7 @@
                                     <td class="{{ getColumnAlignment(column.alignment) }}">
                                         @switch (column.key) {
                                             @case ('address') {
-                                                <span class="font-mono text-[10px] opacity-60">{{ server.address }}</span>
+                                                <span class="font-mono text-[10px] opacity-60" [innerHTML]="highlight(server.address)"></span>
                                             }
                                             @case ('port') {
                                                 <span class="font-mono text-[10px] opacity-60">{{ server.port }}</span>
@@ -197,41 +197,63 @@
                                                 <span class="font-mono text-[10px] opacity-60">{{ server.botCount }}</span>
                                             }
                                             @case ('country') {
-                                                <span class="text-xs opacity-70">{{ server.country }}</span>
+                                                <span class="text-xs opacity-70" [innerHTML]="highlight(server.country)"></span>
                                             }
                                             @case ('mode') {
-                                                <span class="opacity-40">-</span>
+                                                @if (server.mode) {
+                                                    <span class="badge badge-outline bg-blue-50 text-blue-700 border-blue-200 font-medium text-[10px] px-2 py-0.5 rounded-md">
+                                                        <span [innerHTML]="highlight(server.mode)"></span>
+                                                    </span>
+                                                } @else {
+                                                    <span class="opacity-20">-</span>
+                                                }
+                                            }
+                                            @case ('realm') {
+                                                <span class="text-[10px] opacity-60" [innerHTML]="highlight(server.realm || '-')"></span>
                                             }
                                             @case ('map') {
-                                                <span class="text-xs opacity-70 truncate max-w-[160px] inline-block">{{ server.map }}</span>
+                                                <span class="text-xs opacity-70 truncate max-w-[160px] inline-block" [innerHTML]="highlight(server.map)"></span>
+                                            }
+                                            @case ('mapId') {
+                                                <span class="font-mono text-[10px] opacity-60 truncate max-w-[260px] inline-block" [title]="server.mapId">
+                                                    <span [innerHTML]="highlight(server.mapId || '-')"></span>
+                                                </span>
                                             }
                                             @case ('playerCount') {
-                                                <div class="flex flex-col items-center sm:flex-row sm:gap-1">
-                                                    <span class="badge badge-primary badge-xs sm:badge-sm font-mono">
-                                                        {{ server.currentPlayers }}/{{ server.maxPlayers }}
-                                                    </span>
-                                                    @if (server.botCount > 0) {
-                                                        <span class="text-[9px] opacity-40 whitespace-nowrap">
-                                                            {{ t('servers.bots', { count: server.botCount }) }}
-                                                        </span>
-                                                    }
-                                                </div>
+                                                <span class="{{ getCapacityBadgeClass(server) }} font-medium text-xs px-2 py-1 rounded-md shadow-sm"
+                                                    [title]="getCapacityTitle(server)">
+                                                    {{ server.currentPlayers }}/{{ server.maxPlayers }}
+                                                </span>
                                             }
                                             @case ('playerNames') {
-                                                <span class="text-[10px] opacity-60 whitespace-normal break-words">
-                                                    {{ server.playerNames?.length ? server.playerNames.join(', ') : '-' }}
-                                                </span>
+                                                @if (!server.playerNames?.length) {
+                                                    <span class="opacity-20">-</span>
+                                                } @else {
+                                                    <div class="flex flex-wrap gap-1 items-start w-full">
+                                                        @for (p of server.playerNames; track p) {
+                                                            <span class="badge gap-0 badge-neutral text-xs whitespace-nowrap flex-shrink-0">
+                                                                <span [innerHTML]="highlight(p)"></span>
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
                                             }
                                             @case ('comment') {
-                                                <span class="text-[10px] opacity-60 whitespace-normal break-words">
-                                                    {{ server.comment || '-' }}
-                                                </span>
+                                                <span class="text-[10px] opacity-60 whitespace-normal break-words" [innerHTML]="highlight(server.comment || '-')"></span>
                                             }
                                             @case ('dedicated') {
-                                                <span class="opacity-40">-</span>
+                                                <span class="badge badge-xs"
+                                                    [class.badge-success]="server.dedicated"
+                                                    [class.badge-ghost]="!server.dedicated">
+                                                    {{ server.dedicated ? 'Yes' : 'No' }}
+                                                </span>
                                             }
                                             @case ('mod') {
-                                                <span class="opacity-40">-</span>
+                                                <span class="badge badge-xs"
+                                                    [class.badge-warning]="server.mod"
+                                                    [class.badge-ghost]="!server.mod">
+                                                    {{ server.mod ? 'Yes' : 'No' }}
+                                                </span>
                                             }
                                             @case ('steamLink') {
                                                 <a
@@ -244,10 +266,7 @@
                                                 </a>
                                             }
                                             @case ('version') {
-                                                <span class="font-mono text-[10px] opacity-60">{{ server.version || '-' }}</span>
-                                            }
-                                            @case ('lastUpdate') {
-                                                <span class="text-[10px] opacity-60">{{ server.lastUpdate || '-' }}</span>
+                                                <span class="font-mono text-[10px] opacity-60" [innerHTML]="highlight(server.version || '-')"></span>
                                             }
                                             @case ('ping') {
                                                 @if (server.ping !== undefined) {
@@ -259,13 +278,6 @@
                                                     </span>
                                                 } @else {
                                                     <span class="opacity-20">-</span>
-                                                }
-                                            }
-                                            @case ('status') {
-                                                @if (server.isReachable) {
-                                                    <span class="badge badge-success badge-xs">{{ t('servers.online') }}</span>
-                                                } @else {
-                                                    <span class="badge badge-error badge-xs">{{ t('servers.offline') }}</span>
                                                 }
                                             }
                                         }

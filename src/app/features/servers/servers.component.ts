@@ -241,7 +241,7 @@ export class ServersComponent implements OnInit {
      * Check if a column is sortable
      */
     isColumnSortable(key: ServerColumnKey): boolean {
-        const sortable: ServerSortField[] = ['name', 'playerCount', 'ping', 'lastUpdate', 'country'];
+        const sortable: ServerSortField[] = ['name', 'playerCount', 'ping', 'country'];
         return sortable.includes(key as ServerSortField);
     }
 
@@ -252,6 +252,68 @@ export class ServersComponent implements OnInit {
         if (this.isColumnSortable(key)) {
             this.onSortChange(key as ServerSortField);
         }
+    }
+
+    private escapeRegExp(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    private escapeHtml(text: string): string {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Highlight current search query inside text (case-insensitive).
+     * Returns HTML string; all non-markup content is escaped.
+     */
+    highlight(text: string | null | undefined): string {
+        const raw = (text ?? '').toString();
+        if (!raw) return '-';
+
+        const query = (this.filter().search ?? '').trim();
+        if (!query) return this.escapeHtml(raw);
+
+        const re = new RegExp(this.escapeRegExp(query), 'gi');
+        let result = '';
+        let lastIndex = 0;
+
+        for (const match of raw.matchAll(re)) {
+            const index = match.index ?? 0;
+            const matched = match[0] ?? '';
+            result += this.escapeHtml(raw.slice(lastIndex, index));
+            result += `<span class="bg-yellow-200/70 text-base-content px-0.5 rounded-sm">${this.escapeHtml(matched)}</span>`;
+            lastIndex = index + matched.length;
+        }
+
+        result += this.escapeHtml(raw.slice(lastIndex));
+        return result || this.escapeHtml(raw);
+    }
+
+    /**
+     * Capacity badge classes (colored by occupancy).
+     */
+    getCapacityBadgeClass(server: Server): string {
+        const { currentPlayers, maxPlayers } = server;
+        const occupancy = maxPlayers > 0 ? currentPlayers / maxPlayers : 0;
+
+        if (currentPlayers === 0) return 'badge bg-gray-100 text-gray-500 border-gray-200 opacity-60';
+        if (occupancy >= 1.0 || currentPlayers >= maxPlayers) return 'badge bg-red-100 text-red-700 border-red-200';
+        if (occupancy >= 0.8) return 'badge bg-orange-100 text-orange-700 border-orange-200';
+        if (occupancy >= 0.6) return 'badge bg-amber-100 text-amber-700 border-amber-200';
+        return 'badge bg-green-100 text-green-700 border-green-200';
+    }
+
+    getCapacityTitle(server: Server): string {
+        const { currentPlayers, maxPlayers } = server;
+        const occupancy = maxPlayers > 0 ? currentPlayers / maxPlayers : 0;
+        if (currentPlayers === 0) return 'Empty server';
+        if (occupancy >= 1.0 || currentPlayers >= maxPlayers) return 'Full server';
+        return `${Math.round(occupancy * 100)}% full`;
     }
 
     /**

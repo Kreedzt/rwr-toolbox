@@ -150,15 +150,24 @@ export class ServerService {
         }
 
         for (const server of serverArray) {
+            const mapId = server.map_id?.toString() || '';
+            const mapNameFromId = mapId.split('/').pop() || '';
+            const mapName = (server.map_name?.toString() || '').trim() || mapNameFromId;
+
             const parsedServer: Server = {
                 id: `${server.address || ''}:${server.port || 0}`,
                 name: server.name?.toString() || '',
                 address: server.address?.toString() || '',
                 port: Number(server.port) || 0,
                 country: server.country?.toString() || '',
-                map: server.map_name?.toString() || '',
+                mapId,
+                map: mapName,
                 currentPlayers: Number(server.current_players) || 0,
                 maxPlayers: Number(server.max_players) || 0,
+                mode: server.mode?.toString() || '',
+                realm: server.realm?.toString() || '',
+                dedicated: Number(server.dedicated) === 1,
+                mod: Number(server.mod) === 1,
                 botCount: Number(server.bots) || 0,
                 version: server.version?.toString() || '',
                 lastUpdate: this.formatTimestamp(Number(server.timestamp) || 0),
@@ -190,11 +199,30 @@ export class ServerService {
         return servers.filter(server => {
             // Search filter
             if (filter.search) {
-                const search = filter.search.toLowerCase();
-                const matchesName = server.name.toLowerCase().includes(search);
-                const matchesMap = server.map.toLowerCase().includes(search);
-                const matchesCountry = server.country.toLowerCase().includes(search);
-                if (!matchesName && !matchesMap && !matchesCountry) {
+                const search = filter.search.toLowerCase().trim();
+                const haystacks: string[] = [
+                    server.name,
+                    server.address,
+                    String(server.port),
+                    server.country,
+                    server.mode,
+                    server.realm,
+                    server.map,
+                    server.mapId,
+                    `${server.currentPlayers}/${server.maxPlayers}`,
+                    String(server.currentPlayers),
+                    String(server.maxPlayers),
+                    String(server.botCount),
+                    server.version,
+                    server.comment,
+                    server.steamLink,
+                    server.dedicated ? 'dedicated' : 'not dedicated',
+                    server.mod ? 'mod' : 'no mod',
+                    ...(server.playerNames || [])
+                ].filter(Boolean);
+
+                const matched = haystacks.some(v => v.toLowerCase().includes(search));
+                if (!matched) {
                     return false;
                 }
             }
@@ -248,7 +276,8 @@ export class ServerService {
                     comparison = a.name.localeCompare(b.name);
                     break;
                 case 'playerCount':
-                    comparison = b.currentPlayers - a.currentPlayers;
+                    // Always compute base comparison in ascending order
+                    comparison = a.currentPlayers - b.currentPlayers;
                     break;
                 case 'ping':
                     const aPing = a.ping ?? Infinity;

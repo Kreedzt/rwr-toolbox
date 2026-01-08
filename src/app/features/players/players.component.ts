@@ -108,6 +108,9 @@ export class PlayersComponent implements OnInit {
             }
         });
 
+
+        console.log('Touch sorted', sorted);
+
         return sorted;
     });
 
