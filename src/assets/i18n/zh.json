@@ -63,7 +63,12 @@
     "reload_hint": "需要重新加载应用才能生效",
     "theme": "主题",
     "paths": "路径",
-    "coming_soon": "即将推出..."
+    "coming_soon": "即将推出...",
+    "gamePath": "游戏目录",
+    "gamePathHint": "RWR 安装路径（例如：/Applications/RWR.app/Contents/Resources/media）",
+    "validatePath": "保存并验证",
+    "pathValid": "有效的游戏目录 - 发现 {{ count }} 个包",
+    "pathInvalid": "无效的游戏目录"
   },
   "servers": {
     "title": "服务器",
@@ -272,5 +277,59 @@
     "content": "内容",
     "remark_placeholder": "功能名称(如: 跳跃、开火)",
     "content_placeholder": "按键组合(如: 空格、Ctrl+C)"
+  },
+  "weapons": {
+    "title": "武器",
+    "scan": "扫描武器",
+    "refresh": "刷新",
+    "search": "搜索武器...",
+    "advancedSearch": "高级搜索",
+    "clearFilters": "清除筛选",
+    "weaponCount": "{{count}} 个武器",
+    "noWeapons": "未找到武器",
+    "scanning": "正在扫描武器...",
+    "scanComplete": "扫描完成",
+    "scanError": "扫描失败：{{error}}",
+    "columns": {
+      "key": "键名",
+      "name": "名称",
+      "class": "类别",
+      "magazineSize": "弹匣",
+      "killProbability": "伤害",
+      "retriggerTime": "射速"
+    },
+    "filters": {
+      "damage": "伤害",
+      "fireRate": "射速",
+      "magazineSize": "弹匣容量",
+      "encumbrance": "重量",
+      "price": "价格",
+      "classTag": "类别",
+      "suppressed": "消音器",
+      "canRespawnWith": "可用在装备中",
+      "stanceAccuracy": "姿势精度"
+    },
+    "details": {
+      "title": "武器详情",
+      "specifications": "规格参数",
+      "stanceAccuracies": "姿势精度",
+      "chainVariants": "相关变体",
+      "stance": {
+        "running": "奔跑",
+        "walking": "行走",
+        "crouch_moving": "蹲下（移动）",
+        "standing": "站立",
+        "crouching": "蹲下",
+        "prone": "趴下",
+        "prone_moving": "趴下（移动）",
+        "over_wall": "掩体后"
+      }
+    },
+    "errors": {
+      "noGamePath": "未配置游戏路径",
+      "invalidPath": "无效的游戏目录",
+      "scanFailed": "扫描武器失败",
+      "duplicateKeys": "检测到重复的武器键：{{keys}}"
+    }
   }
 }

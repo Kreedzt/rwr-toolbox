@@ -41,5 +41,14 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Rust
+/target
+*.rs.bk
+*.rlib
+*.prof*
+
 # docs for AI
 # /docs-ai
+/.claude
+/.specify
+/specs

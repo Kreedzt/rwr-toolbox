@@ -1,6 +1,7 @@
 mod hotkeys;
 mod ping;
 mod rwrmi;
+mod weapons;
 
 use std::time::Duration;
 use tauri_plugin_http::reqwest::{Client, Url};
@@ -69,7 +70,9 @@ pub fn run() {
             hotkeys::save_profiles,
             hotkeys::export_profile,
             hotkeys::import_profile,
-            hotkeys::open_hotkeys_in_editor
+            hotkeys::open_hotkeys_in_editor,
+            weapons::validate_game_path,
+            weapons::scan_weapons
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

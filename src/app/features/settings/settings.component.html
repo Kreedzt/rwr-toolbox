@@ -28,18 +28,53 @@
             </div>
         </div>
 
+        <!-- Game Path Settings -->
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-body">
+                <h2 class="card-title mb-4">{{ t('settings.paths') }}</h2>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ t('settings.gamePath') }}</span>
+                    </label>
+                    <div class="join w-full">
+                        <input
+                            type="text"
+                            class="input input-bordered join-item flex-1"
+                            [placeholder]="t('settings.gamePathHint')"
+                            [value]="gamePathInput()"
+                            (input)="gamePathInput.set($any($event.target).value)"
+                        />
+                        <button
+                            class="btn btn-neutral join-item"
+                            (click)="saveGamePath()"
+                            [disabled]="isValidating()"
+                        >
+                            @if (isValidating()) {
+                                <span class="loading loading-spinner loading-sm"></span>
+                            }
+                            {{ t('settings.validatePath') }}
+                        </button>
+                    </div>
+
+                    <!-- Validation feedback -->
+                    @if (pathError()) {
+                        <label class="label text-error">
+                            <span class="label-text-alt">{{ pathError() }}</span>
+                        </label>
+                    } @else if (isValidPath()) {
+                        <label class="label text-success">
+                            <span class="label-text-alt">{{ 'settings.pathValid' | transloco : { count: packageCount() } }}</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+
         <!-- Theme Settings (placeholder) -->
         <div class="card bg-base-100 shadow-lg">
             <div class="card-body">
                 <h2 class="card-title mb-4">{{ t('settings.theme') }}</h2>
-                <p class="text-sm opacity-70">{{ t('settings.coming_soon') }}</p>
-            </div>
-        </div>
-
-        <!-- Path Settings (placeholder) -->
-        <div class="card bg-base-100 shadow-lg">
-            <div class="card-body">
-                <h2 class="card-title mb-4">{{ t('settings.paths') }}</h2>
                 <p class="text-sm opacity-70">{{ t('settings.coming_soon') }}</p>
             </div>
         </div>

@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     favorites: [],
     playerColumnVisibility: DEFAULT_COLUMN_VISIBILITY,
     serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY,
+    gamePath: '',
     modInstallHistory: []
 };
 
@@ -308,5 +309,21 @@ export class SettingsService {
      */
     async resetServerColumnVisibility(): Promise<void> {
         await this.updateSettings({ serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY });
+    }
+
+    /**
+     * Get the game directory path
+     * @returns Game path or empty string if not set
+     */
+    getGamePath(): string {
+        return this.settingsState().gamePath ?? '';
+    }
+
+    /**
+     * Set the game directory path
+     * @param path Game directory path
+     */
+    async setGamePath(path: string): Promise<void> {
+        await this.updateSettings({ gamePath: path });
     }
 }

@@ -63,7 +63,12 @@
     "reload_hint": "Requires application reload to take effect",
     "theme": "Theme",
     "paths": "Paths",
-    "coming_soon": "Coming soon..."
+    "coming_soon": "Coming soon...",
+    "gamePath": "Game Directory",
+    "gamePathHint": "RWR installation path (e.g., /Applications/RWR.app/Contents/Resources/media)",
+    "validatePath": "Save & Validate",
+    "pathValid": "Valid game directory - {{ count }} packages found",
+    "pathInvalid": "Invalid game directory"
   },
   "servers": {
     "title": "Servers",
@@ -272,5 +277,59 @@
     "content": "Content",
     "remark_placeholder": "Function name (e.g., Jump, Fire)",
     "content_placeholder": "Key combination (e.g., Space, Ctrl+C)"
+  },
+  "weapons": {
+    "title": "Weapons",
+    "scan": "Scan Weapons",
+    "refresh": "Refresh",
+    "search": "Search weapons...",
+    "advancedSearch": "Advanced Search",
+    "clearFilters": "Clear Filters",
+    "weaponCount": "{{count}} weapons",
+    "noWeapons": "No weapons found",
+    "scanning": "Scanning weapons...",
+    "scanComplete": "Scan complete",
+    "scanError": "Scan failed: {{error}}",
+    "columns": {
+      "key": "Key",
+      "name": "Name",
+      "class": "Class",
+      "magazineSize": "Magazine",
+      "killProbability": "Damage",
+      "retriggerTime": "Fire Rate"
+    },
+    "filters": {
+      "damage": "Damage",
+      "fireRate": "Fire Rate",
+      "magazineSize": "Magazine Size",
+      "encumbrance": "Weight",
+      "price": "Price",
+      "classTag": "Class",
+      "suppressed": "Suppressed",
+      "canRespawnWith": "Available in Loadout",
+      "stanceAccuracy": "Stance Accuracy"
+    },
+    "details": {
+      "title": "Weapon Details",
+      "specifications": "Specifications",
+      "stanceAccuracies": "Stance Accuracies",
+      "chainVariants": "Related Variants",
+      "stance": {
+        "running": "Running",
+        "walking": "Walking",
+        "crouch_moving": "Crouch (Moving)",
+        "standing": "Standing",
+        "crouching": "Crouching",
+        "prone": "Prone",
+        "prone_moving": "Prone (Moving)",
+        "over_wall": "Over Cover"
+      }
+    },
+    "errors": {
+      "noGamePath": "Game path not configured",
+      "invalidPath": "Invalid game directory",
+      "scanFailed": "Failed to scan weapons",
+      "duplicateKeys": "Duplicate weapon keys detected: {{keys}}"
+    }
   }
 }
