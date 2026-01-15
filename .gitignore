@@ -43,9 +43,13 @@ Thumbs.db
 
 # Rust
 /target
+/debug
+/release
 *.rs.bk
 *.rlib
 *.prof*
+*.log
+.env*
 
 # docs for AI
 # /docs-ai
@@ -53,3 +57,5 @@ Thumbs.db
 /.gemini
 /.specify
 /specs
+/.opencode
+/.cursor

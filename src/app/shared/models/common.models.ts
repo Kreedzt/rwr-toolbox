@@ -1,6 +1,10 @@
 import type { PlayerColumnVisibility } from './player.models';
 import type { ServerColumnVisibility } from './server.models';
 import type { ModInstallHistory } from './mod.models';
+import type { ScanDirectory } from './directory.models';
+
+// Re-export ScanDirectory for convenience
+export type { ScanDirectory };
 
 /**
  * Favorite item for servers or players
@@ -56,6 +60,8 @@ export interface AppSettings {
     rwrmiTargetPath?: string;
     /** Mod installation history */
     modInstallHistory: ModInstallHistory[];
+    /** Configured scan directories for multi-directory support */
+    scanDirectories: ScanDirectory[];
 }
 
 /**

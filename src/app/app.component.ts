@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { open } from '@tauri-apps/plugin-dialog';
 import { MAIN_MENU_ITEMS } from './shared/constants/menu-items';
+import { DirectoryService } from './features/settings/services/directory.service';
 
 @Component({
     selector: 'app-root',
@@ -19,6 +21,7 @@ import { MAIN_MENU_ITEMS } from './shared/constants/menu-items';
 })
 export class AppComponent {
     private router = inject(Router);
+    private directoryService = inject(DirectoryService);
 
     menuItems = MAIN_MENU_ITEMS;
     currentYear = new Date().getFullYear();
@@ -48,6 +51,28 @@ export class AppComponent {
         this.showStatusPanel.set(!this.showStatusPanel());
     }
 
+    /**
+     * T058: Add directory using file dialog (Global shortcut Ctrl+D)
+     */
+    async onAddDirectory(): Promise<void> {
+        try {
+            const selected = await open({
+                directory: true,
+                multiple: false,
+                title: 'Select Game Directory',
+            });
+            if (selected && typeof selected === 'string') {
+                await this.directoryService.addDirectory(selected);
+                // Optional: navigate to settings to see the result
+                if (this.router.url !== '/settings') {
+                    this.router.navigate(['/settings']);
+                }
+            }
+        } catch (e) {
+            console.error('Failed to open directory dialog:', e);
+        }
+    }
+
     @HostListener('window:keydown', ['$event'])
     handleKeyboard(event: KeyboardEvent): void {
         // Ctrl+K: Quick search
@@ -65,6 +90,12 @@ export class AppComponent {
         if ((event.ctrlKey || event.metaKey) && event.key === 's') {
             event.preventDefault();
             this.toggleStatusPanel();
+        }
+
+        // Ctrl+D: Add Directory
+        if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+            event.preventDefault();
+            this.onAddDirectory();
         }
 
         // Ctrl+1-9: Navigate to menu items

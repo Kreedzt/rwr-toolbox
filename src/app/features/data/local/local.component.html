@@ -1,19 +1,100 @@
-<!-- Tabs for Weapons and Items -->
-<div class="tabs tabs-boxed mb-4">
-    @for (tab of tabs; track tab.key) {
-        <a
-            class="tab"
-            [class.tab-active]="activeTab() === tab.key"
-            (click)="activeTab.set(tab.key)"
+<!-- T040-T041: Empty state shown when no directories configured -->
+@if (hasNoDirectories()) {
+    <div class="flex flex-col items-center justify-center py-20 px-4">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-24 w-24 opacity-20 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
         >
-            {{ tab.label | transloco }}
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+            />
+        </svg>
+        <h2 class="text-2xl font-bold mb-2">
+            {{ 'data.emptyState.title' | transloco }}
+        </h2>
+        <p class="text opacity-70 mb-6 max-w-md text-center">
+            {{ 'data.emptyState.message' | transloco }}
+        </p>
+        <a routerLink="/settings" class="btn btn-primary">
+            {{ 'data.emptyState.goToSettings' | transloco }}
         </a>
-    }
-</div>
+    </div>
+} @else {
+    <!-- Tabs for Weapons and Items -->
+    <div class="flex justify-between items-center mb-4 gap-4">
+        <div class="tabs tabs-boxed">
+            @for (tab of tabs; track tab.key) {
+                <a
+                    class="tab"
+                    [class.tab-active]="activeTab() === tab.key"
+                    (click)="activeTab.set(tab.key)"
+                >
+                    {{ tab.label | transloco }}
+                </a>
+            }
+        </div>
 
-<!-- Tab Content -->
-@if (activeTab() === 'weapons') {
-    <app-weapons />
-} @else if (activeTab() === 'items') {
-    <app-items />
+        <div class="flex items-center gap-4 flex-1 justify-end">
+            <!-- T067: Scan progress indicator -->
+            @if (scanProgressSig().state === 'scanning') {
+                <div
+                    class="flex items-center gap-2 text-xs opacity-70 flex-1 justify-end"
+                >
+                    <span class="loading loading-spinner loading-xs"></span>
+                    <span>
+                        {{
+                            'data.scanningProgress'
+                                | transloco
+                                    : {
+                                          completed:
+                                              scanProgressSig().completed,
+                                          total: scanProgressSig().total,
+                                      }
+                        }}
+                    </span>
+                    <progress
+                        class="progress progress-primary w-24"
+                        [value]="scanProgressSig().completed"
+                        [max]="scanProgressSig().total"
+                    ></progress>
+                </div>
+            }
+
+            <!-- T066: Rescan All button -->
+            <button
+                class="btn btn-sm btn-ghost gap-2"
+                (click)="onRescanAll()"
+                [disabled]="scanProgressSig().state === 'scanning'"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                </svg>
+                {{ 'data.rescanAll' | transloco }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    @if (activeTab() === 'weapons') {
+        <app-weapons />
+    } @else if (activeTab() === 'items') {
+        <app-items />
+    }
 }

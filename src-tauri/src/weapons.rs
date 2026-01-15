@@ -226,10 +226,14 @@ pub async fn validate_game_path(path: String) -> Result<ValidationResult, String
 }
 
 /// Scan all weapon files from game directory
+/// If `directory` is provided, scan that directory instead of game_path
 #[tauri::command]
-pub async fn scan_weapons(game_path: String) -> Result<WeaponScanResult, String> {
+pub async fn scan_weapons(game_path: String, directory: Option<String>) -> Result<WeaponScanResult, String> {
     let start_time = std::time::Instant::now();
-    let input_path = Path::new(&game_path);
+
+    // Use provided directory if available, otherwise fall back to game_path
+    let scan_path = directory.unwrap_or(game_path);
+    let input_path = Path::new(&scan_path);
 
     // Determine packages directory (same logic as validate_game_path)
     let base_path = if input_path.ends_with("packages") {

@@ -68,7 +68,33 @@
         "gamePathHint": "RWR installation path (e.g., /Applications/RWR.app/Contents/Resources/media)",
         "validatePath": "Save & Validate",
         "pathValid": "Valid game directory - {{ count }} packages found",
-        "pathInvalid": "Invalid game directory"
+        "pathInvalid": "Invalid game directory",
+        "directoryList": "Scan Directories",
+        "addDirectory": "Add Directory",
+        "removeDirectory": "Remove",
+        "revalidate": "Revalidate",
+        "validDirectory": "Valid",
+        "invalidDirectory": "Invalid",
+        "validatingDirectories": "Validating directories...",
+        "noDirectories": "No directories configured yet",
+        "lastScanned": "Last scanned: {{ date }}",
+        "itemCount": "{{ count }} items",
+        "errors": {
+            "pathNotFound": "The specified path does not exist",
+            "notADirectory": "The path is not a directory",
+            "accessDenied": "Access to the directory is denied",
+            "missingMediaSubdirectory": "Directory must contain a 'media' subdirectory",
+            "duplicateDirectory": "This directory is already in the list",
+            "unknown": "An unknown error occurred"
+        },
+        "errorResolution": {
+            "path_not_found": "Please check if the path is correct and exists on your computer.",
+            "not_a_directory": "Please select a folder, not a file.",
+            "access_denied": "Please check if you have read permissions for this folder.",
+            "missing_media_subdirectory": "A valid RWR game or workshop directory must contain a 'media' folder.",
+            "duplicate_directory": "This directory has already been added to the list.",
+            "null": "No errors detected."
+        }
     },
     "servers": {
         "title": "Servers",
@@ -167,6 +193,15 @@
             "rankProgression": "XP",
             "rankName": "Rank"
         }
+    },
+    "data": {
+        "emptyState": {
+            "title": "No Directories Configured",
+            "message": "Configure scan directories in settings to browse local game data.",
+            "goToSettings": "Go to Settings"
+        },
+        "scanningProgress": "Scanning: {{ completed }}/{{ total }} directories",
+        "rescanAll": "Rescan All"
     },
     "mods": {
         "title": "Local Mods",

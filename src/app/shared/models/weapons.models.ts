@@ -59,6 +59,8 @@ export interface Weapon {
     sourceFile: string;
     /** Package name (vanilla or mod) */
     packageName: string;
+    /** Directory path where this weapon was scanned from (multi-directory support) */
+    sourceDirectory: string;
 }
 
 /**
@@ -122,7 +124,7 @@ export interface AdvancedFilters {
 }
 
 /**
- * Weapon column keys (6 default columns for 800x600 + filePath)
+ * Weapon column keys (6 default columns for 800x600 + filePath + sourceDirectory)
  */
 export type WeaponColumnKey =
     | 'key'
@@ -131,7 +133,8 @@ export type WeaponColumnKey =
     | 'magazineSize'
     | 'killProbability'
     | 'retriggerTime'
-    | 'filePath';
+    | 'filePath'
+    | 'sourceDirectory';
 
 /**
  * Weapon column configuration

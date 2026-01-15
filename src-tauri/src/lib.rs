@@ -1,3 +1,4 @@
+mod directories;
 mod hotkeys;
 mod items;
 mod ping;
@@ -75,7 +76,8 @@ pub fn run() {
             weapons::validate_game_path,
             weapons::scan_weapons,
             weapons::open_file_in_editor,
-            items::scan_items
+            items::scan_items,
+            directories::validate_directory
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

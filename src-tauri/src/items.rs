@@ -208,13 +208,16 @@ struct RawEffect {
 }
 
 /// Scan items from game directory
+/// If `directory` is provided, scan that directory instead of game_path
 #[tauri::command]
-pub async fn scan_items(game_path: String) -> Result<ItemScanResult, String> {
+pub async fn scan_items(game_path: String, directory: Option<String>) -> Result<ItemScanResult, String> {
     let start_time = std::time::Instant::now();
 
-    let input_path = Path::new(&game_path);
+    // Use provided directory if available, otherwise fall back to game_path
+    let scan_path = directory.unwrap_or(game_path);
+    let input_path = Path::new(&scan_path);
     if !input_path.exists() {
-        return Err(format!("Path does not exist: {}", game_path));
+        return Err(format!("Path does not exist: {}", scan_path));
     }
 
     // Determine packages directory

@@ -3,6 +3,7 @@ import {
     AppSettings,
     ApiEndpoint,
     FavoriteItem,
+    ScanDirectory,
 } from '../../shared/models/common.models';
 import { DEFAULT_COLUMN_VISIBILITY } from '../../features/players/player-columns';
 import { DEFAULT_SERVER_COLUMN_VISIBILITY } from '../../features/servers/server-columns';
@@ -22,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY,
     gamePath: '',
     modInstallHistory: [],
+    scanDirectories: [],
 };
 
 /**
@@ -368,5 +370,21 @@ export class SettingsService {
      */
     async setGamePath(path: string): Promise<void> {
         await this.updateSettings({ gamePath: path });
+    }
+
+    /**
+     * Get scan directories for multi-directory support
+     * @returns Array of configured scan directories
+     */
+    getScanDirectories(): ScanDirectory[] {
+        return this.settingsState().scanDirectories;
+    }
+
+    /**
+     * Update scan directories for multi-directory support
+     * @param directories Updated array of scan directories
+     */
+    async updateScanDirectories(directories: ScanDirectory[]): Promise<void> {
+        await this.updateSettings({ scanDirectories: directories });
     }
 }

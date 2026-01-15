@@ -247,6 +247,7 @@ export class ItemsComponent implements OnInit {
             field === 'itemType' ||
             field === 'filePath' ||
             field === 'packageName' ||
+            field === 'sourceDirectory' ||
             field === 'encumbrance' ||
             field === 'price' ||
             field === 'canRespawnWith' ||

@@ -56,62 +56,50 @@ export const routes: Routes = [
         },
     },
 
-    // Data Section (Parent Layout)
+    // Data Section (Feature 001: Simplified to directly show local data with weapons/items tabs)
     {
         path: 'data',
         loadComponent: () =>
-            import('./features/data/data-layout/data-layout.component').then(
-                (m) => m.DataLayoutComponent,
+            import('./features/data/local/local.component').then(
+                (m) => m.LocalComponent,
             ),
-        children: [
-            {
-                path: '',
-                redirectTo: 'local',
-                pathMatch: 'full',
-            },
-            {
-                path: 'local',
-                loadComponent: () =>
-                    import('./features/data/local/local.component').then(
-                        (m) => m.LocalComponent,
-                    ),
-                data: {
-                    title: 'Local Data',
-                    icon: 'hard-drive',
-                    description: 'Browse local game data',
-                },
-            },
-            {
-                path: 'extract',
-                loadComponent: () =>
-                    import('./features/data/extract/extract.component').then(
-                        (m) => m.ExtractComponent,
-                    ),
-                data: {
-                    title: 'Extract Data',
-                    icon: 'database',
-                    description: 'Extract and export data',
-                },
-            },
-            {
-                path: 'workshop',
-                loadComponent: () =>
-                    import('./features/data/workshop/workshop.component').then(
-                        (m) => m.WorkshopComponent,
-                    ),
-                canActivate: [pathDetectedGuard],
-                data: {
-                    title: 'Workshop Data',
-                    icon: 'folder-open',
-                    description: 'View workshop content',
-                    requiresPathDetection: true,
-                },
-            },
-        ],
         data: {
             title: 'Data',
             icon: 'database',
-            description: 'Data management tools',
+            description: 'Browse game data (Weapons and Items)',
+        },
+    },
+
+    // Legacy data routes for backward compatibility (accessible via direct URL)
+    {
+        path: 'data/local',
+        redirectTo: '/data',
+        pathMatch: 'full',
+    },
+    {
+        path: 'data/extract',
+        loadComponent: () =>
+            import('./features/data/extract/extract.component').then(
+                (m) => m.ExtractComponent,
+            ),
+        data: {
+            title: 'Extract Data',
+            icon: 'database',
+            description: 'Extract and export data',
+        },
+    },
+    {
+        path: 'data/workshop',
+        loadComponent: () =>
+            import('./features/data/workshop/workshop.component').then(
+                (m) => m.WorkshopComponent,
+            ),
+        canActivate: [pathDetectedGuard],
+        data: {
+            title: 'Workshop Data',
+            icon: 'folder-open',
+            description: 'View workshop content',
+            requiresPathDetection: true,
         },
     },
 

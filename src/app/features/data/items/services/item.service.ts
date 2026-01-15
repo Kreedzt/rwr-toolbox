@@ -66,20 +66,38 @@ export class ItemService {
     readonly sortStateSig = this.sortState.asReadonly();
 
     /** Scan items from game directory */
-    async scanItems(gamePath: string): Promise<void> {
-        // Prevent duplicate scans
-        if (this.loading()) {
-            return;
+    async scanItems(
+        gamePath: string,
+        directory?: string,
+        append: boolean = false,
+    ): Promise<GenericItem[]> {
+        // Prevent duplicate scans if not appending
+        if (this.loading() && !append) {
+            return [];
         }
 
-        this.loading.set(true);
-        this.error.set(null);
+        if (!append) {
+            this.loading.set(true);
+            this.error.set(null);
+        }
+
         try {
             const result = await invoke<ItemScanResult>('scan_items', {
                 gamePath,
+                directory: directory || null,
             });
-            console.log('items result', result);
-            this.items.set(result.items);
+
+            // Tag items with source directory for multi-directory support
+            const itemsWithSource = result.items.map((i) => ({
+                ...i,
+                sourceDirectory: directory || gamePath,
+            }));
+
+            if (append) {
+                this.items.set([...this.items(), ...itemsWithSource]);
+            } else {
+                this.items.set(itemsWithSource);
+            }
 
             // Report errors if any
             if (result.errors.length > 0) {
@@ -89,27 +107,28 @@ export class ItemService {
                 this.error.set(errorMsg);
             }
 
-            // Report duplicate keys if any
-            if (result.duplicateKeys.length > 0) {
-                const duplicateMsg = this.transloco.translate(
-                    'items.errors.duplicateKeys',
-                    { keys: result.duplicateKeys.join(', ') },
-                );
-                this.error.set(duplicateMsg);
-            }
+            return itemsWithSource;
         } catch (e) {
             const errorMsg = this.transloco.translate('items.scanError', {
                 error: String(e),
             });
             this.error.set(errorMsg);
+            return [];
         } finally {
-            this.loading.set(false);
+            if (!append) {
+                this.loading.set(false);
+            }
         }
     }
 
+    /** Clear items */
+    clearItems(): void {
+        this.items.set([]);
+    }
+
     /** Refresh items using stored game path */
-    async refreshItems(gamePath: string): Promise<void> {
-        return this.scanItems(gamePath);
+    async refreshItems(gamePath: string, directory?: string): Promise<void> {
+        await this.scanItems(gamePath, directory);
     }
 
     /** Update search term */

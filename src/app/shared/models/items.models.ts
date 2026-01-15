@@ -17,6 +17,8 @@ export interface GameItem {
     filePath: string;
     sourceFile: string;
     packageName: string;
+    /** Directory path where this item was scanned from (multi-directory support) */
+    sourceDirectory: string;
 }
 
 /**

@@ -6,12 +6,14 @@ import {
     TranslocoService,
 } from '@jsverse/transloco';
 import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 import {
     SupportedLocale,
     LOCALES,
     DEFAULT_LOCALE,
 } from '../../../i18n/locales';
 import { SettingsService } from '../../core/services/settings.service';
+import { DirectoryService } from './services/directory.service';
 
 /**
  * Settings component
@@ -26,6 +28,7 @@ import { SettingsService } from '../../core/services/settings.service';
 export class SettingsComponent implements OnInit {
     private translocoService = inject(TranslocoService);
     private settingsService = inject(SettingsService);
+    private directoryService = inject(DirectoryService);
 
     /** Available locales */
     readonly locales = LOCALES;
@@ -41,6 +44,15 @@ export class SettingsComponent implements OnInit {
     readonly isValidPath = signal<boolean>(false);
     readonly pathError = signal<string>('');
     readonly packageCount = signal<number>(0);
+
+    /** T034: Directory management - readonly directories signal reference */
+    readonly directoriesSig = this.directoryService.directoriesSig;
+    readonly validatingSig = this.directoryService.validatingSig;
+    readonly isAnyValidatingSig = this.directoryService.isAnyValidatingSig;
+    readonly validationProgressSig =
+        this.directoryService.validationProgressSig;
+    readonly loadingSig = this.directoryService.loadingSig;
+    readonly errorSig = this.directoryService.errorSig;
 
     /** Current locale from Transloco */
     get currentLocale(): SupportedLocale {
@@ -124,5 +136,37 @@ export class SettingsComponent implements OnInit {
 
         // Show validation state after save
         await this.validateGamePath();
+    }
+
+    /**
+     * T035: Add directory using file dialog
+     */
+    async onAddDirectory(): Promise<void> {
+        try {
+            const selected = await open({
+                directory: true,
+                multiple: false,
+                title: 'Select Game Directory',
+            });
+            if (selected && typeof selected === 'string') {
+                await this.directoryService.addDirectory(selected);
+            }
+        } catch (e) {
+            console.error('Failed to open directory dialog:', e);
+        }
+    }
+
+    /**
+     * T036: Remove directory by ID
+     */
+    async onRemoveDirectory(directoryId: string): Promise<void> {
+        await this.directoryService.removeDirectory(directoryId);
+    }
+
+    /**
+     * T037: Revalidate directory
+     */
+    async onRevalidateDirectory(directoryId: string): Promise<void> {
+        await this.directoryService.revalidateDirectory(directoryId);
     }
 }

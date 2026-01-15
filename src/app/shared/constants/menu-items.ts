@@ -3,6 +3,10 @@ import { MenuItem } from '../interfaces/menu-item.interface';
 /**
  * Main navigation menu structure for RWR Toolbox
  * Labels and descriptions are keys for Transloco translation
+ *
+ * Feature 001: Simplified navigation - only Data and Settings visible
+ * Other menu items (Dashboard, Servers, Players, Mods, Hotkeys) are removed from sidebar
+ * but remain accessible via direct URL for potential future use
  */
 export const MAIN_MENU_ITEMS: MenuItem[] = [
     {
@@ -30,54 +34,8 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         label: 'menu.data',
         icon: 'database',
         link: '/data',
-        description: 'menu.data_desc',
-        children: [
-            {
-                label: 'menu.local_data',
-                icon: 'hard-drive',
-                link: '/data/local',
-                description: 'menu.local_data_desc',
-            },
-            {
-                label: 'menu.extract',
-                icon: 'download',
-                link: '/data/extract',
-                description: 'menu.extract_desc',
-            },
-            {
-                label: 'menu.workshop',
-                icon: 'folder-open',
-                link: '/data/workshop',
-                description: 'menu.workshop_desc',
-            },
-        ],
-    },
-    {
-        label: 'menu.mods',
-        icon: 'package',
-        link: '/mods',
-        description: 'menu.mods_desc',
-        children: [
-            {
-                label: 'menu.install',
-                icon: 'cloud-download',
-                link: '/mods/install',
-                description: 'menu.install_desc',
-            },
-            {
-                label: 'menu.bundle',
-                icon: 'box',
-                link: '/mods/bundle',
-                description: 'menu.bundle_desc',
-            },
-        ],
-    },
-    {
-        label: 'menu.hotkeys',
-        icon: 'keyboard',
-        link: '/hotkeys',
         shortcut: 'Ctrl+4',
-        description: 'menu.hotkeys_desc',
+        description: 'menu.data_desc',
     },
     {
         divider: true,
@@ -100,3 +58,15 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         description: 'menu.about_desc',
     },
 ];
+
+/**
+ * Removed menu items (Feature 001 - kept for reference and potential future use):
+ * - Dashboard (/dashboard) - Ctrl+1
+ * - Servers (/servers) - Ctrl+2
+ * - Players (/players) - Ctrl+3
+ * - Data children (local_data, extract, workshop) - now consolidated into /data route
+ * - Mods (/mods) with children (install, bundle)
+ * - Hotkeys (/hotkeys) - Ctrl+4
+ *
+ * These routes remain accessible via direct URL navigation but are hidden from sidebar
+ */

@@ -68,7 +68,33 @@
         "gamePathHint": "RWR 安装路径（例如：/Applications/RWR.app/Contents/Resources/media）",
         "validatePath": "保存并验证",
         "pathValid": "有效的游戏目录 - 发现 {{ count }} 个包",
-        "pathInvalid": "无效的游戏目录"
+        "pathInvalid": "无效的游戏目录",
+        "directoryList": "扫描目录",
+        "addDirectory": "添加目录",
+        "removeDirectory": "删除",
+        "revalidate": "重新验证",
+        "validDirectory": "有效",
+        "invalidDirectory": "无效",
+        "validatingDirectories": "正在验证目录...",
+        "noDirectories": "尚未配置目录",
+        "lastScanned": "上次扫描：{{ date }}",
+        "itemCount": "{{ count }} 个项目",
+        "errors": {
+            "pathNotFound": "指定的路径不存在",
+            "notADirectory": "该路径不是目录",
+            "accessDenied": "无访问权限",
+            "missingMediaSubdirectory": "目录必须包含 media 子目录",
+            "duplicateDirectory": "该目录已在列表中",
+            "unknown": "发生未知错误"
+        },
+        "errorResolution": {
+            "path_not_found": "请检查路径是否正确，以及该路径是否在您的电脑上存在。",
+            "not_a_directory": "请选择一个文件夹，而不是文件。",
+            "access_denied": "请检查您是否拥有该文件夹的读取权限。",
+            "missing_media_subdirectory": "有效的 RWR 游戏或创意工坊目录必须包含一个 'media' 文件夹。",
+            "duplicate_directory": "该目录已经添加到列表中。",
+            "null": "未检测到错误。"
+        }
     },
     "servers": {
         "title": "服务器",
@@ -167,6 +193,15 @@
             "rankProgression": "经验",
             "rankName": "军衔"
         }
+    },
+    "data": {
+        "emptyState": {
+            "title": "未配置目录",
+            "message": "请在设置中配置扫描目录以浏览本地游戏数据。",
+            "goToSettings": "前往设置"
+        },
+        "scanningProgress": "正在扫描：{{ completed }}/{{ total }} 个目录",
+        "rescanAll": "重新扫描全部"
     },
     "mods": {
         "title": "本地模组",

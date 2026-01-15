@@ -60,22 +60,40 @@ export class WeaponService {
     readonly sortStateSig = this.sortState.asReadonly();
 
     /** Scan weapons from game directory */
-    async scanWeapons(gamePath: string): Promise<void> {
-        // Prevent duplicate scans
-        if (this.loading()) {
-            return;
+    async scanWeapons(
+        gamePath: string,
+        directory?: string,
+        append: boolean = false,
+    ): Promise<Weapon[]> {
+        // Prevent duplicate scans if not appending
+        if (this.loading() && !append) {
+            return [];
         }
 
-        this.loading.set(true);
-        this.error.set(null);
+        if (!append) {
+            this.loading.set(true);
+            this.error.set(null);
+        }
+
         try {
             const result = await invoke<WeaponScanResult>('scan_weapons', {
                 gamePath,
+                directory: directory || null,
             });
-            console.log('result', result);
-            this.weapons.set(result.weapons);
 
-            // Report errors if any
+            // Tag weapons with source directory for multi-directory support
+            const weaponsWithSource = result.weapons.map((w) => ({
+                ...w,
+                sourceDirectory: directory || gamePath,
+            }));
+
+            if (append) {
+                this.weapons.set([...this.weapons(), ...weaponsWithSource]);
+            } else {
+                this.weapons.set(weaponsWithSource);
+            }
+
+            // Report errors if any (only if not appending, or handle differently)
             if (result.errors.length > 0) {
                 const errorMsg = this.transloco.translate('weapons.scanError', {
                     error: `${result.errors.length} files failed`,
@@ -83,27 +101,28 @@ export class WeaponService {
                 this.error.set(errorMsg);
             }
 
-            // Report duplicate keys if any
-            if (result.duplicateKeys.length > 0) {
-                const duplicateMsg = this.transloco.translate(
-                    'weapons.errors.duplicateKeys',
-                    { keys: result.duplicateKeys.join(', ') },
-                );
-                this.error.set(duplicateMsg);
-            }
+            return weaponsWithSource;
         } catch (e) {
             const errorMsg = this.transloco.translate('weapons.scanError', {
                 error: String(e),
             });
             this.error.set(errorMsg);
+            return [];
         } finally {
-            this.loading.set(false);
+            if (!append) {
+                this.loading.set(false);
+            }
         }
     }
 
+    /** Clear weapons */
+    clearWeapons(): void {
+        this.weapons.set([]);
+    }
+
     /** Refresh weapons using stored game path */
-    async refreshWeapons(gamePath: string): Promise<void> {
-        return this.scanWeapons(gamePath);
+    async refreshWeapons(gamePath: string, directory?: string): Promise<void> {
+        await this.scanWeapons(gamePath, directory);
     }
 
     /** Update search term */
