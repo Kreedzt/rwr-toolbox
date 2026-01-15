@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, of, throwError } from 'rxjs';
 import { tap, catchError, shareReplay, map, finalize } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
 import { HttpClientService } from '../../../core/services/http-client.service';
@@ -37,21 +37,21 @@ export class PlayerService {
         allowBooleanAttributes: true,
     });
 
-    // State management with BehaviorSubjects
-    private playersSubject = new BehaviorSubject<Player[]>([]);
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    private errorSubject = new BehaviorSubject<string | null>(null);
-    private currentPageSubject = new BehaviorSubject<number>(1);
-    private hasNextPageSubject = new BehaviorSubject<boolean>(false);
-    private hasPreviousPageSubject = new BehaviorSubject<boolean>(false);
+    // State management with signals (Principle IX: Signal管状态)
+    private playersState = signal<Player[]>([]);
+    private loadingState = signal<boolean>(false);
+    private errorState = signal<string | null>(null);
+    private currentPageState = signal<number>(1);
+    private hasNextPageState = signal<boolean>(false);
+    private hasPreviousPageState = signal<boolean>(false);
 
-    /** Observable streams */
-    readonly players$ = this.playersSubject.asObservable();
-    readonly loading$ = this.loadingSubject.asObservable();
-    readonly error$ = this.errorSubject.asObservable();
-    readonly currentPage$ = this.currentPageSubject.asObservable();
-    readonly hasNextPage$ = this.hasNextPageSubject.asObservable();
-    readonly hasPreviousPage$ = this.hasPreviousPageSubject.asObservable();
+    /** Readonly signal streams */
+    readonly playersSig = this.playersState.asReadonly();
+    readonly loadingSig = this.loadingState.asReadonly();
+    readonly errorSig = this.errorState.asReadonly();
+    readonly currentPageSig = this.currentPageState.asReadonly();
+    readonly hasNextPageSig = this.hasNextPageState.asReadonly();
+    readonly hasPreviousPageSig = this.hasPreviousPageState.asReadonly();
 
     /**
      * Fetch players from API
@@ -71,8 +71,8 @@ export class PlayerService {
         search: string = '',
         forceRefresh = false,
     ): Observable<PlayerListResponse> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         const params = new HttpParams()
             .set('db', database)
@@ -91,10 +91,10 @@ export class PlayerService {
             .pipe(
                 map((html) => this.parsePlayerList(html, database)),
                 tap((response) => {
-                    this.playersSubject.next(response.players);
-                    this.currentPageSubject.next(page);
-                    this.hasNextPageSubject.next(response.hasNextPage);
-                    this.hasPreviousPageSubject.next(response.hasPreviousPage);
+                    this.playersState.set(response.players);
+                    this.currentPageState.set(page);
+                    this.hasNextPageState.set(response.hasNextPage);
+                    this.hasPreviousPageState.set(response.hasPreviousPage);
                     // Cache the response
                     this.cacheService.set(
                         `${this.CACHE_KEY_PREFIX}${database}`,
@@ -105,7 +105,7 @@ export class PlayerService {
                     );
                 }),
                 catchError((error) => {
-                    this.errorSubject.next(error.message);
+                    this.errorState.set(error.message);
 
                     // Try to load from cache
                     const cached = this.cacheService.get<{
@@ -113,7 +113,7 @@ export class PlayerService {
                         timestamp: number;
                     }>(`${this.CACHE_KEY_PREFIX}${database}`);
                     if (cached) {
-                        this.playersSubject.next(cached.players);
+                        this.playersState.set(cached.players);
                         return of({
                             players: cached.players,
                             currentPage: page,
@@ -126,7 +126,7 @@ export class PlayerService {
 
                     return throwError(() => error);
                 }),
-                finalize(() => this.loadingSubject.next(false)),
+                finalize(() => this.loadingState.set(false)),
                 shareReplay(1),
             );
     }

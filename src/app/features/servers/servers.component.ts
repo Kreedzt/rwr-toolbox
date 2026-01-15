@@ -11,9 +11,8 @@ import {
 } from '../../shared/models/server.models';
 import { PaginationState } from '../../shared/models/common.models';
 import { ServerService } from './services/server.service';
-import { PingService, PingResult } from '../../core/services/ping.service';
+import { PingService } from '../../core/services/ping.service';
 import { SettingsService } from '../../core/services/settings.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { SERVER_COLUMNS } from './server-columns';
 
 /**
@@ -31,16 +30,12 @@ export class ServersComponent implements OnInit {
     private pingService = inject(PingService);
     private settingsService = inject(SettingsService);
 
-    // Convert observables to signals
-    private servers$ = this.serverService.servers$;
-    private loading$ = this.serverService.loading$;
-    private error$ = this.serverService.error$;
-    private pinging$ = this.pingService.pinging$;
-
-    servers = toSignal(this.servers$, { initialValue: [] as Server[] });
-    loading = toSignal(this.loading$, { initialValue: false });
-    error = toSignal(this.error$, { initialValue: null as string | null });
-    pinging = toSignal(this.pinging$, { initialValue: false });
+    // Use signals directly from services (refactored to Signal pattern)
+    readonly servers = this.serverService.serversSig;
+    readonly loading = this.serverService.loadingSig;
+    readonly error = this.serverService.errorSig;
+    // Use signal directly from PingService (refactored to Signal pattern)
+    readonly pinging = this.pingService.pingingSig;
 
     // Local component state with signals
     filter = signal<ServerFilter>({});
@@ -182,15 +177,11 @@ export class ServersComponent implements OnInit {
         this.pingService.pingServers(serversToPing).subscribe((results) => {
             results.forEach((result) => {
                 if (result.ping !== null) {
-                    // Update server ping in the list
-                    this.serverService.servers$.subscribe((servers) => {
-                        const server = servers.find(
-                            (s) => s.id === result.address,
-                        );
-                        if (server) {
-                            (server as any).ping = result.ping;
-                        }
-                    });
+                    // Update server ping in the list via service method
+                    this.serverService.updateServerPing(
+                        result.address,
+                        result.ping,
+                    );
                 }
             });
         });

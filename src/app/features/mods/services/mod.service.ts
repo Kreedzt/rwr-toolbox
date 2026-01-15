@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, from, of, throwError } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, from, of, throwError } from 'rxjs';
 import { catchError, tap, finalize, switchMap, map } from 'rxjs/operators';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
@@ -18,13 +18,13 @@ import { SettingsService } from '../../../core/services/settings.service';
 export class ModService {
     private settingsService = inject(SettingsService);
 
-    // State management with BehaviorSubjects
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    private errorSubject = new BehaviorSubject<string | null>(null);
+    // State management with signals (Principle IX: Signal管状态)
+    private loadingState = signal<boolean>(false);
+    private errorState = signal<string | null>(null);
 
-    /** Observable streams */
-    readonly loading$ = this.loadingSubject.asObservable();
-    readonly error$ = this.errorSubject.asObservable();
+    /** Readonly signal streams */
+    readonly loadingSig = this.loadingState.asReadonly();
+    readonly errorSig = this.errorState.asReadonly();
 
     /**
      * Read mod info from a zip file
@@ -32,17 +32,17 @@ export class ModService {
      * @returns Observable of ModReadInfo
      */
     readModInfo(filePath: string): Observable<ModReadInfo> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke<string>('read_info', { path: filePath })).pipe(
             map((result) => JSON.parse(result) as ModReadInfo),
             catchError((error) => {
-                this.errorSubject.next(`Failed to read mod info: ${error}`);
+                this.errorState.set(`Failed to read mod info: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -52,8 +52,8 @@ export class ModService {
      * @returns Observable of ModReadInfo
      */
     selectAndReadModFile(): Observable<ModReadInfo> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(
             open({
@@ -72,11 +72,11 @@ export class ModService {
                 return this.readModInfo(filePath as string);
             }),
             catchError((error) => {
-                this.errorSubject.next(`Failed to select file: ${error}`);
+                this.errorState.set(`Failed to select file: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -93,8 +93,8 @@ export class ModService {
         targetPath: string,
         options: ModInstallOptions,
     ): Observable<void> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         // If backup is enabled, create backup first
         if (options.backup) {
@@ -115,11 +115,11 @@ export class ModService {
                     ).pipe(map(() => undefined));
                 }),
                 catchError((error) => {
-                    this.errorSubject.next(`Failed to install mod: ${error}`);
+                    this.errorState.set(`Failed to install mod: ${error}`);
                     return throwError(() => error);
                 }),
                 finalize(() => {
-                    this.loadingSubject.next(false);
+                    this.loadingState.set(false);
                 }),
             );
         }
@@ -133,11 +133,11 @@ export class ModService {
         ).pipe(
             map(() => undefined),
             catchError((error) => {
-                this.errorSubject.next(`Failed to install mod: ${error}`);
+                this.errorState.set(`Failed to install mod: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -162,7 +162,7 @@ export class ModService {
             }),
         ).pipe(
             catchError((error) => {
-                this.errorSubject.next(`Failed to create backup: ${error}`);
+                this.errorState.set(`Failed to create backup: ${error}`);
                 return throwError(() => error);
             }),
         );
@@ -174,17 +174,17 @@ export class ModService {
      * @returns Observable of void
      */
     recoverBackup(targetPath: string): Observable<void> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke('recover_backup', { path: targetPath })).pipe(
             map(() => undefined),
             catchError((error) => {
-                this.errorSubject.next(`Failed to recover backup: ${error}`);
+                this.errorState.set(`Failed to recover backup: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -195,16 +195,16 @@ export class ModService {
      * @returns Observable of output file name
      */
     bundleMod(folderPath: string): Observable<string> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke<string>('bundle_mod', { path: folderPath })).pipe(
             catchError((error) => {
-                this.errorSubject.next(`Failed to bundle mod: ${error}`);
+                this.errorState.set(`Failed to bundle mod: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -214,8 +214,8 @@ export class ModService {
      * @returns Observable of output file name
      */
     selectAndBundleFolder(): Observable<string> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(
             open({
@@ -229,11 +229,11 @@ export class ModService {
                 return this.bundleMod(folderPath as string);
             }),
             catchError((error) => {
-                this.errorSubject.next(`Failed to bundle folder: ${error}`);
+                this.errorState.set(`Failed to bundle folder: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -244,18 +244,18 @@ export class ModService {
      * @returns Observable of folder path
      */
     generateModConfig(folderPath: string): Observable<string> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(
             invoke<string>('generate_mod_config', { path: folderPath }),
         ).pipe(
             catchError((error) => {
-                this.errorSubject.next(`Failed to generate config: ${error}`);
+                this.errorState.set(`Failed to generate config: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -265,8 +265,8 @@ export class ModService {
      * @returns Observable of folder path
      */
     selectAndGenerateConfig(): Observable<string> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(
             open({
@@ -280,11 +280,11 @@ export class ModService {
                 return this.generateModConfig(folderPath as string);
             }),
             catchError((error) => {
-                this.errorSubject.next(`Failed to generate config: ${error}`);
+                this.errorState.set(`Failed to generate config: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -310,6 +310,6 @@ export class ModService {
      * Clear error state
      */
     clearError(): void {
-        this.errorSubject.next(null);
+        this.errorState.set(null);
     }
 }

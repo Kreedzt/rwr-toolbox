@@ -1,5 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable, BehaviorSubject, combineLatest, of, map } from 'rxjs';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, of, map, combineLatest } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ServerService } from '../../servers/services/server.service';
 import { PlayerService } from '../../players/services/player.service';
 import { SettingsService } from '../../../core/services/settings.service';
@@ -51,26 +52,27 @@ export class DashboardService {
     private settingsService = inject(SettingsService);
     private pingService = inject(PingService);
 
-    private activitiesSubject = new BehaviorSubject<Activity[]>([]);
-    private apiStatusSubject = new BehaviorSubject<
-        'online' | 'offline' | 'loading'
-    >('loading');
+    // State management with signals (Principle IX: Signal管状态)
+    private activitiesState = signal<Activity[]>([]);
+    private apiStatusState = signal<'online' | 'offline' | 'loading'>(
+        'loading',
+    );
 
-    readonly activities$ = this.activitiesSubject.asObservable();
-    readonly apiStatus$ = this.apiStatusSubject.asObservable();
+    readonly activitiesSig = this.activitiesState.asReadonly();
+    readonly apiStatusSig = this.apiStatusState.asReadonly();
 
     /**
      * Get aggregated dashboard statistics
      */
     getStats$(): Observable<DashboardStats> {
         return combineLatest([
-            this.serverService.servers$,
-            this.apiStatus$,
+            toObservable(this.serverService.serversSig),
+            toObservable(this.apiStatusSig),
         ]).pipe(
             map(([servers, apiStatus]) => {
                 const serverCount = servers.length;
                 const playerCount = servers.reduce(
-                    (sum, s) => sum + s.currentPlayers,
+                    (sum: number, s: any) => sum + s.currentPlayers,
                     0,
                 );
 
@@ -89,14 +91,14 @@ export class DashboardService {
      * Get recent activities
      */
     getRecentActivities$(): Observable<Activity[]> {
-        return this.activities$;
+        return toObservable(this.activitiesSig);
     }
 
     /**
      * Get system status
      */
     getSystemStatus$(): Observable<SystemStatus> {
-        return this.apiStatus$.pipe(
+        return toObservable(this.apiStatusSig).pipe(
             map((apiStatus) => ({
                 apiConnected: apiStatus === 'online',
                 apiPing: null, // TODO: Track actual ping
@@ -117,8 +119,8 @@ export class DashboardService {
             timestamp: Date.now(),
         };
 
-        const currentActivities = this.activitiesSubject.value;
-        this.activitiesSubject.next(
+        const currentActivities = this.activitiesState();
+        this.activitiesState.set(
             [newActivity, ...currentActivities].slice(0, 10),
         );
     }
@@ -129,10 +131,10 @@ export class DashboardService {
     refresh(): void {
         this.serverService.fetchServers(true).subscribe({
             next: () => {
-                this.apiStatusSubject.next('online');
+                this.apiStatusState.set('online');
             },
             error: () => {
-                this.apiStatusSubject.next('offline');
+                this.apiStatusState.set('offline');
             },
         });
     }
@@ -141,7 +143,7 @@ export class DashboardService {
      * Initialize dashboard with default activities
      */
     initialize(): void {
-        this.activitiesSubject.next([
+        this.activitiesState.set([
             {
                 id: 'activity-welcome',
                 type: 'system',

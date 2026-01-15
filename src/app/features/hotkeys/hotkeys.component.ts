@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { HotkeyService } from './services/hotkey.service';
 import { IHotkeyConfigItem } from '../../shared/models/hotkeys.models';
 
@@ -21,19 +20,12 @@ import { IHotkeyConfigItem } from '../../shared/models/hotkeys.models';
 export class HotkeysComponent implements OnInit {
     private hotkeyService = inject(HotkeyService);
 
-    // Signals
-    readonly loading = toSignal(this.hotkeyService.loading$, {
-        initialValue: false,
-    });
-    readonly error = toSignal(this.hotkeyService.error$, {
-        initialValue: null,
-    });
-    readonly profiles = toSignal(this.hotkeyService.profiles$, {
-        initialValue: null,
-    });
-    readonly currentConfig = toSignal(this.hotkeyService.currentConfig$, {
-        initialValue: [],
-    });
+    // Use signals directly from service (refactored to Signal pattern)
+    readonly loading = this.hotkeyService.loadingSig;
+    readonly error = this.hotkeyService.errorSig;
+    readonly profiles = this.hotkeyService.profilesSig;
+    readonly currentConfig = this.hotkeyService.currentConfigSig;
+    readonly activeProfile = this.hotkeyService.activeProfileSig;
 
     // UI State
     activeTab: 'read' | 'profiles' = 'read';

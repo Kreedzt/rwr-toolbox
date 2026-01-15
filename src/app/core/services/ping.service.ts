@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, from, of } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { SettingsService } from './settings.service';
 
@@ -35,9 +35,9 @@ export interface ServerToPing {
 export class PingService {
     private settingsService = inject(SettingsService);
 
-    private pingingSubject = new BehaviorSubject<boolean>(false);
-    /** Pinging state observable */
-    readonly pinging$ = this.pingingSubject.asObservable();
+    private pingingState = signal<boolean>(false);
+    /** Pinging state signal (readonly) */
+    readonly pingingSig = this.pingingState.asReadonly();
 
     /**
      * Check if running in Tauri environment
@@ -53,7 +53,7 @@ export class PingService {
      * @returns Observable of ping result
      */
     pingServer(address: string, port: number): Observable<PingResult> {
-        this.pingingSubject.next(true);
+        this.pingingState.set(true);
 
         if (this.isTauri()) {
             // Use Tauri command
@@ -83,7 +83,7 @@ export class PingService {
         ).pipe(
             map((ping) => ({ address: `${address}:${port}`, ping })),
             catchError((error) => {
-                this.pingingSubject.next(false);
+                this.pingingState.set(false);
                 return of({
                     address: `${address}:${port}`,
                     ping: null,
@@ -105,7 +105,7 @@ export class PingService {
             ping: Math.floor(Math.random() * 200) + 20,
         }).pipe(
             map((result) => {
-                this.pingingSubject.next(false);
+                this.pingingState.set(false);
                 return result;
             }),
         );
@@ -117,7 +117,7 @@ export class PingService {
      * @returns Observable of ping results array
      */
     pingServers(servers: ServerToPing[]): Observable<PingResult[]> {
-        this.pingingSubject.next(true);
+        this.pingingState.set(true);
 
         if (this.isTauri()) {
             return this.pingServersTauri(servers);
@@ -141,7 +141,7 @@ export class PingService {
 
         return from(Promise.all(promises)).pipe(
             map((results) => {
-                this.pingingSubject.next(false);
+                this.pingingState.set(false);
                 return results as PingResult[];
             }),
         );
@@ -158,7 +158,7 @@ export class PingService {
 
         return of(results).pipe(
             map((results) => {
-                this.pingingSubject.next(false);
+                this.pingingState.set(false);
                 return results;
             }),
         );

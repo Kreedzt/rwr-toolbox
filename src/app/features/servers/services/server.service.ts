@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, of, throwError } from 'rxjs';
 import { tap, catchError, shareReplay, map, concatMap } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
 import { HttpClientService } from '../../../core/services/http-client.service';
@@ -30,15 +30,15 @@ export class ServerService {
     private readonly PAGE_SIZE = 100;
     private readonly xmlParser = new XMLParser();
 
-    // State management with BehaviorSubjects
-    private serversSubject = new BehaviorSubject<Server[]>([]);
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    private errorSubject = new BehaviorSubject<string | null>(null);
+    // State management with signals (Principle IX: Signal管状态)
+    private serversState = signal<Server[]>([]);
+    private loadingState = signal<boolean>(false);
+    private errorState = signal<string | null>(null);
 
-    /** Observable streams */
-    readonly servers$ = this.serversSubject.asObservable();
-    readonly loading$ = this.loadingSubject.asObservable();
-    readonly error$ = this.errorSubject.asObservable();
+    /** Readonly signal streams */
+    readonly serversSig = this.serversState.asReadonly();
+    readonly loadingSig = this.loadingState.asReadonly();
+    readonly errorSig = this.errorState.asReadonly();
 
     /**
      * Fetch all servers from API (loops until all data is retrieved)
@@ -46,8 +46,8 @@ export class ServerService {
      * @returns Observable of server list response
      */
     fetchServers(forceRefresh = false): Observable<ServerListResponse> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         const allServers: Server[] = [];
         let start = 0;
@@ -93,8 +93,8 @@ export class ServerService {
 
         return fetchPage(start).pipe(
             tap((response) => {
-                this.serversSubject.next(response.servers);
-                this.loadingSubject.next(false);
+                this.serversState.set(response.servers);
+                this.loadingState.set(false);
 
                 // Cache the complete response
                 this.cacheService.set(this.CACHE_KEY, {
@@ -103,8 +103,8 @@ export class ServerService {
                 });
             }),
             catchError((error) => {
-                this.loadingSubject.next(false);
-                this.errorSubject.next(error.message);
+                this.loadingState.set(false);
+                this.errorState.set(error.message);
 
                 // Try to load from cache
                 const cached = this.cacheService.get<{
@@ -113,7 +113,7 @@ export class ServerService {
                 }>(this.CACHE_KEY);
                 if (cached) {
                     console.log('Using cached server data');
-                    this.serversSubject.next(cached.servers);
+                    this.serversState.set(cached.servers);
                     return of({
                         servers: cached.servers,
                         timestamp: cached.timestamp,
@@ -321,6 +321,21 @@ export class ServerService {
      */
     clearCache(): void {
         this.cacheService.delete(this.CACHE_KEY);
+    }
+
+    /**
+     * Update server ping value (called from component after ping completes)
+     * @param serverId Server ID (address:port)
+     * @param ping Ping time in milliseconds
+     */
+    updateServerPing(serverId: string, ping: number): void {
+        const servers = this.serversState();
+        const server = servers.find((s) => s.id === serverId);
+        if (server) {
+            this.serversState.set(
+                servers.map((s) => (s.id === serverId ? { ...s, ping } : s)),
+            );
+        }
     }
 
     // Helper methods

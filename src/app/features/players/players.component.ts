@@ -13,7 +13,6 @@ import {
 import { PlayerService } from './services/player.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { PLAYER_COLUMNS } from './player-columns';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 /**
  * Players list component with filtering, sorting, and database switching
@@ -30,20 +29,13 @@ export class PlayersComponent implements OnInit {
     private settingsService = inject(SettingsService);
     private translocoService = inject(TranslocoService);
 
-    // Convert observables to signals
-    private players$ = this.playerService.players$;
-    private loading$ = this.playerService.loading$;
-    private error$ = this.playerService.error$;
-    private currentPage$ = this.playerService.currentPage$;
-    private hasNextPage$ = this.playerService.hasNextPage$;
-    private hasPreviousPage$ = this.playerService.hasPreviousPage$;
-
-    players = toSignal(this.players$, { initialValue: [] as Player[] });
-    loading = toSignal(this.loading$, { initialValue: false });
-    error = toSignal(this.error$, { initialValue: null as string | null });
-    currentPage = toSignal(this.currentPage$, { initialValue: 1 });
-    hasNextPage = toSignal(this.hasNextPage$, { initialValue: false });
-    hasPreviousPage = toSignal(this.hasPreviousPage$, { initialValue: false });
+    // Use signals directly from service (refactored to Signal pattern)
+    readonly players = this.playerService.playersSig;
+    readonly loading = this.playerService.loadingSig;
+    readonly error = this.playerService.errorSig;
+    readonly currentPage = this.playerService.currentPageSig;
+    readonly hasNextPage = this.playerService.hasNextPageSig;
+    readonly hasPreviousPage = this.playerService.hasPreviousPageSig;
 
     // Available databases
     databases: PlayerDatabase[] = ['invasion', 'pacific', 'prereset_invasion'];

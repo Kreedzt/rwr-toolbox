@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, from, throwError } from 'rxjs';
 import { catchError, tap, finalize, switchMap, map } from 'rxjs/operators';
 import { invoke } from '@tauri-apps/api/core';
 import { save, open } from '@tauri-apps/plugin-dialog';
@@ -28,48 +28,46 @@ import {
 export class HotkeyService {
     private settingsService = inject(SettingsService);
 
-    // State management with BehaviorSubjects
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    private errorSubject = new BehaviorSubject<string | null>(null);
-    private profilesSubject = new BehaviorSubject<IHotkeyProfilesConfig>({
+    // State management with signals (Principle IX: Signal管状态)
+    private loadingState = signal<boolean>(false);
+    private errorState = signal<string | null>(null);
+    private profilesState = signal<IHotkeyProfilesConfig>({
         profiles: [],
         activeProfileId: null,
     });
-    private currentConfigSubject = new BehaviorSubject<IHotkeyConfigItem[]>([]);
+    private currentConfigState = signal<IHotkeyConfigItem[]>([]);
 
-    /** Observable streams */
-    readonly loading$ = this.loadingSubject.asObservable();
-    readonly error$ = this.errorSubject.asObservable();
-    readonly profiles$ = this.profilesSubject.asObservable();
-    readonly currentConfig$ = this.currentConfigSubject.asObservable();
+    /** Readonly signal streams */
+    readonly loadingSig = this.loadingState.asReadonly();
+    readonly errorSig = this.errorState.asReadonly();
+    readonly profilesSig = this.profilesState.asReadonly();
+    readonly currentConfigSig = this.currentConfigState.asReadonly();
 
-    /** Currently active profile */
-    readonly activeProfile = this.profilesSubject.pipe(
-        map((config) => {
-            if (!config.activeProfileId) return null;
-            return (
-                config.profiles.find((p) => p.id === config.activeProfileId) ||
-                null
-            );
-        }),
-    );
+    /** Currently active profile (computed from profiles state) */
+    readonly activeProfileSig = computed(() => {
+        const config = this.profilesState();
+        if (!config.activeProfileId) return null;
+        return (
+            config.profiles.find((p) => p.id === config.activeProfileId) || null
+        );
+    });
 
     /**
      * Initialize: load profiles
      */
     initialize(): Observable<void> {
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke<string>('read_profiles')).pipe(
             map((result) => JSON.parse(result) as IHotkeyProfilesConfig),
-            tap((config) => this.profilesSubject.next(config)),
+            tap((config) => this.profilesState.set(config)),
             catchError((error) => {
-                this.errorSubject.next(`Failed to load profiles: ${error}`);
+                this.errorState.set(`Failed to load profiles: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
             map(() => undefined),
         );
@@ -84,8 +82,8 @@ export class HotkeyService {
             return throwError(() => 'Game path not configured');
         }
 
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke<string>('read_hotkeys', { gamePath })).pipe(
             switchMap((xmlContent) => {
@@ -93,14 +91,14 @@ export class HotkeyService {
             }),
             map((result) => JSON.parse(result) as IHotkeyConfigItem[]),
             tap((config) => {
-                this.currentConfigSubject.next(config);
+                this.currentConfigState.set(config);
             }),
             catchError((error) => {
-                this.errorSubject.next(`Failed to read hotkeys: ${error}`);
+                this.errorState.set(`Failed to read hotkeys: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -114,8 +112,8 @@ export class HotkeyService {
             return throwError(() => 'Game path not configured');
         }
 
-        this.loadingSubject.next(true);
-        this.errorSubject.next(null);
+        this.loadingState.set(true);
+        this.errorState.set(null);
 
         return from(invoke<string>('generate_hotkeys', { config })).pipe(
             switchMap((xmlContent) => {
@@ -128,11 +126,11 @@ export class HotkeyService {
             }),
             map(() => undefined),
             catchError((error) => {
-                this.errorSubject.next(`Failed to write hotkeys: ${error}`);
+                this.errorState.set(`Failed to write hotkeys: ${error}`);
                 return throwError(() => error);
             }),
             finalize(() => {
-                this.loadingSubject.next(false);
+                this.loadingState.set(false);
             }),
         );
     }
@@ -149,7 +147,7 @@ export class HotkeyService {
             updatedAt: Date.now(),
         };
 
-        const current = this.profilesSubject.value;
+        const current = this.profilesState();
         const updated: IHotkeyProfilesConfig = {
             ...current,
             profiles: [...current.profiles, newProfile],
@@ -165,7 +163,7 @@ export class HotkeyService {
         id: string,
         updates: Partial<IHotkeyProfileCreate>,
     ): Observable<void> {
-        const current = this.profilesSubject.value;
+        const current = this.profilesState();
         const profileIndex = current.profiles.findIndex((p) => p.id === id);
 
         if (profileIndex === -1) {
@@ -191,7 +189,7 @@ export class HotkeyService {
      * Delete profile
      */
     deleteProfile(id: string): Observable<void> {
-        const current = this.profilesSubject.value;
+        const current = this.profilesState();
 
         const updated: IHotkeyProfilesConfig = {
             profiles: current.profiles.filter((p) => p.id !== id),
@@ -206,19 +204,17 @@ export class HotkeyService {
      * Apply profile to game (also sets as active)
      */
     applyProfile(id: string): Observable<void> {
-        const profile = this.profilesSubject.value.profiles.find(
-            (p) => p.id === id,
-        );
+        const profile = this.profilesState().profiles.find((p) => p.id === id);
         if (!profile) {
             return throwError(() => 'Profile not found');
         }
 
         return this.writeToGame(profile.config).pipe(
             tap(() => {
-                this.currentConfigSubject.next(profile.config);
+                this.currentConfigState.set(profile.config);
                 // Also mark as active
-                const current = this.profilesSubject.value;
-                this.profilesSubject.next({
+                const current = this.profilesState();
+                this.profilesState.set({
                     ...current,
                     activeProfileId: id,
                 });
@@ -230,9 +226,7 @@ export class HotkeyService {
      * Export profile
      */
     async exportProfile(id: string): Promise<void> {
-        const profile = this.profilesSubject.value.profiles.find(
-            (p) => p.id === id,
-        );
+        const profile = this.profilesState().profiles.find((p) => p.id === id);
         if (!profile) {
             throw new Error('Profile not found');
         }
@@ -282,7 +276,7 @@ export class HotkeyService {
                 updatedAt: Date.now(),
             };
 
-            const current = this.profilesSubject.value;
+            const current = this.profilesState();
             const updated: IHotkeyProfilesConfig = {
                 ...current,
                 profiles: [...current.profiles, newProfile],
@@ -336,11 +330,11 @@ export class HotkeyService {
 
         return from(invoke('save_profiles', { profilesJson: configJson })).pipe(
             tap(() => {
-                this.profilesSubject.next(config);
+                this.profilesState.set(config);
             }),
             map(() => undefined),
             catchError((error) => {
-                this.errorSubject.next(`Failed to save profiles: ${error}`);
+                this.errorState.set(`Failed to save profiles: ${error}`);
                 return throwError(() => error);
             }),
         );
@@ -357,16 +351,14 @@ export class HotkeyService {
      * Clear error state
      */
     clearError(): void {
-        this.errorSubject.next(null);
+        this.errorState.set(null);
     }
 
     /**
      * Share profile to clipboard
      */
     async shareProfile(id: string): Promise<void> {
-        const profile = this.profilesSubject.value.profiles.find(
-            (p) => p.id === id,
-        );
+        const profile = this.profilesState().profiles.find((p) => p.id === id);
         if (!profile) {
             throw new Error('Profile not found');
         }
@@ -398,7 +390,7 @@ export class HotkeyService {
             updatedAt: Date.now(),
         };
 
-        const current = this.profilesSubject.value;
+        const current = this.profilesState();
         const updated: IHotkeyProfilesConfig = {
             ...current,
             profiles: [...current.profiles, newProfile],

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ModService } from '../services/mod.service';
 import {
     ModReadInfo,
@@ -28,11 +27,9 @@ export class InstallComponent implements OnInit {
     private modService = inject(ModService);
     private settingsService = inject(SettingsService);
 
-    // Signals
-    readonly loading = toSignal(this.modService.loading$, {
-        initialValue: false,
-    });
-    readonly error = toSignal(this.modService.error$, { initialValue: null });
+    // Use signals directly from service (refactored to Signal pattern)
+    readonly loading = this.modService.loadingSig;
+    readonly error = this.modService.errorSig;
 
     // Component state
     activeStep = 0;
