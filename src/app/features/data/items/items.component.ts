@@ -4,6 +4,7 @@ import { ItemService, ItemFilters } from './services/item.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { GenericItem, getItemSlot } from '../../../shared/models/items.models';
 import { ITEM_COLUMNS } from './item-columns';
+import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
 
 /**
  * Items table component with search, filters, column visibility, and sorting
@@ -20,6 +21,7 @@ import { ITEM_COLUMNS } from './item-columns';
 export class ItemsComponent implements OnInit {
     private itemService = inject(ItemService);
     private settingsService = inject(SettingsService);
+    private scrollingModeService = inject(ScrollingModeService);
 
     // Readonly signals from service
     readonly items = this.itemService.filteredItems;
@@ -50,11 +52,20 @@ export class ItemsComponent implements OnInit {
         return Array.from(types).sort();
     });
 
+    readonly isTableOnlyMode = computed(() =>
+        this.scrollingModeService.isTableOnlyMode(),
+    );
+
     constructor() {
         // Load column visibility from localStorage on init
         this.itemService.setColumnVisibility(
             this.itemService.getColumnVisibility(),
         );
+    }
+
+    toggleScrollingMode(): void {
+        const newMode = this.isTableOnlyMode() ? 'full-page' : 'table-only';
+        this.scrollingModeService.setMode(newMode);
     }
 
     ngOnInit(): void {

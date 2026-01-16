@@ -208,47 +208,43 @@ struct RawEffect {
 }
 
 /// Scan items from game directory
-/// If `directory` is provided, scan that directory instead of game_path
+/// If `directory` is provided, scan that directory directly (it's expected to already be the packages directory)
 #[tauri::command]
-pub async fn scan_items(game_path: String, directory: Option<String>) -> Result<ItemScanResult, String> {
+pub async fn scan_items(
+    game_path: String,
+    directory: Option<String>,
+) -> Result<ItemScanResult, String> {
     let start_time = std::time::Instant::now();
 
-    // Use provided directory if available, otherwise fall back to game_path
-    let scan_path = directory.unwrap_or(game_path);
-    let input_path = Path::new(&scan_path);
-    if !input_path.exists() {
-        return Err(format!("Path does not exist: {}", scan_path));
-    }
-
-    // Determine packages directory
-    let packages_dir = if input_path.ends_with("packages") {
-        input_path.to_path_buf()
+    // Use provided directory if available, otherwise fall back to game_path/packages
+    let scan_path = if let Some(dir) = &directory {
+        dir.clone()
     } else {
-        input_path.join("packages")
+        format!("{}/packages", game_path)
     };
+    let input_path = Path::new(&scan_path);
 
-    if !packages_dir.exists() {
-        return Err(format!(
-            "packages directory not found. Expected: {}",
-            packages_dir.display()
-        ));
+    if !input_path.exists() {
+        return Err(format!("Directory not found: {}", scan_path));
     }
+
+    let input_path = input_path.to_path_buf();
 
     let mut items = Vec::new();
     let mut errors = Vec::new();
     let mut seen_keys = HashSet::new();
     let mut duplicate_keys = Vec::new();
 
-    // Scan for item files in packages/**/items/
-    let items_pattern = packages_dir.join("**/items/*.carry_item");
-    let visual_items_pattern = packages_dir.join("**/items/*.visual_item");
+    // Scan for item files in input_path/**/items/
+    let items_pattern = input_path.join("**/items/*.carry_item");
+    let visual_items_pattern = input_path.join("**/items/*.visual_item");
 
     // Scan carry_item files
     if let Ok(entries) = glob::glob(&items_pattern.to_string_lossy()) {
         for entry in entries {
             if let Ok(path) = entry {
                 if path.is_file() {
-                    match parse_carry_item(&path, &packages_dir) {
+                    match parse_carry_item(&path, &input_path) {
                         Ok(item) => {
                             if let Some(ref key) = item.key {
                                 if seen_keys.contains(key) {
@@ -277,7 +273,7 @@ pub async fn scan_items(game_path: String, directory: Option<String>) -> Result<
         for entry in entries {
             if let Ok(path) = entry {
                 if path.is_file() {
-                    match parse_visual_item(&path, &packages_dir) {
+                    match parse_visual_item(&path, &input_path) {
                         Ok(item) => {
                             if let Some(ref key) = item.key {
                                 if seen_keys.contains(key) {
@@ -312,7 +308,7 @@ pub async fn scan_items(game_path: String, directory: Option<String>) -> Result<
 }
 
 /// Parse a carry_item XML file
-fn parse_carry_item(path: &Path, packages_dir: &Path) -> Result<Item, String> {
+fn parse_carry_item(path: &Path, input_path: &Path) -> Result<Item, String> {
     let content =
         std::fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))?;
 
@@ -334,7 +330,7 @@ fn parse_carry_item(path: &Path, packages_dir: &Path) -> Result<Item, String> {
 
     let package_name = path
         .ancestors()
-        .skip_while(|p| *p != packages_dir)
+        .skip_while(|p| *p != input_path)
         .skip(1)
         .next()
         .and_then(|p| p.file_name())
@@ -389,7 +385,7 @@ fn parse_carry_item(path: &Path, packages_dir: &Path) -> Result<Item, String> {
 }
 
 /// Parse a visual_item XML file
-fn parse_visual_item(path: &Path, packages_dir: &Path) -> Result<Item, String> {
+fn parse_visual_item(path: &Path, input_path: &Path) -> Result<Item, String> {
     let content =
         std::fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))?;
 
@@ -403,7 +399,7 @@ fn parse_visual_item(path: &Path, packages_dir: &Path) -> Result<Item, String> {
 
     let package_name = path
         .ancestors()
-        .skip_while(|p| *p != packages_dir)
+        .skip_while(|p| *p != input_path)
         .skip(1)
         .next()
         .and_then(|p| p.file_name())

@@ -50,6 +50,11 @@
         "last_update": "Last update: Just now",
         "close": "Close"
     },
+    "scrolling": {
+        "tableOnly": "Table Scroll",
+        "fullPage": "Full Page Scroll",
+        "toggleTooltip": "Toggle scrolling mode"
+    },
     "shortcuts": {
         "title": "Keyboard Shortcuts",
         "navigation": "Navigation",

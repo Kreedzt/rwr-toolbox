@@ -7,6 +7,7 @@ mod weapons;
 
 use std::time::Duration;
 use tauri_plugin_http::reqwest::{Client, Url};
+use tauri_plugin_store::Store;
 
 /// Simple text fetch proxy to bypass WebView CORS.
 #[tauri::command]

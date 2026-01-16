@@ -226,28 +226,30 @@ pub async fn validate_game_path(path: String) -> Result<ValidationResult, String
 }
 
 /// Scan all weapon files from game directory
-/// If `directory` is provided, scan that directory instead of game_path
+/// If `directory` is provided, scan that directory directly (it's expected to already be the packages directory)
 #[tauri::command]
-pub async fn scan_weapons(game_path: String, directory: Option<String>) -> Result<WeaponScanResult, String> {
+pub async fn scan_weapons(
+    game_path: String,
+    directory: Option<String>,
+) -> Result<WeaponScanResult, String> {
     let start_time = std::time::Instant::now();
 
-    // Use provided directory if available, otherwise fall back to game_path
-    let scan_path = directory.unwrap_or(game_path);
+    // Use provided directory if available, otherwise fall back to game_path/packages
+    let scan_path = if let Some(dir) = &directory {
+        dir.clone()
+    } else {
+        format!("{}/packages", game_path)
+    };
     let input_path = Path::new(&scan_path);
 
-    // Determine packages directory (same logic as validate_game_path)
-    let base_path = if input_path.ends_with("packages") {
-        input_path.to_path_buf()
-    } else {
-        input_path.join("packages")
-    };
-
-    if !base_path.exists() {
-        return Err("packages directory not found".to_string());
+    if !input_path.exists() {
+        return Err(format!("Directory not found: {}", scan_path));
     }
 
+    let input_path = input_path.to_path_buf();
+
     // Discover all .weapon files
-    let weapon_files = discover_weapons(&base_path);
+    let weapon_files = discover_weapons(&input_path);
 
     if weapon_files.is_empty() {
         return Ok(WeaponScanResult {
@@ -266,7 +268,7 @@ pub async fn scan_weapons(game_path: String, directory: Option<String>) -> Resul
     for weapon_file in weapon_files {
         let file_str = weapon_file.to_string_lossy().to_string();
 
-        match parse_weapon_file(&weapon_file, &base_path) {
+        match parse_weapon_file(&weapon_file, &input_path) {
             Ok(weapon) => {
                 // Check for duplicate keys
                 if let Some(key) = &weapon.key {
@@ -305,8 +307,8 @@ pub async fn scan_weapons(game_path: String, directory: Option<String>) -> Resul
 }
 
 /// Discover all .weapon files in packages directory
-fn discover_weapons(base_path: &Path) -> Vec<PathBuf> {
-    WalkDir::new(base_path)
+fn discover_weapons(input_path: &Path) -> Vec<PathBuf> {
+    WalkDir::new(input_path)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().is_some_and(|ext| ext == "weapon"))
@@ -315,7 +317,7 @@ fn discover_weapons(base_path: &Path) -> Vec<PathBuf> {
 }
 
 /// Parse a single weapon XML file with template resolution
-fn parse_weapon_file(weapon_path: &Path, base_path: &Path) -> Result<Weapon, anyhow::Error> {
+fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, anyhow::Error> {
     let content = std::fs::read_to_string(weapon_path)?;
 
     // Get package name from path
@@ -331,7 +333,7 @@ fn parse_weapon_file(weapon_path: &Path, base_path: &Path) -> Result<Weapon, any
 
     // Resolve template inheritance if needed
     if let Some(template_file) = &raw_weapon.template_file {
-        let resolved = resolve_template(base_path, template_file, &mut HashSet::new())?;
+        let resolved = resolve_template(input_path, template_file, &mut HashSet::new())?;
         raw_weapon = merge_attributes(resolved, raw_weapon);
     }
 
@@ -393,7 +395,7 @@ fn parse_weapon_file(weapon_path: &Path, base_path: &Path) -> Result<Weapon, any
     // Calculate relative file path from packages directory
     // e.g., "vanilla/weapons/ak47.weapon"
     let file_path = weapon_path
-        .strip_prefix(base_path)
+        .strip_prefix(input_path)
         .unwrap_or(weapon_path)
         .to_string_lossy()
         .trim_start_matches('/')
@@ -434,11 +436,11 @@ fn parse_weapon_file(weapon_path: &Path, base_path: &Path) -> Result<Weapon, any
 
 /// Recursively resolve template inheritance with cycle detection
 fn resolve_template(
-    base_path: &Path,
+    input_path: &Path,
     template_file: &str,
     visited: &mut HashSet<PathBuf>,
 ) -> Result<RawWeapon, anyhow::Error> {
-    let template_path = base_path.join(template_file);
+    let template_path = input_path.join(template_file);
 
     // Cycle detection
     if !visited.insert(template_path.clone()) {
@@ -460,7 +462,7 @@ fn resolve_template(
 
     // Resolve parent template if exists
     if let Some(parent_file) = &raw_weapon.template_file {
-        let parent = resolve_template(base_path, parent_file, visited)?;
+        let parent = resolve_template(input_path, parent_file, visited)?;
         raw_weapon = merge_attributes(parent, raw_weapon);
     }
 

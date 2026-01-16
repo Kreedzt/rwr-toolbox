@@ -62,6 +62,8 @@ export class SettingsComponent implements OnInit {
     ngOnInit(): void {
         // Load existing game path on init
         this.gamePathInput.set(this.settingsService.getGamePath());
+        // Load scan directories from Tauri store
+        this.directoryService.loadDirectories();
     }
 
     /**

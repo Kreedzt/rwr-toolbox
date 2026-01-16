@@ -5,6 +5,7 @@ import { WeaponService } from './services/weapon.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { Weapon, AdvancedFilters } from '../../../shared/models/weapons.models';
 import { WEAPON_COLUMNS } from './weapon-columns';
+import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
 
 /**
  * Weapons table component with search, filters, and column visibility
@@ -21,6 +22,7 @@ export class WeaponsComponent implements OnInit {
     private weaponService = inject(WeaponService);
     private settingsService = inject(SettingsService);
     private transloco = inject(TranslocoService);
+    private scrollingModeService = inject(ScrollingModeService);
 
     // Readonly signals from service
     readonly weapons = this.weaponService.filteredWeapons;
@@ -51,11 +53,20 @@ export class WeaponsComponent implements OnInit {
         return Array.from(tags).sort();
     });
 
+    readonly isTableOnlyMode = computed(() =>
+        this.scrollingModeService.isTableOnlyMode(),
+    );
+
     constructor() {
         // Load column visibility from localStorage on init
         this.weaponService.setColumnVisibility(
             this.weaponService.getColumnVisibility(),
         );
+    }
+
+    toggleScrollingMode(): void {
+        const newMode = this.isTableOnlyMode() ? 'full-page' : 'table-only';
+        this.scrollingModeService.setMode(newMode);
     }
 
     ngOnInit(): void {

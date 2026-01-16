@@ -14,6 +14,7 @@ import { ServerService } from './services/server.service';
 import { PingService } from '../../core/services/ping.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { SERVER_COLUMNS } from './server-columns';
+import { ScrollingModeService } from '../shared/services/scrolling-mode.service';
 
 /**
  * Servers list component with filtering, sorting, pagination, and ping functionality
@@ -29,6 +30,7 @@ export class ServersComponent implements OnInit {
     private serverService = inject(ServerService);
     private pingService = inject(PingService);
     private settingsService = inject(SettingsService);
+    private scrollingModeService = inject(ScrollingModeService);
 
     // Use signals directly from services (refactored to Signal pattern)
     readonly servers = this.serverService.serversSig;
@@ -64,6 +66,10 @@ export class ServersComponent implements OnInit {
     });
 
     // Computed pagination totals (derived from filtered servers)
+    readonly isTableOnlyMode = computed(() =>
+        this.scrollingModeService.isTableOnlyMode(),
+    );
+
     totalItems = computed(() => this.filteredServers().length);
     totalPages = computed(
         () => Math.ceil(this.totalItems() / this.pagination().pageSize) || 1,
@@ -92,6 +98,11 @@ export class ServersComponent implements OnInit {
 
     ngOnInit() {
         this.loadData();
+    }
+
+    toggleScrollingMode(): void {
+        const newMode = this.isTableOnlyMode() ? 'full-page' : 'table-only';
+        this.scrollingModeService.setMode(newMode);
     }
 
     /**

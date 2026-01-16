@@ -37,6 +37,19 @@
                     }
                 </ul>
             </div>
+            <!-- Scrolling Mode Toggle Button -->
+            <button
+                class="btn btn-sm sm:btn-md join-item"
+                (click)="toggleScrollingMode()"
+                [title]="'scrolling.toggleTooltip' | t"
+            >
+                <i-lucide
+                    [name]="
+                        isTableOnlyMode() ? 'arrow-down-to-line' : 'maximize-2'
+                    "
+                    class="h-4 w-4"
+                ></i-lucide>
+            </button>
             <button
                 class="btn btn-sm sm:btn-md join-item"
                 (click)="onRefresh()"
@@ -162,7 +175,14 @@
 
     <!-- Servers Table (Optimized for 800px) -->
     @if (!loading() && paginatedServers().length > 0) {
-        <div class="overflow-x-auto border border-base-300 rounded-lg">
+        <div
+            [class]="
+                isTableOnlyMode()
+                    ? 'h-[600px] overflow-y-auto'
+                    : 'overflow-x-auto'
+            "
+            class="border border-base-300 rounded-lg"
+        >
             <table class="table table-zebra table-xs sm:table-sm min-w-max">
                 <thead>
                     <tr>

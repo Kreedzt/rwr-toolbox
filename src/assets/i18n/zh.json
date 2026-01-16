@@ -50,6 +50,11 @@
         "last_update": "最后更新：刚刚",
         "close": "关闭"
     },
+    "scrolling": {
+        "tableOnly": "表格滚动",
+        "fullPage": "整页滚动",
+        "toggleTooltip": "切换滚动模式"
+    },
     "shortcuts": {
         "title": "键盘快捷键",
         "navigation": "导航",

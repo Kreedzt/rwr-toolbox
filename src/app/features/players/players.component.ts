@@ -13,6 +13,7 @@ import {
 import { PlayerService } from './services/player.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { PLAYER_COLUMNS } from './player-columns';
+import { ScrollingModeService } from '../shared/services/scrolling-mode.service';
 
 /**
  * Players list component with filtering, sorting, and database switching
@@ -28,6 +29,7 @@ export class PlayersComponent implements OnInit {
     private playerService = inject(PlayerService);
     private settingsService = inject(SettingsService);
     private translocoService = inject(TranslocoService);
+    private scrollingModeService = inject(ScrollingModeService);
 
     // Use signals directly from service (refactored to Signal pattern)
     readonly players = this.playerService.playersSig;
@@ -53,6 +55,10 @@ export class PlayersComponent implements OnInit {
     pageSize = signal<number>(20);
 
     // Computed state
+    readonly isTableOnlyMode = computed(() =>
+        this.scrollingModeService.isTableOnlyMode(),
+    );
+
     filteredPlayers = computed(() => {
         const allPlayers = this.players();
         const currentFilter = this.filter();
@@ -117,6 +123,11 @@ export class PlayersComponent implements OnInit {
 
     ngOnInit() {
         this.loadData();
+    }
+
+    toggleScrollingMode(): void {
+        const newMode = this.isTableOnlyMode() ? 'full-page' : 'table-only';
+        this.scrollingModeService.setMode(newMode);
     }
 
     /**

@@ -14,7 +14,7 @@
         </div>
 
         <!-- Menu Items -->
-        <ul class="menu grow p-2 gap-0.5 overflow-y-auto">
+        <ul class="menu grow p-2 gap-0.5 overflow-y-auto w-full">
             @for (item of menuItems; track item.link ?? item.label ?? $index) {
                 @if (item.divider) {
                     <li class="my-1 border-t border-base-300"></li>

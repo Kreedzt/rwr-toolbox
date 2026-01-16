@@ -1,15 +1,15 @@
 <div class="flex flex-col sm:flex-row gap-2 mb-4">
     <!-- Search input with type filter -->
-    <div class="join flex-1 w-full">
+    <div class="join flex-1 w-full flex-col gap-2">
         <input
             type="text"
             [placeholder]="'items.search' | transloco"
-            class="input input-bordered join-item flex-1"
+            class="input input-bordered"
             [value]="searchTerm()"
             (input)="onSearch($any($event.target).value)"
         />
         <select
-            class="select select-bordered join-item"
+            class="select select-bordered"
             (change)="onItemTypeFilter($any($event.target).value)"
         >
             <option value="">
@@ -65,6 +65,17 @@
             }
         </ul>
     </div>
+    <!-- Scrolling Mode Toggle Button -->
+    <button
+        class="btn btn-outline"
+        (click)="toggleScrollingMode()"
+        [title]="'scrolling.toggleTooltip' | transloco"
+    >
+        <i-lucide
+            [name]="isTableOnlyMode() ? 'arrow-down-to-line' : 'maximize-2'"
+            class="h-5 w-5"
+        ></i-lucide>
+    </button>
     <!-- Refresh button -->
     <button class="btn btn-primary" (click)="onRefresh()">
         @if (loading()) {
@@ -235,7 +246,11 @@
 }
 
 <!-- Items Table -->
-<div class="overflow-x-auto">
+<div
+    [class]="
+        isTableOnlyMode() ? 'h-[600px] overflow-y-auto' : 'overflow-x-auto'
+    "
+>
     <table class="table table-xs">
         <thead>
             <tr>

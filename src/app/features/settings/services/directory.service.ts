@@ -369,7 +369,7 @@ export class DirectoryService {
     }
 
     /**
-     * T025: Query methods for directory information
+     * Query methods for directory information
      */
     getDirectory(directoryId: string): ScanDirectory | undefined {
         return this.directoriesState().find((d) => d.id === directoryId);
@@ -395,6 +395,46 @@ export class DirectoryService {
             (sum, d) => sum + (d.weaponCount || 0),
             0,
         );
+    }
+
+    /**
+     * Load scan directories from Tauri plugin-store
+     * Used for persistence across application sessions
+     * Converts stored string[] paths to ScanDirectory[] objects
+     */
+    async loadDirectories(): Promise<void> {
+        try {
+            const dirs = await invoke<string[]>('get_scan_directories');
+            const scanDirs: ScanDirectory[] = dirs.map((path) => ({
+                id: this.generateId(),
+                path,
+                status: 'pending',
+                displayName: this.extractDisplayName(path),
+                addedAt: Date.now(),
+                lastScannedAt: 0,
+                itemCount: 0,
+                weaponCount: 0,
+            }));
+            this.directoriesState.set(scanDirs);
+        } catch (error) {
+            console.error('Failed to load scan directories:', error);
+        }
+    }
+
+    /**
+     * Save scan directories to Tauri plugin-store
+     * Used for persistence across application sessions
+     * Extracts paths from ScanDirectory[] and saves to Tauri store
+     */
+    async saveScanDirs(directories: ScanDirectory[]): Promise<void> {
+        try {
+            const paths = directories.map((d) => d.path);
+            await invoke('save_scan_directories', { directories: paths });
+            await this.settingsService.updateScanDirectories(directories);
+        } catch (error) {
+            console.error('Failed to save scan directories:', error);
+            throw error;
+        }
     }
 
     /**

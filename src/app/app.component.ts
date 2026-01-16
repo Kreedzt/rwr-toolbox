@@ -1,4 +1,4 @@
-import { Component, HostListener, signal, inject } from '@angular/core';
+import { Component, HostListener, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -6,6 +6,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { open } from '@tauri-apps/plugin-dialog';
 import { MAIN_MENU_ITEMS } from './shared/constants/menu-items';
 import { DirectoryService } from './features/settings/services/directory.service';
+import { ScrollingModeService } from './features/shared/services/scrolling-mode.service';
 
 @Component({
     selector: 'app-root',
@@ -19,12 +20,17 @@ import { DirectoryService } from './features/settings/services/directory.service
     templateUrl: './app.component.html',
     styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     private router = inject(Router);
     private directoryService = inject(DirectoryService);
+    private scrollingModeService = inject(ScrollingModeService);
 
     menuItems = MAIN_MENU_ITEMS;
     currentYear = new Date().getFullYear();
+
+    async ngOnInit(): Promise<void> {
+        await this.scrollingModeService.loadMode();
+    }
 
     // UI state
     showStatusPanel = signal(false);
