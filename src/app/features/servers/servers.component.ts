@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
 import {
     Server,
     ServerFilter,
@@ -22,7 +22,12 @@ import { ScrollingModeService } from '../shared/services/scrolling-mode.service'
 @Component({
     selector: 'app-servers',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule, TranslocoDirective],
+    imports: [
+        CommonModule,
+        LucideAngularModule,
+        TranslocoDirective,
+        TranslocoPipe,
+    ],
     templateUrl: './servers.component.html',
     styleUrl: './servers.component.css',
 })

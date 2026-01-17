@@ -221,10 +221,12 @@ export class HotkeysComponent implements OnInit {
     }
 
     /**
-     * Get game path
+     * Get game path (first valid scan directory)
      */
     get gamePath(): string | undefined {
-        return this.hotkeyService['settingsService'].settings().gamePath;
+        const directories = this.hotkeyService['settingsService'].getScanDirectories();
+        const firstValid = directories.find((d) => d.status === 'valid');
+        return firstValid?.path;
     }
 
     /**

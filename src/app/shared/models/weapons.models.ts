@@ -21,8 +21,12 @@ export interface Weapon {
     key?: string;
     /** Display name shown to users */
     name: string;
-    /** Weapon category/class (assault, sniper, smg, etc.) */
+    /** Weapon category/class (assault, sniper, smg, etc.) from <tag name="..."/> */
     classTag: string;
+    /** Weapon class value from <specification class="..."/> (separate from tag) */
+    class?: number;
+    /** Icon filename from <hud_icon filename="..."/> (e.g., "hud_ak47.png") */
+    hudIcon?: string | null;
     /** Ammo capacity per magazine */
     magazineSize: number;
     /** Base damage (0.0 - 1.0) */
@@ -124,9 +128,10 @@ export interface AdvancedFilters {
 }
 
 /**
- * Weapon column keys (6 default columns for 800x600 + filePath + sourceDirectory)
+ * Weapon column keys (6 default columns for 800x600 + filePath + sourceDirectory + image)
  */
 export type WeaponColumnKey =
+    | 'image'
     | 'key'
     | 'name'
     | 'class'

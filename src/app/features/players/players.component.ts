@@ -1,7 +1,11 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import {
+    TranslocoDirective,
+    TranslocoPipe,
+    TranslocoService,
+} from '@jsverse/transloco';
 import {
     Player,
     PlayerFilter,
@@ -21,7 +25,12 @@ import { ScrollingModeService } from '../shared/services/scrolling-mode.service'
 @Component({
     selector: 'app-players',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule, TranslocoDirective],
+    imports: [
+        CommonModule,
+        LucideAngularModule,
+        TranslocoDirective,
+        TranslocoPipe,
+    ],
     templateUrl: './players.component.html',
     styleUrl: './players.component.css',
 })

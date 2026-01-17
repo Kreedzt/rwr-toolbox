@@ -77,9 +77,13 @@ export class HotkeyService {
      * Read hotkey configuration from game directory
      */
     readFromGame(): Observable<IHotkeyConfigItem[]> {
-        const gamePath = this.settingsService.settings().gamePath;
+        // Get first valid scan directory instead of gamePath
+        const directories = this.settingsService.getScanDirectories();
+        const firstValid = directories.find((d) => d.status === 'valid');
+        const gamePath = firstValid?.path;
+
         if (!gamePath) {
-            return throwError(() => 'Game path not configured');
+            return throwError(() => 'No valid game directory configured');
         }
 
         this.loadingState.set(true);
@@ -107,9 +111,13 @@ export class HotkeyService {
      * Write hotkey configuration to game directory
      */
     writeToGame(config: IHotkeyConfigItem[]): Observable<void> {
-        const gamePath = this.settingsService.settings().gamePath;
+        // Get first valid scan directory instead of gamePath
+        const directories = this.settingsService.getScanDirectories();
+        const firstValid = directories.find((d) => d.status === 'valid');
+        const gamePath = firstValid?.path;
+
         if (!gamePath) {
-            return throwError(() => 'Game path not configured');
+            return throwError(() => 'No valid game directory configured');
         }
 
         this.loadingState.set(true);
@@ -290,9 +298,13 @@ export class HotkeyService {
      * Open hotkeys.xml in external editor
      */
     async openInEditor(): Promise<void> {
-        const gamePath = this.settingsService.settings().gamePath;
+        // Get first valid scan directory instead of gamePath
+        const directories = this.settingsService.getScanDirectories();
+        const firstValid = directories.find((d) => d.status === 'valid');
+        const gamePath = firstValid?.path;
+
         if (!gamePath) {
-            throw new Error('Game path not configured');
+            throw new Error('No valid game directory configured');
         }
 
         await invoke('open_hotkeys_in_editor', { gamePath });

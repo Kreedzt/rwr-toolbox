@@ -329,7 +329,33 @@
                                 [class.text-right]="col.alignment === 'right'"
                                 [class.text-left]="col.alignment === 'left'"
                             >
-                                @if (col.field === 'filePath') {
+                                @if (col.key === 'image') {
+                                    <!-- T023: Image column with lazy loading and fallback -->
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <img
+                                            [src]="
+                                                'media/items/' +
+                                                (item.key || 'unknown') +
+                                                '.png'
+                                            "
+                                            [alt]="item.name"
+                                            class="w-8 h-8 object-contain"
+                                            loading="lazy"
+                                            [style.opacity]="'1'"
+                                            (error)="
+                                                $event.target.style.display =
+                                                    'none'
+                                            "
+                                        />
+                                        @if (!item.key) {
+                                            <span class="text-xs opacity-30"
+                                                >?</span
+                                            >
+                                        }
+                                    </div>
+                                } @else if (col.field === 'filePath') {
                                     <div class="flex items-center gap-1">
                                         <span
                                             class="text-xs font-mono truncate flex-1"

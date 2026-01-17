@@ -1,8 +1,9 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { invoke } from '@tauri-apps/api/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { WeaponService } from './services/weapon.service';
-import { SettingsService } from '../../../core/services/settings.service';
+import { DirectoryService } from '../../settings/services/directory.service';
 import { Weapon, AdvancedFilters } from '../../../shared/models/weapons.models';
 import { WEAPON_COLUMNS } from './weapon-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
@@ -14,13 +15,13 @@ import { ScrollingModeService } from '../../shared/services/scrolling-mode.servi
  */
 @Component({
     selector: 'app-weapons',
-    imports: [TranslocoPipe],
+    imports: [TranslocoPipe, LucideAngularModule],
     templateUrl: './weapons.component.html',
     styleUrl: './weapons.component.scss',
 })
 export class WeaponsComponent implements OnInit {
     private weaponService = inject(WeaponService);
-    private settingsService = inject(SettingsService);
+    private directoryService = inject(DirectoryService);
     private transloco = inject(TranslocoService);
     private scrollingModeService = inject(ScrollingModeService);
 
@@ -76,15 +77,21 @@ export class WeaponsComponent implements OnInit {
 
     /** Load weapons from game directory */
     async loadWeapons(): Promise<void> {
-        const gamePath = this.settingsService.getGamePath();
-        if (!gamePath) {
+        // T026: Get first valid scan directory from DirectoryService
+        const directories = this.directoryService.directoriesSig();
+        const firstValidDirectory = directories.find(
+            (d) => d.status === 'valid',
+        );
+
+        if (!firstValidDirectory) {
             const errorMsg = this.transloco.translate(
                 'weapons.errors.noGamePath',
             );
             this.weaponService['error'].set(errorMsg);
             return;
         }
-        await this.weaponService.scanWeapons(gamePath);
+
+        await this.weaponService.scanWeapons(firstValidDirectory.path);
     }
 
     /** Handle search input */
@@ -214,15 +221,21 @@ export class WeaponsComponent implements OnInit {
 
     /** Refresh weapons from game directory */
     async onRefresh(): Promise<void> {
-        const gamePath = this.settingsService.getGamePath();
-        if (!gamePath) {
+        // T026: Get first valid scan directory from DirectoryService
+        const directories = this.directoryService.directoriesSig();
+        const firstValidDirectory = directories.find(
+            (d) => d.status === 'valid',
+        );
+
+        if (!firstValidDirectory) {
             const errorMsg = this.transloco.translate(
                 'weapons.errors.noGamePath',
             );
             this.weaponService['error'].set(errorMsg);
             return;
         }
-        await this.weaponService.refreshWeapons(gamePath);
+
+        await this.weaponService.refreshWeapons(firstValidDirectory.path);
     }
 
     /** Handle weapon row click - show details */

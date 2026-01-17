@@ -11,6 +11,9 @@ importers:
       '@angular/animations':
         specifier: ^20.3.15
         version: 20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))
+      '@angular/cdk':
+        specifier: 20.2.14
+        version: 20.2.14(@angular/common@20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1))(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1)
       '@angular/common':
         specifier: ^20.3.15
         version: 20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1)
@@ -258,6 +261,13 @@ packages:
         optional: true
       vitest:
         optional: true
+
+  '@angular/cdk@20.2.14':
+    resolution: {integrity: sha512-7bZxc01URbiPiIBWThQ69XwOxVduqEKN4PhpbF2AAyfMc/W8Hcr4VoIJOwL0O1Nkq5beS8pCAqoOeIgFyXd/kg==}
+    peerDependencies:
+      '@angular/common': ^20.0.0 || ^21.0.0
+      '@angular/core': ^20.0.0 || ^21.0.0
+      rxjs: ^6.5.3 || ^7.4.0
 
   '@angular/cli@20.3.13':
     resolution: {integrity: sha512-G78I/HDJULloS2LSqfUfbmBlhDCbcWujIRWfuMnGsRf82TyGA2OEPe3IA/F8MrJfeOzPQim2fMyn24MqHL40Vg==}
@@ -3683,6 +3693,14 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  '@angular/cdk@20.2.14(@angular/common@20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1))(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1)':
+    dependencies:
+      '@angular/common': 20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1))(rxjs@7.8.1)
+      '@angular/core': 20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.1)(zone.js@0.15.1)
+      parse5: 8.0.0
+      rxjs: 7.8.1
+      tslib: 2.8.1
 
   '@angular/cli@20.3.13(@types/node@22.12.0)(chokidar@4.0.3)':
     dependencies:

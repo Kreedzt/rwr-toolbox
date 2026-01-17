@@ -41,7 +41,7 @@
             <button
                 class="btn btn-sm sm:btn-md join-item"
                 (click)="toggleScrollingMode()"
-                [title]="'scrolling.toggleTooltip' | t"
+                [title]="'scrolling.toggleTooltip' | transloco"
             >
                 <i-lucide
                     [name]="
@@ -104,38 +104,30 @@
                             t('players.search')
                         }}</span>
                     </label>
-                    <div class="join flex-col gap-2">
+                    <div class="join">
                         <input
                             type="text"
                             [placeholder]="t('players.search_placeholder')"
-                            class="input input-bordered input-sm"
+                            class="input input-bordered input-sm join-item"
                             [value]="filter().search || ''"
                             (keydown)="onSearchKeydown($event)"
                         />
-                        <div class="flex gap-2">
+                        <button
+                            class="btn btn-sm btn-primary join-item"
+                            (click)="onSearchClick()"
+                            [disabled]="loading()"
+                        >
+                            <i-lucide name="search" class="h-3 w-3"></i-lucide>
+                        </button>
+                        @if (filter().search) {
                             <button
-                                class="btn btn-sm btn-primary flex-1"
-                                (click)="onSearchClick()"
+                                class="btn btn-sm join-item"
+                                (click)="clearSearch()"
                                 [disabled]="loading()"
                             >
-                                <i-lucide
-                                    name="search"
-                                    class="h-3 w-3"
-                                ></i-lucide>
+                                <i-lucide name="x" class="h-3 w-3"></i-lucide>
                             </button>
-                            @if (filter().search) {
-                                <button
-                                    class="btn btn-sm flex-1"
-                                    (click)="clearSearch()"
-                                    [disabled]="loading()"
-                                >
-                                    <i-lucide
-                                        name="x"
-                                        class="h-3 w-3"
-                                    ></i-lucide>
-                                </button>
-                            }
-                        </div>
+                        }
                     </div>
                 </div>
 

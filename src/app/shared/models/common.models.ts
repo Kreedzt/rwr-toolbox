@@ -54,8 +54,6 @@ export interface AppSettings {
     playerColumnVisibility: PlayerColumnVisibility;
     /** Server column visibility settings */
     serverColumnVisibility: ServerColumnVisibility;
-    /** Game installation path (for mod installation) */
-    gamePath?: string;
     /** RWRMI mod target path (defaults to game root, mods directly replace game files) */
     rwrmiTargetPath?: string;
     /** Mod installation history */

@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { invoke } from '@tauri-apps/api/core';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import { TranslocoService } from '@jsverse/transloco';
 import {
     Weapon,
@@ -101,6 +102,8 @@ export class WeaponService {
                 this.error.set(errorMsg);
             }
 
+            console.log('Touch weapons', weaponsWithSource);
+
             return weaponsWithSource;
         } catch (e) {
             const errorMsg = this.transloco.translate('weapons.scanError', {
@@ -173,6 +176,32 @@ export class WeaponService {
     /** Get weapon details by key */
     getWeaponDetails(weaponKey: string): Weapon | undefined {
         return this.weapons().find((w) => w.key === weaponKey);
+    }
+
+    /**
+     * Get icon URL for a weapon using Tauri's convertFileSrc
+     * Resolves icon from textures/ folder relative to weapon file
+     * @param weapon Weapon with hudIcon property
+     * @returns Icon URL for use in <img> src attribute, or empty string if no icon
+     */
+    async getIconUrl(weapon: Weapon): Promise<string> {
+        if (!weapon.hudIcon) {
+            return '';
+        }
+
+        // Use the get_texture_path Tauri command to resolve the icon path
+        // The command navigates from weapon file to textures/ folder and returns absolute path
+        try {
+            const iconPath = await invoke<string>('get_texture_path', {
+                weaponFilePath: weapon.sourceFile,
+                iconFilename: weapon.hudIcon,
+            });
+            // Convert absolute path to Tauri asset URL
+            return convertFileSrc(iconPath);
+        } catch (error) {
+            console.error('Failed to resolve icon path:', error);
+            return '';
+        }
     }
 
     /** Check if weapon matches search term */

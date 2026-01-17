@@ -21,7 +21,6 @@ const DEFAULT_SETTINGS: AppSettings = {
     favorites: [],
     playerColumnVisibility: DEFAULT_COLUMN_VISIBILITY,
     serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY,
-    gamePath: '',
     modInstallHistory: [],
     scanDirectories: [],
 };
@@ -92,13 +91,11 @@ export class SettingsService {
     async initialize(): Promise<void> {
         // Desktop: prefer Tauri Store. Web: fallback to localStorage.
         const store = await this.getTauriStore();
+        let stored: any = null;
+
         if (store) {
             try {
-                const stored = await store.get(this.LOCAL_STORAGE_KEY);
-                if (stored) {
-                    this.settingsState.set({ ...DEFAULT_SETTINGS, ...stored });
-                }
-                return;
+                stored = await store.get(this.LOCAL_STORAGE_KEY);
             } catch (error) {
                 console.error(
                     'Failed to load settings from Tauri Store:',
@@ -107,14 +104,81 @@ export class SettingsService {
             }
         }
 
-        try {
-            const stored = localStorage.getItem(this.LOCAL_STORAGE_KEY);
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                this.settingsState.set({ ...DEFAULT_SETTINGS, ...parsed });
+        if (!stored) {
+            try {
+                const storedJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
+                stored = storedJson ? JSON.parse(storedJson) : null;
+            } catch (error) {
+                console.error(
+                    'Failed to load settings from localStorage:',
+                    error,
+                );
             }
-        } catch (error) {
-            console.error('Failed to load settings from localStorage:', error);
+        }
+
+        if (stored) {
+            // T010: One-time migration from gamePath to scanDirectories
+            if (stored.gamePath && stored.gamePath.trim() !== '') {
+                // Check if scanDirectories is empty or missing
+                if (
+                    !stored.scanDirectories ||
+                    stored.scanDirectories.length === 0
+                ) {
+                    // Create ScanDirectory from gamePath
+                    const migratedDirectory: ScanDirectory = {
+                        id: crypto.randomUUID(),
+                        path: stored.gamePath.trim(),
+                        status: 'pending',
+                        displayName:
+                            stored.gamePath
+                                .split(/[/\\]/)
+                                .filter(Boolean)
+                                .pop() || stored.gamePath,
+                        addedAt: Date.now(),
+                        lastScannedAt: 0,
+                        type: 'game',
+                    };
+                    stored.scanDirectories = [migratedDirectory];
+                    console.log(
+                        `[SettingsService] Migrated gamePath to scan directory: ${stored.gamePath}`,
+                    );
+                }
+                // Remove gamePath from settings after migration
+                delete stored.gamePath;
+            }
+
+            this.settingsState.set({ ...DEFAULT_SETTINGS, ...stored });
+
+            // Persist migrated settings if we made changes
+            if (
+                !stored.gamePath &&
+                stored.scanDirectories &&
+                stored.scanDirectories.length > 0
+            ) {
+                if (store) {
+                    try {
+                        await store.set(this.LOCAL_STORAGE_KEY, stored);
+                        await store.save();
+                    } catch (error) {
+                        console.error(
+                            'Failed to save migrated settings to Tauri Store:',
+                            error,
+                        );
+                    }
+                } else {
+                    try {
+                        localStorage.setItem(
+                            this.LOCAL_STORAGE_KEY,
+                            JSON.stringify(stored),
+                        );
+                    } catch (error) {
+                        console.error(
+                            'Failed to save migrated settings to localStorage:',
+                            error,
+                        );
+                    }
+                }
+            }
         }
     }
 
@@ -354,22 +418,6 @@ export class SettingsService {
         await this.updateSettings({
             serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY,
         });
-    }
-
-    /**
-     * Get the game directory path
-     * @returns Game path or empty string if not set
-     */
-    getGamePath(): string {
-        return this.settingsState().gamePath ?? '';
-    }
-
-    /**
-     * Set the game directory path
-     * @param path Game directory path
-     */
-    async setGamePath(path: string): Promise<void> {
-        await this.updateSettings({ gamePath: path });
     }
 
     /**

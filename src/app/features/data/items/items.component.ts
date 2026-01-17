@@ -1,7 +1,8 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { ItemService, ItemFilters } from './services/item.service';
-import { SettingsService } from '../../../core/services/settings.service';
+import { DirectoryService } from '../../settings/services/directory.service';
 import { GenericItem, getItemSlot } from '../../../shared/models/items.models';
 import { ITEM_COLUMNS } from './item-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
@@ -14,13 +15,13 @@ import { ScrollingModeService } from '../../shared/services/scrolling-mode.servi
  */
 @Component({
     selector: 'app-items',
-    imports: [TranslocoPipe],
+    imports: [TranslocoPipe, LucideAngularModule],
     templateUrl: './items.component.html',
     styleUrl: './items.component.scss',
 })
 export class ItemsComponent implements OnInit {
     private itemService = inject(ItemService);
-    private settingsService = inject(SettingsService);
+    private directoryService = inject(DirectoryService);
     private scrollingModeService = inject(ScrollingModeService);
 
     // Readonly signals from service
@@ -75,12 +76,18 @@ export class ItemsComponent implements OnInit {
 
     /** Load items from game directory */
     async loadItems(): Promise<void> {
-        const gamePath = this.settingsService.getGamePath();
-        if (!gamePath) {
+        // T027: Get first valid scan directory from DirectoryService
+        const directories = this.directoryService.directoriesSig();
+        const firstValidDirectory = directories.find(
+            (d) => d.status === 'valid',
+        );
+
+        if (!firstValidDirectory) {
             this.itemService['error'].set('items.errors.noGamePath');
             return;
         }
-        await this.itemService.scanItems(gamePath);
+
+        await this.itemService.scanItems(firstValidDirectory.path);
     }
 
     /** Handle search input */
@@ -237,12 +244,18 @@ export class ItemsComponent implements OnInit {
 
     /** Refresh items from game directory */
     async onRefresh(): Promise<void> {
-        const gamePath = this.settingsService.getGamePath();
-        if (!gamePath) {
+        // T027: Get first valid scan directory from DirectoryService
+        const directories = this.directoryService.directoriesSig();
+        const firstValidDirectory = directories.find(
+            (d) => d.status === 'valid',
+        );
+
+        if (!firstValidDirectory) {
             this.itemService['error'].set('items.errors.noGamePath');
             return;
         }
-        await this.itemService.refreshItems(gamePath);
+
+        await this.itemService.refreshItems(firstValidDirectory.path);
     }
 
     /** Get column value safely for display */

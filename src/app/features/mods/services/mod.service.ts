@@ -290,20 +290,23 @@ export class ModService {
     }
 
     /**
-     * Get the game path from settings
+     * Get the first valid scan directory for game path
      * @returns Game path or undefined
      */
     getGamePath(): string | undefined {
-        return this.settingsService.settings().gamePath;
+        const directories = this.settingsService.getScanDirectories();
+        const firstValid = directories.find((d) => d.status === 'valid');
+        return firstValid?.path;
     }
 
     /**
-     * Get the RWRMI target path from settings (defaults to game path)
+     * Get the RWRMI target path from settings (defaults to first valid scan directory)
      * @returns Target path or undefined
      */
     getTargetPath(): string | undefined {
         const settings = this.settingsService.settings();
-        return settings.rwrmiTargetPath || settings.gamePath;
+        const gamePath = this.getGamePath();
+        return settings.rwrmiTargetPath || gamePath;
     }
 
     /**

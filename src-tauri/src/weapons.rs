@@ -18,7 +18,15 @@ pub struct Weapon {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub key: Option<String>,
     pub name: String,
-    pub class_tag: String,
+    /// Weapon type tag from <tag name="..."/> element (e.g., "assault", "smg")
+    #[serde(rename = "tag")]
+    pub tag: String,
+    /// Weapon class numeric value from <specification class="..."/> attribute (e.g., 0, 1, 2)
+    #[serde(rename = "class")]
+    pub class: i32,
+    /// Icon filename from <hud_icon filename="..."/> element (e.g., "hud_ak47.png")
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hud_icon: Option<String>,
     pub magazine_size: f64,
     pub kill_probability: f64,
     pub retrigger_time: f64,
@@ -86,6 +94,8 @@ struct RawWeapon {
     tags: Vec<RawTag>,
     #[serde(rename = "specification", default)]
     specification: RawSpecification,
+    #[serde(rename = "hud_icon", default)]
+    hud_icon: Option<RawHudIcon>,
     #[serde(rename = "inventory", default)]
     inventory: Option<RawInventory>,
     #[serde(rename = "projectile", default)]
@@ -102,6 +112,12 @@ struct RawWeapon {
 struct RawTag {
     #[serde(rename = "@name", default)]
     name: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
+struct RawHudIcon {
+    #[serde(rename = "@filename", default)]
+    filename: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -337,20 +353,27 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
         raw_weapon = merge_attributes(resolved, raw_weapon);
     }
 
-    // T010: Fix classTag derivation priority
-    // Priority: tag name (first non-empty) → specification.class → empty string fallback
-    let class_tag = raw_weapon
+    // T007, T008, T009: Extract tag and class as separate fields
+    // tag: From <tag name="..."/> element (e.g., "assault", "smg")
+    let tag = raw_weapon
         .tags
         .iter()
         .find_map(|t| t.name.as_ref().map(|s| s.to_string()))
-        .or_else(|| {
-            raw_weapon
-                .specification
-                .class
-                .as_ref()
-                .map(|s| s.to_string())
-        })
         .unwrap_or_default();
+
+    // class: From <specification class="..."/> attribute as i32 (e.g., 0, 1, 2)
+    let class = raw_weapon
+        .specification
+        .class
+        .as_ref()
+        .and_then(|s| s.parse::<i32>().ok())
+        .unwrap_or(0);
+
+    // hud_icon: From <hud_icon filename="..."/> element
+    let hud_icon = raw_weapon
+        .hud_icon
+        .and_then(|hi| hi.filename)
+        .filter(|s| !s.is_empty());
 
     // T011: Fix name derivation priority
     // Priority: specification.@name → root fallback (empty string is valid)
@@ -410,7 +433,9 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
                 .map(|s| s.to_string())
         }),
         name,
-        class_tag,
+        tag,
+        class,
+        hud_icon,
         magazine_size,
         kill_probability,
         retrigger_time,
@@ -484,6 +509,11 @@ fn merge_attributes(parent: RawWeapon, mut child: RawWeapon) -> RawWeapon {
     // Merge projectile if child doesn't have one
     if child.projectile.is_none() && parent.projectile.is_some() {
         child.projectile = parent.projectile;
+    }
+
+    // Merge hud_icon if child doesn't have one
+    if child.hud_icon.is_none() && parent.hud_icon.is_some() {
+        child.hud_icon = parent.hud_icon;
     }
 
     // Merge tags (child inherits parent's tags that don't conflict)
@@ -606,4 +636,44 @@ pub async fn open_file_in_editor(file_path: String) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+/// Get the absolute path to a texture file for icon rendering
+/// Navigates from weapon file location to textures/ folder (sibling directory)
+#[tauri::command]
+pub async fn get_texture_path(
+    weapon_file_path: String,
+    icon_filename: String,
+) -> Result<String, String> {
+    // Navigate from weapon file to textures folder
+    let weapon_path = PathBuf::from(&weapon_file_path);
+    let weapon_dir = weapon_path
+        .parent()
+        .ok_or("Invalid weapon path: cannot get parent directory")?;
+
+    // textures/ is a sibling to weapons/ folder
+    // weapon_file_path = ".../packages/vanilla/weapons/ak47.weapon"
+    // we need to go to ".../packages/vanilla/textures/hud_ak47.png"
+    let textures_dir = weapon_dir
+        .parent()
+        .ok_or("Invalid weapon path: cannot get grandparent directory")?
+        .join("textures");
+
+    let icon_path = textures_dir.join(&icon_filename);
+
+    // Check if icon file exists
+    if !icon_path.exists() {
+        return Err(format!(
+            "Icon file not found: {} (expected at: {})",
+            icon_filename,
+            icon_path.display()
+        ));
+    }
+
+    // Get canonical absolute path
+    let canonical = icon_path
+        .canonicalize()
+        .map_err(|e| format!("Failed to resolve icon path: {}", e))?;
+
+    Ok(canonical.to_string_lossy().to_string())
 }

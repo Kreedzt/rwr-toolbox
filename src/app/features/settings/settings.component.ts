@@ -1,23 +1,22 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TranslocoDirective,
     TranslocoPipe,
     TranslocoService,
 } from '@jsverse/transloco';
-import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
     SupportedLocale,
     LOCALES,
     DEFAULT_LOCALE,
 } from '../../../i18n/locales';
-import { SettingsService } from '../../core/services/settings.service';
 import { DirectoryService } from './services/directory.service';
+import { ThemeService } from '../../shared/services/theme.service';
 
 /**
  * Settings component
- * Handles application settings including language switching and game path configuration
+ * Handles application settings including language switching and directory management
  */
 @Component({
     selector: 'app-settings',
@@ -27,8 +26,8 @@ import { DirectoryService } from './services/directory.service';
 })
 export class SettingsComponent implements OnInit {
     private translocoService = inject(TranslocoService);
-    private settingsService = inject(SettingsService);
     private directoryService = inject(DirectoryService);
+    private themeService = inject(ThemeService);
 
     /** Available locales */
     readonly locales = LOCALES;
@@ -36,14 +35,8 @@ export class SettingsComponent implements OnInit {
     /** Default locale */
     readonly defaultLocale = DEFAULT_LOCALE;
 
-    /** Game path input value */
-    readonly gamePathInput = signal<string>('');
-
-    /** Game path validation state */
-    readonly isValidating = signal<boolean>(false);
-    readonly isValidPath = signal<boolean>(false);
-    readonly pathError = signal<string>('');
-    readonly packageCount = signal<number>(0);
+    /** Theme preferences */
+    readonly theme = this.themeService.theme;
 
     /** T034: Directory management - readonly directories signal reference */
     readonly directoriesSig = this.directoryService.directoriesSig;
@@ -60,8 +53,6 @@ export class SettingsComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        // Load existing game path on init
-        this.gamePathInput.set(this.settingsService.getGamePath());
         // Load scan directories from Tauri store
         this.directoryService.loadDirectories();
     }
@@ -99,45 +90,22 @@ export class SettingsComponent implements OnInit {
     }
 
     /**
-     * Validate game directory path
+     * Get the current theme type
      */
-    async validateGamePath(): Promise<void> {
-        const path = this.gamePathInput();
-        if (!path) {
-            this.pathError.set('');
-            this.isValidPath.set(false);
-            this.packageCount.set(0);
-            return;
-        }
-
-        this.isValidating.set(true);
-        this.pathError.set('');
-
-        try {
-            const result = await invoke<any>('validate_game_path', { path });
-            this.isValidPath.set(result.valid);
-            this.packageCount.set(result.package_count || 0);
-            if (!result.valid) {
-                this.pathError.set('Invalid game directory');
-            }
-        } catch (e) {
-            this.isValidPath.set(false);
-            this.packageCount.set(0);
-            this.pathError.set(String(e));
-        } finally {
-            this.isValidating.set(false);
-        }
+    get currentTheme(): 'light' | 'dark' | 'auto' {
+        return this.theme().themeType;
     }
 
     /**
-     * Save game path to settings
+     * Change the application theme
+     * @param event Change event from select element
      */
-    async saveGamePath(): Promise<void> {
-        const path = this.gamePathInput();
-        await this.settingsService.setGamePath(path);
-
-        // Show validation state after save
-        await this.validateGamePath();
+    async onThemeChange(event: Event): Promise<void> {
+        const target = event.target as HTMLSelectElement;
+        if (target?.value) {
+            const newTheme = target.value as 'light' | 'dark' | 'auto';
+            await this.themeService.setTheme(newTheme);
+        }
     }
 
     /**

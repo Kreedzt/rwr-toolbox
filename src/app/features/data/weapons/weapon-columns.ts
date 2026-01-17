@@ -1,12 +1,21 @@
-import { WeaponColumn } from '../../../shared/models/weapons.models';
+import { WeaponColumn, Weapon } from '../../../shared/models/weapons.models';
 
 /**
  * Weapon table column definitions
  * Feature: 001-weapons-directory-scanner
  *
  * 6 default columns optimized for 800x600 resolution
+ * + IMAGE_COLUMN for item thumbnails (T018: Phase 4 - US2)
  */
 export const WEAPON_COLUMNS: WeaponColumn[] = [
+    {
+        key: 'image',
+        field: 'key' as keyof Weapon,
+        label: 'Image',
+        i18nKey: 'weapons.columns.image',
+        alignment: 'center',
+        alwaysVisible: true,
+    },
     {
         key: 'key',
         field: 'key',

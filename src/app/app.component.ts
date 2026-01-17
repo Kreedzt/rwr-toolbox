@@ -7,6 +7,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { MAIN_MENU_ITEMS } from './shared/constants/menu-items';
 import { DirectoryService } from './features/settings/services/directory.service';
 import { ScrollingModeService } from './features/shared/services/scrolling-mode.service';
+import { ThemeService } from './shared/services/theme.service';
 
 @Component({
     selector: 'app-root',
@@ -24,11 +25,13 @@ export class AppComponent implements OnInit {
     private router = inject(Router);
     private directoryService = inject(DirectoryService);
     private scrollingModeService = inject(ScrollingModeService);
+    private themeService = inject(ThemeService);
 
     menuItems = MAIN_MENU_ITEMS;
     currentYear = new Date().getFullYear();
 
     async ngOnInit(): Promise<void> {
+        await this.themeService.initialize();
         await this.scrollingModeService.loadMode();
     }
 

@@ -54,6 +54,8 @@ import {
     Clipboard,
     Share2,
     Edit2,
+    Maximize2,
+    ArrowDownToLine,
 } from 'lucide-angular';
 
 /**
@@ -116,4 +118,6 @@ export const APP_ICONS = {
     Clipboard,
     Share2,
     Edit2,
+    Maximize2,
+    ArrowDownToLine,
 };

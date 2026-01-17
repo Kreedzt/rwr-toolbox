@@ -8,8 +8,18 @@ import { ColumnConfig } from '../../../shared/models/column.models';
 /**
  * Items table column definitions
  * Matches the columns defined in the Rust backend Item struct
+ * + IMAGE_COLUMN for item thumbnails (T019: Phase 4 - US2)
  */
 export const ITEM_COLUMNS: ColumnConfig[] = [
+    {
+        key: 'image',
+        field: 'key',
+        label: 'Image',
+        i18nKey: 'items.columns.image',
+        alignment: 'center',
+        alwaysVisible: true,
+        dataType: 'string',
+    },
     {
         key: 'key',
         field: 'key',

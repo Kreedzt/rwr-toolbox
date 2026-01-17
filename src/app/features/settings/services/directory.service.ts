@@ -76,32 +76,9 @@ export class DirectoryService {
 
     /**
      * T026: Initialize service by loading scanDirectories from SettingsService
-     * T068: Migration - convert existing gamePath to first ScanDirectory if needed
      */
     async initialize(): Promise<void> {
-        let directories = this.settingsService.getScanDirectories();
-
-        // Migration: If scanDirectories is empty but gamePath exists, migrate it
-        if (directories.length === 0) {
-            const gamePath = this.settingsService.getGamePath();
-            if (gamePath) {
-                // Create ScanDirectory from existing gamePath
-                const migratedDirectory: ScanDirectory = {
-                    id: this.generateId(),
-                    path: gamePath,
-                    status: 'pending', // Will be validated on first use
-                    displayName: this.extractDisplayName(gamePath),
-                    addedAt: Date.now(),
-                    lastScannedAt: 0,
-                    itemCount: 0,
-                    weaponCount: 0,
-                };
-
-                directories = [migratedDirectory];
-                await this.settingsService.updateScanDirectories(directories);
-            }
-        }
-
+        const directories = this.settingsService.getScanDirectories();
         this.directoriesState.set(directories);
 
         // T065: Initial revalidation of all directories to detect external changes

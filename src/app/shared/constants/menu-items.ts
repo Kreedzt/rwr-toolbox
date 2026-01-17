@@ -4,9 +4,9 @@ import { MenuItem } from '../interfaces/menu-item.interface';
  * Main navigation menu structure for RWR Toolbox
  * Labels and descriptions are keys for Transloco translation
  *
- * Feature 001: Simplified navigation - only Data and Settings visible
- * Other menu items (Dashboard, Servers, Players, Mods, Hotkeys) are removed from sidebar
- * but remain accessible via direct URL for potential future use
+ * Feature 003: T051-T054 - Restore Hotkeys menu entry
+ * Hotkeys positioned between Data and Settings with Ctrl+5
+ * Settings and About shortcuts shifted (+1)
  */
 export const MAIN_MENU_ITEMS: MenuItem[] = [
     {
@@ -41,10 +41,17 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         divider: true,
     },
     {
+        label: 'menu.hotkeys',
+        icon: 'keyboard',
+        link: '/hotkeys',
+        shortcut: 'Ctrl+5',
+        description: 'menu.hotkeys_desc',
+    },
+    {
         label: 'menu.settings',
         icon: 'settings',
         link: '/settings',
-        shortcut: 'Ctrl+5',
+        shortcut: 'Ctrl+6',
         description: 'menu.settings_desc',
     },
     {
@@ -54,7 +61,7 @@ export const MAIN_MENU_ITEMS: MenuItem[] = [
         label: 'menu.about',
         icon: 'info',
         link: '/about',
-        shortcut: 'Ctrl+6',
+        shortcut: 'Ctrl+7',
         description: 'menu.about_desc',
     },
 ];
