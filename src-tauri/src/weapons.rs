@@ -677,3 +677,54 @@ pub async fn get_texture_path(
 
     Ok(canonical.to_string_lossy().to_string())
 }
+
+/// Get weapon icon as base64 data URL
+/// This bypasses asset:// protocol encoding issues
+#[tauri::command]
+pub async fn get_weapon_icon_base64(
+    weapon_file_path: String,
+    icon_filename: String,
+) -> Result<String, String> {
+    use std::fs;
+    use base64::Engine;
+
+    // Navigate from weapon file to textures folder
+    let weapon_path = PathBuf::from(&weapon_file_path);
+    let weapon_dir = weapon_path
+        .parent()
+        .ok_or("Invalid weapon path: cannot get parent directory")?;
+
+    let textures_dir = weapon_dir
+        .parent()
+        .ok_or("Invalid weapon path: cannot get grandparent directory")?
+        .join("textures");
+
+    let icon_path = textures_dir.join(&icon_filename);
+
+    // Check if icon file exists
+    if !icon_path.exists() {
+        return Err(format!(
+            "Icon file not found: {} (expected at: {})",
+            icon_filename,
+            icon_path.display()
+        ));
+    }
+
+    // Read image file
+    let image_data = fs::read(&icon_path)
+        .map_err(|e| format!("Failed to read icon file: {}", e))?;
+
+    // Detect MIME type from extension
+    let mime_type = match icon_path.extension().and_then(|e| e.to_str()) {
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        _ => "image/png", // Default to PNG
+    };
+
+    // Encode to base64
+    let base64_string = base64::engine::general_purpose::STANDARD.encode(&image_data);
+
+    Ok(format!("data:{};base64,{}", mime_type, base64_string))
+}

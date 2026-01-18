@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, effect } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ItemService, ItemFilters } from './services/item.service';
@@ -55,6 +55,9 @@ export class ItemsComponent implements OnInit {
     // Page size options
     readonly pageSizeOptions = [25, 50, 100, 200];
 
+    // Image URL cache: item.key -> image URL
+    readonly itemIconUrls = signal<Map<string, string>>(new Map());
+
     // Computed signals
     readonly itemCount = computed(() => this.items().length);
     readonly hasError = computed(() => this.error() !== null);
@@ -105,6 +108,14 @@ export class ItemsComponent implements OnInit {
                 });
             }
         }
+
+        // T004: Auto-load images when paginated items change
+        effect(() => {
+            const items = this.paginatedItems();
+            for (const item of items) {
+                this.loadItemIcon(item);
+            }
+        });
     }
 
     toggleScrollingMode(): void {
@@ -119,13 +130,11 @@ export class ItemsComponent implements OnInit {
 
     /** Load items from game directory */
     async loadItems(): Promise<void> {
-        // T027: Get first valid scan directory from DirectoryService
-        const directories = this.directoryService.directoriesSig();
-        const firstValidDirectory = directories.find(
-            (d) => d.status === 'valid',
-        );
+        // T004: Use selected directory or fall back to first valid directory
+        const directory = this.directoryService.getSelectedDirectory() ||
+            this.directoryService.getFirstValidDirectory();
 
-        if (!firstValidDirectory) {
+        if (!directory) {
             const errorMsg = this.transloco.translate(
                 'items.errors.noGamePath',
             );
@@ -134,8 +143,8 @@ export class ItemsComponent implements OnInit {
         }
 
         await this.itemService.scanItems(
-            firstValidDirectory.path,
-            firstValidDirectory.path,
+            directory.path,
+            directory.path,
         );
     }
 
@@ -303,13 +312,11 @@ export class ItemsComponent implements OnInit {
 
     /** Refresh items from game directory */
     async onRefresh(): Promise<void> {
-        // T027: Get first valid scan directory from DirectoryService
-        const directories = this.directoryService.directoriesSig();
-        const firstValidDirectory = directories.find(
-            (d) => d.status === 'valid',
-        );
+        // T004: Use selected directory or fall back to first valid directory
+        const directory = this.directoryService.getSelectedDirectory() ||
+            this.directoryService.getFirstValidDirectory();
 
-        if (!firstValidDirectory) {
+        if (!directory) {
             const errorMsg = this.transloco.translate(
                 'items.errors.noGamePath',
             );
@@ -318,8 +325,8 @@ export class ItemsComponent implements OnInit {
         }
 
         await this.itemService.refreshItems(
-            firstValidDirectory.path,
-            firstValidDirectory.path,
+            directory.path,
+            directory.path,
         );
     }
 
@@ -333,6 +340,39 @@ export class ItemsComponent implements OnInit {
             currentPage: 1, // Reset to page 1
         }));
         localStorage.setItem('items-page-size', String(newSize));
+    }
+
+    /** Load item icon URL and cache the result */
+    async loadItemIcon(item: GenericItem): Promise<void> {
+        const itemKey = item.key || '';
+        // Only CarryItem has hudIcon
+        if (item.itemType !== 'carry_item' || !item.hudIcon || this.itemIconUrls().has(itemKey)) {
+            return;
+        }
+        try {
+            const url = await this.itemService.getIconUrl(item);
+            if (url) {
+                this.itemIconUrls.update(map => {
+                    const newMap = new Map(map);
+                    newMap.set(itemKey, url);
+                    return newMap;
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load icon for', item.key, error);
+        }
+    }
+
+    /** Get cached icon URL for an item */
+    getItemIconUrl(item: GenericItem): string {
+        const itemKey = item.key || '';
+        return this.itemIconUrls().get(itemKey) || '';
+    }
+
+    /** Handle image load error */
+    onItemImageError(event: Event, item: GenericItem): void {
+        console.warn('Failed to load image for item:', item.key);
+        // Optionally remove from cache for retry
     }
 
     /** Get column value safely for display */

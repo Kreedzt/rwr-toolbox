@@ -102,6 +102,11 @@
             "missing_media_subdirectory": "有效的 RWR 游戏或创意工坊目录必须包含一个 'media' 文件夹。",
             "duplicate_directory": "该目录已经添加到列表中。",
             "null": "未检测到错误。"
+        },
+        "scanLibrary": {
+            "selected": "已选扫描库",
+            "noneSelected": "未选择扫描库",
+            "selectFirst": "请选择一个库以启用扫描"
         }
     },
     "servers": {
@@ -349,8 +354,10 @@
         "scanComplete": "扫描完成",
         "scanError": "扫描失败：{{error}}",
         "columns": {
+            "image": "图片",
             "key": "键名",
             "name": "名称",
+            "tag": "标签",
             "class": "类别",
             "magazineSize": "弹匣",
             "killProbability": "伤害",
@@ -364,7 +371,7 @@
             "magazineSize": "弹匣容量",
             "encumbrance": "重量",
             "price": "价格",
-            "classTag": "类别",
+            "tag": "标签",
             "suppressed": "消音器",
             "canRespawnWith": "可用在装备中",
             "stanceAccuracy": "姿势精度"
@@ -439,6 +446,7 @@
         "columns": {
             "key": "键名",
             "name": "名称",
+            "image": "图片",
             "itemType": "类型",
             "slot": "槽位",
             "encumbrance": "重量",

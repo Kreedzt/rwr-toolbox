@@ -22,7 +22,7 @@ export interface Weapon {
     /** Display name shown to users */
     name: string;
     /** Weapon category/class (assault, sniper, smg, etc.) from <tag name="..."/> */
-    classTag: string;
+    tag: string;
     /** Weapon class value from <specification class="..."/> (separate from tag) */
     class?: number;
     /** Icon filename from <hud_icon filename="..."/> (e.g., "hud_ak47.png") */
@@ -122,7 +122,7 @@ export interface AdvancedFilters {
     };
 
     /** Exact match filters */
-    classTag?: string; // assault, sniper, smg, etc.
+    tag?: string; // assault, sniper, smg, etc.
     suppressed?: boolean; // true/false
     canRespawnWith?: boolean; // true/false
 }
@@ -134,6 +134,7 @@ export type WeaponColumnKey =
     | 'image'
     | 'key'
     | 'name'
+    | 'tag'
     | 'class'
     | 'magazineSize'
     | 'killProbability'

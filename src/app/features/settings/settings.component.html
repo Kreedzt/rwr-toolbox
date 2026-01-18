@@ -130,9 +130,21 @@
                             <!-- T032: Directory item template -->
                             <div
                                 class="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
+                                [class.border]="isDirectorySelected(dir.id)"
+                                [class.border-primary]="isDirectorySelected(dir.id)"
                             >
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-3">
+                                        <!-- T004: Radio button for scan library selection -->
+                                        <input
+                                            type="radio"
+                                            class="radio radio-primary radio-sm"
+                                            [name]="'scan-library'"
+                                            [checked]="isDirectorySelected(dir.id)"
+                                            (change)="onDirectorySelect(dir.id)"
+                                            [disabled]="dir.status !== 'valid'"
+                                        />
+                                        <!-- Path display -->
                                         <!-- Path display -->
                                         <div class="flex-1 min-w-0">
                                             <p

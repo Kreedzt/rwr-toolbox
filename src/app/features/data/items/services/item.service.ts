@@ -181,6 +181,30 @@ export class ItemService {
         return this.items().find((i) => i.key === itemKey);
     }
 
+    /**
+     * Get icon URL for an item using base64 data URL
+     * This bypasses asset:// protocol encoding issues
+     * @param item Item with hudIcon property
+     * @returns Icon URL for use in <img> src attribute, or empty string if no icon
+     */
+    async getIconUrl(item: GenericItem): Promise<string> {
+        // Only CarryItem has hudIcon
+        if (item.itemType !== 'carry_item' || !item.hudIcon) {
+            return '';
+        }
+
+        try {
+            const dataUrl = await invoke<string>('get_item_icon_base64', {
+                itemFilePath: item.sourceFile,
+                iconFilename: item.hudIcon,
+            });
+            return dataUrl;
+        } catch (error) {
+            console.error('Failed to resolve icon path:', error);
+            return '';
+        }
+    }
+
     /** Check if item matches search term */
     private matchesSearch(item: GenericItem, term: string): boolean {
         if (!term) return true;

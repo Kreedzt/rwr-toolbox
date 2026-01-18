@@ -102,6 +102,11 @@
             "missing_media_subdirectory": "A valid RWR game or workshop directory must contain a 'media' folder.",
             "duplicate_directory": "This directory has already been added to the list.",
             "null": "No errors detected."
+        },
+        "scanLibrary": {
+            "selected": "Selected Scan Library",
+            "noneSelected": "No scan library selected",
+            "selectFirst": "Select a library to enable scanning"
         }
     },
     "servers": {
@@ -349,8 +354,10 @@
         "scanComplete": "Scan complete",
         "scanError": "Scan failed: {{error}}",
         "columns": {
+            "image": "Image",
             "key": "Key",
             "name": "Name",
+            "tag": "Tag",
             "class": "Class",
             "magazineSize": "Magazine",
             "killProbability": "Damage",
@@ -364,7 +371,7 @@
             "magazineSize": "Magazine Size",
             "encumbrance": "Weight",
             "price": "Price",
-            "classTag": "Class",
+            "tag": "Tag",
             "suppressed": "Suppressed",
             "canRespawnWith": "Available in Loadout",
             "stanceAccuracy": "Stance Accuracy"
@@ -439,6 +446,7 @@
         "columns": {
             "key": "Key",
             "name": "Name",
+            "image": "Image",
             "itemType": "Type",
             "slot": "Slot",
             "encumbrance": "Weight",

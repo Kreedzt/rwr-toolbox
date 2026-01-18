@@ -10,13 +10,13 @@
         />
         <select
             class="select select-bordered"
-            (change)="onClassTagFilter($any($event.target).value)"
+            (change)="onTagFilter($any($event.target).value)"
         >
             <option value="">
                 {{ 'weapons.filters.allClasses' | transloco }}
             </option>
-            @for (tag of availableClassTags(); track tag) {
-                <option [value]="tag" [selected]="selectedClassTag() === tag">
+            @for (tag of availableTags(); track tag) {
+                <option [value]="tag" [selected]="selectedTag() === tag">
                     {{ tag }}
                 </option>
             }
@@ -461,30 +461,24 @@
                             >
                                 @if (col.key === 'image') {
                                     <!-- T021: Image column with lazy loading and fallback -->
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
+                                    @if (getWeaponIconUrl(weapon)) {
                                         <img
-                                            [src]="
-                                                'media/items/' +
-                                                (weapon.key || 'unknown') +
-                                                '.png'
-                                            "
+                                            [src]="getWeaponIconUrl(weapon)"
                                             [alt]="weapon.name"
-                                            class="w-8 h-8 object-contain"
+                                            class="w-12 h-12 object-contain"
                                             loading="lazy"
-                                            [style.opacity]="'1'"
-                                            (error)="
-                                                $event.target.style.display =
-                                                    'none'
-                                            "
+                                            (error)="onWeaponImageError($event, weapon)"
                                         />
-                                        @if (!weapon.key) {
-                                            <span class="text-xs opacity-30"
-                                                >?</span
-                                            >
-                                        }
-                                    </div>
+                                    } @else {
+                                        <div
+                                            class="w-12 h-12 bg-base-300 flex items-center justify-center"
+                                        >
+                                            <lucide-icon
+                                                name="image-off"
+                                                class="w-6 h-6 opacity-30"
+                                            />
+                                        </div>
+                                    }
                                 } @else if (col.field === 'filePath') {
                                     <div class="flex items-center gap-1">
                                         <span
@@ -550,8 +544,8 @@
                                     col.field === 'key' || col.field === 'name'
                                 ) {
                                     {{ weapon[col.field] }}
-                                } @else if (col.field === 'classTag') {
-                                    {{ weapon.classTag }}
+                                } @else if (col.field === 'tag') {
+                                    {{ weapon.tag }}
                                 } @else if (col.field === 'magazineSize') {
                                     {{ weapon.magazineSize }}
                                 } @else if (col.field === 'killProbability') {
@@ -660,7 +654,7 @@
                         'weapons.columns.class' | transloco
                     }}</span>
                     <div class="text-sm">
-                        {{ selectedWeapon()!.classTag || '-' }}
+                        {{ selectedWeapon()!.tag || '-' }}
                     </div>
                 </div>
                 <div>

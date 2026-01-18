@@ -60,6 +60,8 @@ export interface AppSettings {
     modInstallHistory: ModInstallHistory[];
     /** Configured scan directories for multi-directory support */
     scanDirectories: ScanDirectory[];
+    /** T004: Selected scan directory ID for persistent library selection */
+    selectedDirectoryId: string | null;
 }
 
 /**

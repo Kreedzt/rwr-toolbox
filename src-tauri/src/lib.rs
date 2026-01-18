@@ -7,6 +7,7 @@ mod weapons;
 
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+use tauri::Manager;
 use tauri_plugin_http::reqwest::{Client, Url};
 
 /// System theme detection result
@@ -20,6 +21,23 @@ pub struct SystemTheme {
     pub detected_at: u64,
     /// Platform where theme was detected
     pub platform: String,
+}
+
+/// User's theme preference
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ThemePreference {
+    /// User's selected theme: "light", "dark", or "auto" for OS detection
+    #[serde(rename = "themeType")]
+    pub theme_type: String,
+    /// Whether theme was auto-detected from OS
+    #[serde(rename = "isAutoDetect")]
+    pub is_auto_detect: bool,
+    /// Unix timestamp of last update
+    #[serde(rename = "lastUpdated")]
+    pub last_updated: u64,
+    /// Actual detected OS theme (only set when themeType="auto")
+    #[serde(rename = "autoDetectedTheme", skip_serializing_if = "Option::is_none")]
+    pub auto_detected_theme: Option<String>,
 }
 
 /// Detect the operating system's current theme preference
@@ -37,6 +55,66 @@ async fn get_system_theme() -> Result<SystemTheme, String> {
         detected_at,
         platform: platform.to_string(),
     })
+}
+
+/// Get the user's saved theme preference from the store
+#[tauri::command]
+async fn get_theme_preference(
+    app: tauri::AppHandle,
+) -> Result<Option<ThemePreference>, String> {
+    use std::fs;
+    use std::io::Read;
+
+    let config_dir = app
+        .path()
+        .app_config_dir()
+        .map_err(|e| format!("Failed to get config dir: {}", e))?;
+
+    let theme_file = config_dir.join("theme-preference.json");
+
+    if !theme_file.exists() {
+        return Ok(None);
+    }
+
+    let mut file = fs::File::open(&theme_file)
+        .map_err(|e| format!("Failed to open theme file: {}", e))?;
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .map_err(|e| format!("Failed to read theme file: {}", e))?;
+
+    let preference: ThemePreference = serde_json::from_str(&contents)
+        .map_err(|e| format!("Failed to parse theme file: {}", e))?;
+
+    Ok(Some(preference))
+}
+
+/// Save the user's theme preference to the store
+#[tauri::command]
+async fn set_theme_preference(
+    app: tauri::AppHandle,
+    preference: ThemePreference,
+) -> Result<(), String> {
+    use std::fs;
+
+    let config_dir = app
+        .path()
+        .app_config_dir()
+        .map_err(|e| format!("Failed to get config dir: {}", e))?;
+
+    // Create config directory if it doesn't exist
+    fs::create_dir_all(&config_dir)
+        .map_err(|e| format!("Failed to create config dir: {}", e))?;
+
+    let theme_file = config_dir.join("theme-preference.json");
+
+    let json = serde_json::to_string_pretty(&preference)
+        .map_err(|e| format!("Failed to serialize preference: {}", e))?;
+
+    fs::write(&theme_file, json)
+        .map_err(|e| format!("Failed to write theme file: {}", e))?;
+
+    Ok(())
 }
 
 /// Platform-specific theme detection
@@ -153,6 +231,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             proxy_fetch,
             get_system_theme,
+            get_theme_preference,
+            set_theme_preference,
             ping::ping_server,
             rwrmi::bundle_mod,
             rwrmi::generate_mod_config,
@@ -173,7 +253,10 @@ pub fn run() {
             weapons::scan_weapons,
             weapons::open_file_in_editor,
             weapons::get_texture_path,
+            weapons::get_weapon_icon_base64,
             items::scan_items,
+            items::get_item_texture_path,
+            items::get_item_icon_base64,
             directories::validate_directory
         ])
         .run(tauri::generate_context!())

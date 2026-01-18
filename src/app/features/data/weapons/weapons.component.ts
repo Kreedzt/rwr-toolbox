@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, effect } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { invoke } from '@tauri-apps/api/core';
 import { LucideAngularModule } from 'lucide-angular';
@@ -35,7 +35,7 @@ export class WeaponsComponent implements OnInit {
 
     // UI state signals
     readonly searchTerm = signal<string>('');
-    readonly selectedClassTag = signal<string | undefined>(undefined);
+    readonly selectedTag = signal<string | undefined>(undefined);
     readonly showAdvancedSearch = signal<boolean>(false);
     readonly advancedFilters = signal<AdvancedFilters>({});
     readonly selectedWeapon = signal<Weapon | null>(null);
@@ -55,13 +55,16 @@ export class WeaponsComponent implements OnInit {
     // Page size options
     readonly pageSizeOptions = [25, 50, 100, 200];
 
+    // T004: Image URL cache: weapon.key -> image URL
+    readonly weaponIconUrls = signal<Map<string, string>>(new Map());
+
     // Computed signals
     readonly weaponCount = computed(() => this.weapons().length);
     readonly hasError = computed(() => this.error() !== null);
-    readonly availableClassTags = computed(() => {
+    readonly availableTags = computed(() => {
         const tags = new Set<string>();
         this.weaponService.weaponsSig().forEach((w) => {
-            if (w.classTag) tags.add(w.classTag);
+            if (w.tag) tags.add(w.tag);
         });
         return Array.from(tags).sort();
     });
@@ -86,10 +89,15 @@ export class WeaponsComponent implements OnInit {
     });
 
     constructor() {
-        // Load column visibility from localStorage on init
-        this.weaponService.setColumnVisibility(
-            this.weaponService.getColumnVisibility(),
-        );
+        // Migrate localStorage preferences from 'classTag' to 'tag'
+        const saved = this.weaponService.getColumnVisibility();
+        const migrated = saved.map(col => {
+            if (col.columnId === 'classTag') {
+                return { ...col, columnId: 'tag' };
+            }
+            return col;
+        });
+        this.weaponService.setColumnVisibility(migrated);
 
         // Load page size from localStorage
         const savedPageSize = localStorage.getItem('weapons-page-size');
@@ -105,6 +113,14 @@ export class WeaponsComponent implements OnInit {
                 });
             }
         }
+
+        // T004: Auto-load images when paginated weapons change
+        effect(() => {
+            const weapons = this.paginatedWeapons();
+            for (const weapon of weapons) {
+                this.loadWeaponIcon(weapon);
+            }
+        });
     }
 
     toggleScrollingMode(): void {
@@ -119,13 +135,11 @@ export class WeaponsComponent implements OnInit {
 
     /** Load weapons from game directory */
     async loadWeapons(): Promise<void> {
-        // T026: Get first valid scan directory from DirectoryService
-        const directories = this.directoryService.directoriesSig();
-        const firstValidDirectory = directories.find(
-            (d) => d.status === 'valid',
-        );
+        // T004: Use selected directory or fall back to first valid directory
+        const directory = this.directoryService.getSelectedDirectory() ||
+            this.directoryService.getFirstValidDirectory();
 
-        if (!firstValidDirectory) {
+        if (!directory) {
             const errorMsg = this.transloco.translate(
                 'weapons.errors.noGamePath',
             );
@@ -133,10 +147,12 @@ export class WeaponsComponent implements OnInit {
             return;
         }
 
-        await this.weaponService.scanWeapons(
-            firstValidDirectory.path,
-            firstValidDirectory.path,
+        const weapons = await this.weaponService.scanWeapons(
+            directory.path,
+            directory.path,
         );
+
+        console.log('Touch weapons render', weapons.slice(0, 20));
     }
 
     /** Handle search input */
@@ -147,19 +163,19 @@ export class WeaponsComponent implements OnInit {
         this.pagination.update((p) => ({ ...p, currentPage: 1 }));
     }
 
-    /** Handle classTag filter change */
-    onClassTagFilter(classTag: string): void {
-        this.selectedClassTag.set(classTag || undefined);
+    /** Handle tag filter change */
+    onTagFilter(tag: string): void {
+        this.selectedTag.set(tag || undefined);
         // T067: Reset pagination to page 1 on filter change
         this.pagination.update((p) => ({ ...p, currentPage: 1 }));
         this.updateAdvancedFilters();
     }
 
-    /** Update advanced filters with current classTag selection */
+    /** Update advanced filters with current tag selection */
     private updateAdvancedFilters(): void {
         const filters: AdvancedFilters = {
             ...this.advancedFilters(),
-            classTag: this.selectedClassTag(),
+            tag: this.selectedTag(),
         };
         this.advancedFilters.set(filters); // Also update local signal
         this.weaponService.setAdvancedFilters(filters);
@@ -227,7 +243,7 @@ export class WeaponsComponent implements OnInit {
     /** Clear all filters */
     onClearFilters(): void {
         this.searchTerm.set('');
-        this.selectedClassTag.set(undefined);
+        this.selectedTag.set(undefined);
         this.advancedFilters.set({});
         this.weaponService.clearFilters();
     }
@@ -276,13 +292,11 @@ export class WeaponsComponent implements OnInit {
 
     /** Refresh weapons from game directory */
     async onRefresh(): Promise<void> {
-        // T026: Get first valid scan directory from DirectoryService
-        const directories = this.directoryService.directoriesSig();
-        const firstValidDirectory = directories.find(
-            (d) => d.status === 'valid',
-        );
+        // T004: Use selected directory or fall back to first valid directory
+        const directory = this.directoryService.getSelectedDirectory() ||
+            this.directoryService.getFirstValidDirectory();
 
-        if (!firstValidDirectory) {
+        if (!directory) {
             const errorMsg = this.transloco.translate(
                 'weapons.errors.noGamePath',
             );
@@ -290,10 +304,11 @@ export class WeaponsComponent implements OnInit {
             return;
         }
 
-        await this.weaponService.refreshWeapons(
-            firstValidDirectory.path,
-            firstValidDirectory.path,
+        const weapons = await this.weaponService.refreshWeapons(
+            directory.path,
+            directory.path,
         );
+        console.log('Touch refresh weapons', weapons.slice(0, 20));
     }
 
     /** Handle page size dropdown change */
@@ -358,6 +373,38 @@ export class WeaponsComponent implements OnInit {
             );
             this.weaponService['error'].set(errorMsg);
         }
+    }
+
+    /** T004: Load weapon icon URL and cache the result */
+    async loadWeaponIcon(weapon: Weapon): Promise<void> {
+        const weaponKey = weapon.key || '';
+        if (!weapon.hudIcon || this.weaponIconUrls().has(weaponKey)) {
+            return;
+        }
+        try {
+            const url = await this.weaponService.getIconUrl(weapon);
+            if (url) {
+                this.weaponIconUrls.update(map => {
+                    const newMap = new Map(map);
+                    newMap.set(weaponKey, url);
+                    return newMap;
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load icon for', weapon.key, error);
+        }
+    }
+
+    /** T004: Get cached icon URL for a weapon */
+    getWeaponIconUrl(weapon: Weapon): string {
+        const weaponKey = weapon.key || '';
+        return this.weaponIconUrls().get(weaponKey) || '';
+    }
+
+    /** T004: Handle image load error */
+    onWeaponImageError(event: Event, weapon: Weapon): void {
+        console.warn('Failed to load image for weapon:', weapon.key);
+        // Optionally remove from cache to retry later
     }
 
     /** Get visible columns for display */

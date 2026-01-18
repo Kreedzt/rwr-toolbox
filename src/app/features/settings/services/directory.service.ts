@@ -55,6 +55,15 @@ export class DirectoryService {
     readonly errorSig = this.errorState.asReadonly();
 
     /**
+     * T004: Computed signal: Get selected directory object from SettingsService
+     */
+    readonly selectedDirectorySig = computed(() => {
+        const selectedId = this.settingsService.settings().selectedDirectoryId;
+        if (!selectedId) return null;
+        return this.directoriesState().find(d => d.id === selectedId) || null;
+    });
+
+    /**
      * Computed signal: Is any directory currently being validated?
      */
     readonly isAnyValidatingSig = computed(() => {
@@ -449,5 +458,29 @@ export class DirectoryService {
             duplicate_directory: 'settings.errors.duplicateDirectory',
         };
         return messages[errorCode] || 'settings.errors.unknown';
+    }
+
+    /**
+     * T004: Set the selected directory ID
+     * @param directoryId Directory ID to select, or null to clear selection
+     */
+    async setSelectedDirectory(directoryId: string | null): Promise<void> {
+        await this.settingsService.updateSettings({ selectedDirectoryId: directoryId });
+    }
+
+    /**
+     * T004: Get the currently selected directory
+     * @returns Selected ScanDirectory or null
+     */
+    getSelectedDirectory(): ScanDirectory | null {
+        return this.selectedDirectorySig();
+    }
+
+    /**
+     * T004: Get the first valid directory as a fallback
+     * @returns First valid ScanDirectory or null
+     */
+    getFirstValidDirectory(): ScanDirectory | null {
+        return this.getValidDirectories()[0] || null;
     }
 }

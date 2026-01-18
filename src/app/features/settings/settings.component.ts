@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     TranslocoDirective,
@@ -13,6 +13,7 @@ import {
 } from '../../../i18n/locales';
 import { DirectoryService } from './services/directory.service';
 import { ThemeService } from '../../shared/services/theme.service';
+import { SettingsService } from '../../core/services/settings.service';
 
 /**
  * Settings component
@@ -28,6 +29,7 @@ export class SettingsComponent implements OnInit {
     private translocoService = inject(TranslocoService);
     private directoryService = inject(DirectoryService);
     private themeService = inject(ThemeService);
+    private settingsService = inject(SettingsService);
 
     /** Available locales */
     readonly locales = LOCALES;
@@ -46,6 +48,11 @@ export class SettingsComponent implements OnInit {
         this.directoryService.validationProgressSig;
     readonly loadingSig = this.directoryService.loadingSig;
     readonly errorSig = this.directoryService.errorSig;
+
+    /** T004: Selected directory ID from SettingsService */
+    readonly selectedDirectoryIdSig = computed(() =>
+        this.settingsService.settings().selectedDirectoryId
+    );
 
     /** Current locale from Transloco */
     get currentLocale(): SupportedLocale {
@@ -138,5 +145,19 @@ export class SettingsComponent implements OnInit {
      */
     async onRevalidateDirectory(directoryId: string): Promise<void> {
         await this.directoryService.revalidateDirectory(directoryId);
+    }
+
+    /**
+     * T004: Check if a directory is currently selected
+     */
+    isDirectorySelected(directoryId: string): boolean {
+        return this.selectedDirectoryIdSig() === directoryId;
+    }
+
+    /**
+     * T004: Handle directory selection change
+     */
+    async onDirectorySelect(directoryId: string): Promise<void> {
+        await this.directoryService.setSelectedDirectory(directoryId);
     }
 }

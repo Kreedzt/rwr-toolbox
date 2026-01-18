@@ -33,11 +33,19 @@ export const WEAPON_COLUMNS: WeaponColumn[] = [
         alwaysVisible: false,
     },
     {
+        key: 'tag',
+        field: 'tag',
+        label: 'Class Tag',
+        i18nKey: 'weapons.columns.tag',
+        alignment: 'left',
+        alwaysVisible: false,
+    },
+    {
         key: 'class',
-        field: 'classTag',
+        field: 'class',
         label: 'Class',
         i18nKey: 'weapons.columns.class',
-        alignment: 'left',
+        alignment: 'right',
         alwaysVisible: false,
     },
     {

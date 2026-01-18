@@ -350,30 +350,24 @@
                             >
                                 @if (col.key === 'image') {
                                     <!-- T023: Image column with lazy loading and fallback -->
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
+                                    @if (getItemIconUrl(item)) {
                                         <img
-                                            [src]="
-                                                'media/items/' +
-                                                (item.key || 'unknown') +
-                                                '.png'
-                                            "
+                                            [src]="getItemIconUrl(item)"
                                             [alt]="item.name"
-                                            class="w-8 h-8 object-contain"
+                                            class="w-12 h-12 object-contain"
                                             loading="lazy"
-                                            [style.opacity]="'1'"
-                                            (error)="
-                                                $event.target.style.display =
-                                                    'none'
-                                            "
+                                            (error)="onItemImageError($event, item)"
                                         />
-                                        @if (!item.key) {
-                                            <span class="text-xs opacity-30"
-                                                >?</span
-                                            >
-                                        }
-                                    </div>
+                                    } @else {
+                                        <div
+                                            class="w-12 h-12 bg-base-300 flex items-center justify-center"
+                                        >
+                                            <lucide-icon
+                                                name="image-off"
+                                                class="w-6 h-6 opacity-30"
+                                            />
+                                        </div>
+                                    }
                                 } @else if (col.field === 'filePath') {
                                     <div class="flex items-center gap-1">
                                         <span

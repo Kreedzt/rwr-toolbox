@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     serverColumnVisibility: DEFAULT_SERVER_COLUMN_VISIBILITY,
     modInstallHistory: [],
     scanDirectories: [],
+    selectedDirectoryId: null,
 };
 
 /**

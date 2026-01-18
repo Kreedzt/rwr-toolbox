@@ -441,3 +441,91 @@ struct RawCarryItemsRoot {
     #[serde(rename = "carry_item")]
     items: Vec<RawCarryItem>,
 }
+
+/// Get the absolute path to a texture file for item icon rendering
+/// Navigates from item file location to textures/ folder (sibling directory)
+#[tauri::command]
+pub async fn get_item_texture_path(
+    item_file_path: String,
+    icon_filename: String,
+) -> Result<String, String> {
+    use std::path::PathBuf;
+
+    let item_path = PathBuf::from(&item_file_path);
+    let item_dir = item_path
+        .parent()
+        .ok_or("Invalid item path: cannot get parent directory")?;
+
+    // textures/ is a sibling to items/ folder
+    let textures_dir = item_dir
+        .parent()
+        .ok_or("Invalid item path: cannot get grandparent directory")?
+        .join("textures");
+
+    let icon_path = textures_dir.join(&icon_filename);
+
+    if !icon_path.exists() {
+        return Err(format!(
+            "Icon file not found: {} (expected at: {})",
+            icon_filename,
+            icon_path.display()
+        ));
+    }
+
+    let canonical = icon_path
+        .canonicalize()
+        .map_err(|e| format!("Failed to resolve icon path: {}", e))?;
+
+    Ok(canonical.to_string_lossy().to_string())
+}
+
+/// Get item icon as base64 data URL
+/// This bypasses asset:// protocol encoding issues
+#[tauri::command]
+pub async fn get_item_icon_base64(
+    item_file_path: String,
+    icon_filename: String,
+) -> Result<String, String> {
+    use std::fs;
+    use std::path::PathBuf;
+    use base64::Engine;
+
+    let item_path = PathBuf::from(&item_file_path);
+    let item_dir = item_path
+        .parent()
+        .ok_or("Invalid item path: cannot get parent directory")?;
+
+    // textures/ is a sibling to items/ folder
+    let textures_dir = item_dir
+        .parent()
+        .ok_or("Invalid item path: cannot get grandparent directory")?
+        .join("textures");
+
+    let icon_path = textures_dir.join(&icon_filename);
+
+    if !icon_path.exists() {
+        return Err(format!(
+            "Icon file not found: {} (expected at: {})",
+            icon_filename,
+            icon_path.display()
+        ));
+    }
+
+    // Read image file
+    let image_data = fs::read(&icon_path)
+        .map_err(|e| format!("Failed to read icon file: {}", e))?;
+
+    // Detect MIME type from extension
+    let mime_type = match icon_path.extension().and_then(|e| e.to_str()) {
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        _ => "image/png", // Default to PNG
+    };
+
+    // Encode to base64
+    let base64_string = base64::engine::general_purpose::STANDARD.encode(&image_data);
+
+    Ok(format!("data:{};base64,{}", mime_type, base64_string))
+}

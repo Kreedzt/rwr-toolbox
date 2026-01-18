@@ -1,6 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { invoke } from '@tauri-apps/api/core';
-import { convertFileSrc } from '@tauri-apps/api/core';
 import { TranslocoService } from '@jsverse/transloco';
 import {
     Weapon,
@@ -122,8 +121,8 @@ export class WeaponService {
     }
 
     /** Refresh weapons using stored game path */
-    async refreshWeapons(gamePath: string, directory?: string): Promise<void> {
-        await this.scanWeapons(gamePath, directory);
+    async refreshWeapons(gamePath: string, directory?: string): Promise<Weapon[]> {
+        return await this.scanWeapons(gamePath, directory);
     }
 
     /** Update search term */
@@ -187,15 +186,14 @@ export class WeaponService {
             return '';
         }
 
-        // Use the get_texture_path Tauri command to resolve the icon path
-        // The command navigates from weapon file to textures/ folder and returns absolute path
+        // Use the get_weapon_icon_base64 Tauri command to get icon as data URL
+        // This bypasses asset:// protocol encoding issues
         try {
-            const iconPath = await invoke<string>('get_texture_path', {
+            const dataUrl = await invoke<string>('get_weapon_icon_base64', {
                 weaponFilePath: weapon.sourceFile,
                 iconFilename: weapon.hudIcon,
             });
-            // Convert absolute path to Tauri asset URL
-            return convertFileSrc(iconPath);
+            return dataUrl;
         } catch (error) {
             console.error('Failed to resolve icon path:', error);
             return '';
@@ -209,7 +207,7 @@ export class WeaponService {
         const matches =
             weapon.name.toLowerCase().includes(lowerTerm) ||
             (weapon.key?.toLowerCase().includes(lowerTerm) ?? false) ||
-            (weapon.classTag?.toLowerCase().includes(lowerTerm) ?? false);
+            (weapon.tag?.toLowerCase().includes(lowerTerm) ?? false);
         return matches;
     }
 
@@ -267,7 +265,7 @@ export class WeaponService {
         }
 
         // Exact match filters
-        if (filters.classTag && weapon.classTag !== filters.classTag) {
+        if (filters.tag && weapon.tag !== filters.tag) {
             return false;
         }
 
@@ -348,7 +346,7 @@ export class WeaponService {
         return [
             { columnId: 'key', visible: true, order: 0 },
             { columnId: 'name', visible: true, order: 1 },
-            { columnId: 'classTag', visible: true, order: 2 },
+            { columnId: 'tag', visible: true, order: 2 },
             { columnId: 'magazineSize', visible: true, order: 3 },
             { columnId: 'killProbability', visible: true, order: 4 },
             { columnId: 'retriggerTime', visible: true, order: 5 },
