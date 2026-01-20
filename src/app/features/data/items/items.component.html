@@ -1,0 +1,734 @@
+<div class="flex flex-col sm:flex-row gap-2 mb-4">
+    <!-- Search input with type filter -->
+    <div class="join flex-1 w-full flex-col gap-2">
+        <input
+            type="text"
+            [placeholder]="'items.search' | transloco"
+            class="input input-bordered"
+            [value]="searchTerm()"
+            (input)="onSearch($any($event.target).value)"
+        />
+        <select
+            class="select select-bordered"
+            (change)="onItemTypeFilter($any($event.target).value)"
+        >
+            <option value="">
+                {{ 'items.filters.allTypes' | transloco }}
+            </option>
+            @for (type of availableItemTypes(); track type) {
+                <option [value]="type" [selected]="selectedItemType() === type">
+                    {{ 'items.filters.' + type | transloco }}
+                </option>
+            }
+        </select>
+    </div>
+    <!-- Page Size Selector -->
+    <div class="form-control">
+        <label class="label py-1">
+            <span class="label-text text-xs">{{
+                'items.page_size' | transloco
+            }}</span>
+        </label>
+        <select
+            class="select select-bordered select-sm"
+            [value]="pagination().pageSize"
+            (change)="onPageSizeChange($event)"
+        >
+            @for (size of pageSizeOptions; track size) {
+                <option [value]="size">
+                    {{ 'items.page_size_' + size | transloco }}
+                </option>
+            }
+        </select>
+    </div>
+    <!-- Column Toggle Dropdown -->
+    <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-outline">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+                />
+            </svg>
+        </div>
+        <ul
+            tabindex="0"
+            class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52"
+        >
+            <li class="menu-title">
+                <span>{{ 'items.column.selectColumns' | transloco }}</span>
+            </li>
+            @for (col of columns; track col.key) {
+                <li>
+                    <label class="label cursor-pointer gap-2 justify-start">
+                        <input
+                            type="checkbox"
+                            class="checkbox checkbox-xs"
+                            [checked]="isColumnVisible(col.key)"
+                            [disabled]="isColumnDisabled(col.key)"
+                            (change)="onColumnToggle(col.key)"
+                        />
+                        <span class="label-text text-sm">{{
+                            col.i18nKey | transloco
+                        }}</span>
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+    <!-- Scrolling Mode Toggle Button -->
+    <button
+        class="btn btn-outline"
+        (click)="toggleScrollingMode()"
+        [title]="'scrolling.toggleTooltip' | transloco"
+    >
+        <i-lucide
+            [name]="isTableOnlyMode() ? 'arrow-down-to-line' : 'maximize-2'"
+            class="h-5 w-5"
+        ></i-lucide>
+    </button>
+    <!-- Refresh button -->
+    <button class="btn btn-primary" (click)="onRefresh()">
+        @if (loading()) {
+            <span class="loading loading-spinner"></span>
+        }
+        {{ 'items.refresh' | transloco }}
+    </button>
+</div>
+
+<!-- Advanced Search Panel -->
+<div class="collapse collapse-arrow bg-base-200 mb-4">
+    <input
+        type="checkbox"
+        [checked]="showAdvancedSearch()"
+        (change)="toggleAdvancedSearch()"
+    />
+    <div class="collapse-title text-lg font-medium">
+        {{ 'items.advancedSearch' | transloco }}
+    </div>
+    <div class="collapse-content">
+        <!-- Range Filters -->
+        <div class="grid grid-cols-2 gap-2 mb-3">
+            <!-- Encumbrance Range -->
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text text-xs">{{
+                        'items.columns.encumbrance' | transloco
+                    }}</span>
+                </label>
+                <div class="join">
+                    <input
+                        type="number"
+                        class="input input-bordered input-xs join-item w-full"
+                        placeholder="Min"
+                        [value]="filters().encumbrance?.min ?? ''"
+                        (input)="
+                            onRangeFilter(
+                                'encumbrance',
+                                'min',
+                                $any($event.target).value
+                            )
+                        "
+                    />
+                    <input
+                        type="number"
+                        class="input input-bordered input-xs join-item w-full"
+                        placeholder="Max"
+                        [value]="filters().encumbrance?.max ?? ''"
+                        (input)="
+                            onRangeFilter(
+                                'encumbrance',
+                                'max',
+                                $any($event.target).value
+                            )
+                        "
+                    />
+                </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text text-xs">{{
+                        'items.columns.price' | transloco
+                    }}</span>
+                </label>
+                <div class="join">
+                    <input
+                        type="number"
+                        class="input input-bordered input-xs join-item w-full"
+                        placeholder="Min"
+                        [value]="filters().price?.min ?? ''"
+                        (input)="
+                            onRangeFilter(
+                                'price',
+                                'min',
+                                $any($event.target).value
+                            )
+                        "
+                    />
+                    <input
+                        type="number"
+                        class="input input-bordered input-xs join-item w-full"
+                        placeholder="Max"
+                        [value]="filters().price?.max ?? ''"
+                        (input)="
+                            onRangeFilter(
+                                'price',
+                                'max',
+                                $any($event.target).value
+                            )
+                        "
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- Exact Match Filters -->
+        <div class="flex flex-wrap gap-3 mb-3">
+            <label class="label cursor-pointer gap-2">
+                <input
+                    type="checkbox"
+                    class="checkbox checkbox-xs"
+                    [checked]="filters().canRespawnWith === true"
+                    (change)="
+                        onExactFilter(
+                            'canRespawnWith',
+                            $any($event.target).checked ? true : undefined
+                        )
+                    "
+                />
+                <span class="label-text text-xs">{{
+                    'weapons.filters.canRespawnWith' | transloco
+                }}</span>
+            </label>
+
+            <label class="label cursor-pointer gap-2">
+                <input
+                    type="checkbox"
+                    class="checkbox checkbox-xs"
+                    [checked]="filters().inStock === true"
+                    (change)="
+                        onExactFilter(
+                            'inStock',
+                            $any($event.target).checked ? true : undefined
+                        )
+                    "
+                />
+                <span class="label-text text-xs">{{
+                    'weapons.details.inStock' | transloco
+                }}</span>
+            </label>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <button class="btn btn-ghost btn-sm" (click)="onClearFilters()">
+            {{ 'items.clearFilters' | transloco }}
+        </button>
+    </div>
+</div>
+
+<!-- Error Alert -->
+@if (hasError()) {
+    <div class="alert alert-error mb-4">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="stroke-current shrink-0 h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+        </svg>
+        <span>{{ error() }}</span>
+    </div>
+}
+
+<!-- Loading State -->
+@if (loading()) {
+    <div class="alert alert-info mb-4">
+        <span class="loading loading-spinner"></span>
+        <span>{{ 'items.scanning' | transloco }}</span>
+    </div>
+}
+
+<!-- Items Table -->
+<div
+    [class]="
+        isTableOnlyMode() ? 'h-[600px] overflow-y-auto' : 'overflow-x-auto'
+    "
+>
+    <table class="table table-xs">
+        <thead>
+            <tr>
+                @for (col of getVisibleColumns(); track col.key) {
+                    <th
+                        [class.text-right]="col.alignment === 'right'"
+                        class="cursor-pointer hover:bg-base-200 transition-colors"
+                        [title]="
+                            'items.sort.' +
+                                (getColumnSortDirection(col.key) || 'unsorted')
+                                | transloco
+                        "
+                        (click)="onColumnClick(col.key)"
+                    >
+                        <div
+                            class="flex items-center gap-1"
+                            [class.justify-end]="col.alignment === 'right'"
+                        >
+                            <span>{{ col.i18nKey | transloco }}</span>
+                            @if (getColumnSortDirection(col.key) === 'asc') {
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-3 w-3"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            } @else if (
+                                getColumnSortDirection(col.key) === 'desc'
+                            ) {
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-3 w-3"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 9l-7 7-7-7"
+                                    />
+                                </svg>
+                            }
+                        </div>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (itemCount() === 0) {
+                <tr>
+                    <td
+                        [colSpan]="getVisibleColumns().length"
+                        class="text-center"
+                    >
+                        {{ 'items.noItems' | transloco }}
+                    </td>
+                </tr>
+            } @else {
+                @for (item of paginatedItems(); track item._id) {
+                    <tr
+                        class="cursor-pointer hover:bg-base-200"
+                        [class.active]="selectedItem()?.key === item.key"
+                        (click)="selectItem(item)"
+                        (keydown.arrowDown)="selectNext()"
+                        (keydown.arrowUp)="selectPrevious()"
+                        (keydown.escape)="closeDetailPanel()"
+                    >
+                        @for (col of getVisibleColumns(); track col.key) {
+                            <td
+                                [class.text-right]="col.alignment === 'right'"
+                                [class.text-left]="col.alignment === 'left'"
+                            >
+                                @if (col.key === 'image') {
+                                    <!-- T023: Image column with lazy loading and fallback -->
+                                    @if (getItemIconUrl(item)) {
+                                        <img
+                                            [src]="getItemIconUrl(item)"
+                                            [alt]="item.name"
+                                            class="w-12 h-12 object-contain"
+                                            loading="lazy"
+                                            (error)="onItemImageError()"
+                                        />
+                                    } @else {
+                                        <div
+                                            class="w-12 h-12 bg-base-300 flex items-center justify-center"
+                                        >
+                                            <lucide-icon
+                                                name="image-off"
+                                                class="w-6 h-6 opacity-30"
+                                            />
+                                        </div>
+                                    }
+                                } @else if (col.field === 'filePath') {
+                                    <div class="flex items-center gap-1">
+                                        <span
+                                            class="text-xs font-mono truncate flex-1"
+                                            [title]="item.filePath"
+                                        >
+                                            {{ item.filePath }}
+                                        </span>
+                                        <button
+                                            class="btn btn-ghost btn-xs btn-circle"
+                                            [title]="
+                                                'items.actions.openInEditor'
+                                                    | transloco
+                                            "
+                                            (click)="
+                                                $event.stopPropagation();
+                                                onOpenInEditor(item)
+                                            "
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                                />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            class="btn btn-ghost btn-xs btn-circle"
+                                            [title]="
+                                                'items.actions.copyPath'
+                                                    | transloco
+                                            "
+                                            (click)="
+                                                $event.stopPropagation();
+                                                onCopyPath(item)
+                                            "
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                } @else if (col.field === 'capacity.value') {
+                                    {{ getExtendedValue(item, 'capacity.value') }}
+                                } @else if (col.field === 'capacity.source') {
+                                    {{ getExtendedValue(item, 'capacity.source') }}
+                                } @else if (col.field === 'commonness.value') {
+                                    {{ getExtendedValue(item, 'commonness.value') }}
+                                } @else if (col.field === 'commonness.inStock') {
+                                    @if (getBooleanBadge(item, 'commonness.inStock') === 'true') {
+                                        <span class="badge badge-success">{{
+                                            'common.yes' | transloco
+                                        }}</span>
+                                    } @else if (getBooleanBadge(item, 'commonness.inStock') === 'false') {
+                                        <span class="badge badge-error">{{
+                                            'common.no' | transloco
+                                        }}</span>
+                                    } @else {
+                                        -
+                                    }
+                                } @else if (col.field === 'commonness.canRespawnWith') {
+                                    @if (getBooleanBadge(item, 'commonness.canRespawnWith') === 'true') {
+                                        <span class="badge badge-success">{{
+                                            'common.yes' | transloco
+                                        }}</span>
+                                    } @else if (getBooleanBadge(item, 'commonness.canRespawnWith') === 'false') {
+                                        <span class="badge badge-error">{{
+                                            'common.no' | transloco
+                                        }}</span>
+                                    } @else {
+                                        -
+                                    }
+                                } @else if (col.field === 'transformOnConsume') {
+                                    {{ getExtendedValue(item, 'transformOnConsume') }}
+                                } @else if (col.field === 'timeToLive') {
+                                    {{ getExtendedValue(item, 'timeToLive') }}
+                                } @else if (col.field === 'draggable') {
+                                    @if (getBooleanBadge(item, 'draggable') === 'true') {
+                                        <span class="badge badge-success">{{
+                                            'common.yes' | transloco
+                                        }}</span>
+                                    } @else if (getBooleanBadge(item, 'draggable') === 'false') {
+                                        <span class="badge badge-ghost">{{
+                                            'common.no' | transloco
+                                        }}</span>
+                                    } @else {
+                                        -
+                                    }
+                                } @else {
+                                    {{ getColumnValue(item, col.key) }}
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- T075: Pagination controls -->
+    @if (itemCount() > 0) {
+        <div
+            class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3 px-1"
+        >
+            <!-- Display Stats -->
+            <div class="text-[10px] text-base-content/50 order-2 sm:order-1">
+                {{
+                    'items.pagination_info'
+                        | transloco
+                            : {
+                                  start: getDisplayRange().start,
+                                  end: getDisplayRange().end,
+                                  total: totalItems(),
+                              }
+                }}
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="join order-1 sm:order-2">
+                @for (page of getPageNumbers(); track page) {
+                    @if (page === -1) {
+                        <button
+                            class="btn btn-xs join-item pointer-events-none opacity-50"
+                        >
+                            ...
+                        </button>
+                    } @else {
+                        <button
+                            class="btn btn-xs join-item"
+                            [class.btn-active]="
+                                page === pagination().currentPage
+                            "
+                            (click)="onPageChange(page)"
+                        >
+                            {{ page }}
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Detail Side Panel -->
+@if (isDetailPanelOpen() && selectedItem()) {
+    <aside @slideIn class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-200 border-l border-base-300 shadow-lg z-50 flex flex-col">
+        <!-- Feature 007: Image/Icon Display Section (top of panel, centered, 192px for visual cue) -->
+        <div class="flex justify-center py-6 border-b border-base-300">
+            @if (getItemIconUrl(selectedItem()!)) {
+                <!-- Display actual game image if available -->
+                <img
+                    [src]="getItemIconUrl(selectedItem()!)"
+                    [alt]="selectedItem()!.name"
+                    class="w-48 h-48 object-contain bg-base-300 rounded-lg shadow-md p-4"
+                    (error)="onItemImageError()"
+                />
+            } @else {
+                <!-- Fallback to Lucide icon if no image available -->
+                <lucide-icon
+                    [name]="getIconForItemType(selectedItem()!.itemType || '')"
+                    class="w-48 h-48 p-8 bg-base-300 rounded-lg text-primary shadow-md"
+                    [attr.aria-label]="'Item type: ' + selectedItem()!.itemType">
+                </lucide-icon>
+            }
+        </div>
+
+        <!-- Header -->
+        <div class="flex justify-between items-center p-4 border-b border-base-300">
+            <h3 class="font-bold text-lg">{{ selectedItem()!.name }}</h3>
+            <button class="btn btn-sm btn-circle btn-ghost" (click)="closeDetailPanel()">
+                <lucide-icon name="X"></lucide-icon>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 p-4 overflow-y-auto">
+            <!-- Basic Info -->
+            <div class="mb-4">
+                <div class="mb-2">
+                    <span class="text-xs opacity-70">{{ 'items.columns.key' | transloco }}</span>
+                    <div class="font-mono text-sm">{{ selectedItem()!.key || '-' }}</div>
+                </div>
+                <div class="mb-2">
+                    <span class="text-xs opacity-70">{{ 'items.columns.itemType' | transloco }}</span>
+                    <div class="text-sm">{{ 'items.filters.' + selectedItem()!.itemType | transloco }}</div>
+                </div>
+                @if (getItemSlotValue()) {
+                    <div class="mb-2">
+                        <span class="text-xs opacity-70">{{ 'items.columns.slot' | transloco }}</span>
+                        <div class="text-sm">{{ getItemSlotValue() }}</div>
+                    </div>
+                }
+                <div class="mb-2">
+                    <span class="text-xs opacity-70">{{ 'items.columns.filePath' | transloco }}</span>
+                    <div class="file-path-cell">{{ selectedItem()!.filePath }}</div>
+                </div>
+                <div class="mb-2">
+                    <span class="text-xs opacity-70">{{ 'weapons.details.package' | transloco }}</span>
+                    <div class="text-sm">{{ selectedItem()!.packageName }}</div>
+                </div>
+            </div>
+
+            <!-- Specifications -->
+            <h4 class="font-semibold text-md mb-2">{{ 'weapons.details.specifications' | transloco }}</h4>
+            <table class="table table-sm mb-4">
+                <tbody>
+                    @if (selectedItem()!.encumbrance !== null && selectedItem()!.encumbrance !== undefined) {
+                        <tr>
+                            <td>{{ 'items.columns.encumbrance' | transloco }}</td>
+                            <td class="text-right font-mono text-xs">{{ selectedItem()!.encumbrance }}</td>
+                        </tr>
+                    }
+                    @if (selectedItem()!.price !== null && selectedItem()!.price !== undefined) {
+                        <tr>
+                            <td>{{ 'items.columns.price' | transloco }}</td>
+                            <td class="text-right font-mono text-xs">{{ selectedItem()!.price }}</td>
+                        </tr>
+                    }
+                    @if (selectedItem()!.canRespawnWith !== null && selectedItem()!.canRespawnWith !== undefined) {
+                        <tr>
+                            <td>{{ 'weapons.details.canRespawnWith' | transloco }}</td>
+                            <td class="text-right">
+                                @if (selectedItem()!.canRespawnWith) {
+                                    <span class="badge badge-success">{{ 'weapons.details.yes' | transloco }}</span>
+                                } @else {
+                                    <span class="badge badge-ghost">{{ 'weapons.details.no' | transloco }}</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (selectedItem()!.inStock !== null && selectedItem()!.inStock !== undefined) {
+                        <tr>
+                            <td>{{ 'weapons.details.inStock' | transloco }}</td>
+                            <td class="text-right">
+                                @if (selectedItem()!.inStock) {
+                                    <span class="badge badge-success">{{ 'weapons.details.yes' | transloco }}</span>
+                                } @else {
+                                    <span class="badge badge-ghost">{{ 'weapons.details.no' | transloco }}</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (getTransformOnConsume(selectedItem()!)) {
+                        <tr>
+                            <td>{{ 'items.columns.transformOnConsume' | transloco }}</td>
+                            <td class="text-right font-mono text-xs">{{ getTransformOnConsume(selectedItem()!) }}</td>
+                        </tr>
+                    }
+                    @if (getTimeToLive(selectedItem()!) !== null && getTimeToLive(selectedItem()!) !== undefined) {
+                        <tr>
+                            <td>{{ 'items.columns.timeToLive' | transloco }}</td>
+                            <td class="text-right font-mono text-xs">{{ getTimeToLive(selectedItem()!) }}</td>
+                        </tr>
+                    }
+                    @if (getDraggable(selectedItem()!) !== null && getDraggable(selectedItem()!) !== undefined) {
+                        <tr>
+                            <td>{{ 'items.columns.draggable' | transloco }}</td>
+                            <td class="text-right">
+                                @if (getDraggable(selectedItem()!)) {
+                                    <span class="badge badge-success">{{ 'common.yes' | transloco }}</span>
+                                } @else {
+                                    <span class="badge badge-ghost">{{ 'common.no' | transloco }}</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Extended Attributes -->
+            @if (hasCapacity(selectedItem()!) || hasCommonness(selectedItem()!) || hasModifiers(selectedItem()!)) {
+                <h4 class="font-semibold text-md mb-2">Extended Attributes</h4>
+                <table class="table table-sm mb-4">
+                    <tbody>
+                        @if (hasCapacity(selectedItem()!)) {
+                            @for (field of ['value', 'source']; track field) {
+                                <tr>
+                                    <td>{{ field === 'value' ? 'items.columns.capacityValue' : 'items.columns.capacitySource' | transloco }}</td>
+                                    <td class="text-right font-mono text-xs">{{ getExtendedValue(selectedItem()!, 'capacity.' + field) }}</td>
+                                </tr>
+                            }
+                        }
+                        @if (hasCommonness(selectedItem()!)) {
+                            @if (getCommonness(selectedItem()!).value !== null && getCommonness(selectedItem()!).value !== undefined) {
+                                <tr>
+                                    <td>{{ 'items.columns.commonnessValue' | transloco }}</td>
+                                    <td class="text-right font-mono text-xs">{{ getExtendedValue(selectedItem()!, 'commonness.value') }}</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <!-- Modifiers -->
+            @if (hasModifiers(selectedItem()!)) {
+                <h4 class="font-semibold text-md mb-2">{{ 'items.columns.modifiers' | transloco }}</h4>
+                <table class="table table-sm mb-4">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Value</th>
+                            <th>State Transition</th>
+                            <th>Consumes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (modifier of getModifiers(selectedItem()!); track modifier._id) {
+                            <tr>
+                                <td><span class="font-mono text-xs">{{ modifier.class || '(no class)' }}</span></td>
+                                <td>
+                                    @if (modifier.value !== undefined && modifier.value !== null) {
+                                        <span class="badge badge-outline">{{ modifier.value }}</span>
+                                    } @else {
+                                        -
+                                    }
+                                </td>
+                                <td>
+                                    @if (modifier.inputCharacterState || modifier.outputCharacterState) {
+                                        <span class="text-xs">
+                                            {{ modifier.inputCharacterState || '?' }} &rarr; {{ modifier.outputCharacterState || '?' }}
+                                        </span>
+                                    } @else {
+                                        -
+                                    }
+                                </td>
+                                <td>
+                                    @if (modifier.consumesItem) {
+                                        <span class="badge badge-warning badge-xs">Yes</span>
+                                    } @else {
+                                        <span class="badge badge-ghost badge-xs">No</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </aside>
+}

@@ -10,6 +10,7 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+/build
 
 # IDEs and editors
 .idea/
@@ -40,3 +41,34 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Rust
+/target
+/debug
+/release
+*.rs.bk
+*.rlib
+*.prof*
+*.log
+.env*
+
+# docs for AI
+# /docs-ai
+/.claude
+/.gemini
+/.specify
+/.opencode
+/.cursor
+
+# spec-kit runtime / cache
+.speckit/
+.cache/
+.logs/
+
+# generated / transient
+.generated/
+implement-output/
+drafts/
+
+# rust analyzer
+target/rust-analyzer

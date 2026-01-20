@@ -1,75 +1,416 @@
-<main class="w-dvw h-dvh">
-    <div class="drawer">
-        <input
-            id="menu-drawer"
-            #drawerInput
-            type="checkbox"
-            class="drawer-toggle"
-        />
+<div class="flex h-screen overflow-hidden" *transloco="let t">
+    <!-- Left Navigation Sidebar (200px fixed for 800px width support) -->
+    <aside
+        class="w-[200px] border-r border-base-300 bg-base-200 flex flex-col shrink-0"
+    >
+        <!-- App Title -->
+        <div
+            class="h-14 flex items-center px-3 border-b border-base-300 shrink-0"
+        >
+            <i-lucide name="box" class="h-5 w-5 shrink-0"></i-lucide>
+            <span class="ml-2 text-sm font-bold truncate">{{
+                t('app.title')
+            }}</span>
+        </div>
 
-        <div class="drawer-content">
-            <div class="navbar bg-base-100 shadow-sm">
-                <div class="flex-none">
-                    <label class="btn btn-square btn-ghost" for="menu-drawer">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block h-5 w-5 stroke-current"
+        <!-- Menu Items -->
+        <ul class="menu grow p-2 gap-0.5 overflow-y-auto w-full">
+            @for (item of menuItems; track item.link ?? item.label ?? $index) {
+                @if (item.divider) {
+                    <li class="my-1 border-t border-base-300"></li>
+                } @else if (item.children && item.link) {
+                    <!-- Item with Children (Submenu) -->
+                    <li>
+                        <details [open]="isActive(item.link!)">
+                            <summary
+                                [class.active]="isActive(item.link!)"
+                                class="py-2 px-3 text-sm"
+                            >
+                                <i-lucide
+                                    [name]="item.icon"
+                                    class="h-4 w-4"
+                                ></i-lucide>
+                                <span class="truncate">{{
+                                    t(item.label || '')
+                                }}</span>
+                            </summary>
+                            <ul
+                                class="before:hidden ml-2 border-l border-base-300"
+                            >
+                                @for (
+                                    child of item.children;
+                                    track child.label
+                                ) {
+                                    <li>
+                                        <a
+                                            [routerLink]="child.link!"
+                                            [class.active]="
+                                                isActive(child.link!)
+                                            "
+                                            class="py-1.5 px-3 text-sm"
+                                        >
+                                            <i-lucide
+                                                [name]="child.icon"
+                                                class="h-3.5 w-3.5"
+                                            ></i-lucide>
+                                            <span class="truncate">{{
+                                                t(child.label || '')
+                                            }}</span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </details>
+                    </li>
+                } @else if (!item.children && item.link && !item.divider) {
+                    <!-- Simple Item (No Children) -->
+                    <li>
+                        <a
+                            [routerLink]="item.link"
+                            [class.active]="isActive(item.link)"
+                            class="flex items-center gap-2 py-2 px-3 text-sm"
+                            [title]="t(item.description || '')"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            ></path>
-                        </svg>
-                    </label>
-                </div>
-                <div class="flex-1">
-                    <a class="btn btn-ghost text-xl">daisyUI</a>
-                </div>
-                <div class="flex-none">
-                    <button class="btn btn-square btn-ghost">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block h-5 w-5 stroke-current"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                            ></path>
-                        </svg>
+                            <i-lucide
+                                [name]="item.icon"
+                                class="h-4 w-4 shrink-0"
+                            ></i-lucide>
+                            <span class="flex-1 truncate">{{
+                                t(item.label || '')
+                            }}</span>
+                            @if (item.shortcut) {
+                                <span
+                                    class="text-[10px] text-base-content/40 shrink-0"
+                                    >{{ item.shortcut }}</span
+                                >
+                            }
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+
+        <!-- Footer -->
+        <div
+            class="p-2 text-xs border-t border-base-300 shrink-0 text-base-content/60 text-center"
+        >
+            <span>{{ t('app.copyright', { year: currentYear }) }}</span>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex flex-col overflow-hidden min-w-0">
+        <!-- Top Bar -->
+        <header
+            class="h-12 border-b border-base-300 bg-base-100 flex items-center justify-between px-4 shrink-0"
+        >
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-base-content/60">{{
+                    t('common.quick_search')
+                }}</span>
+                <div class="join">
+                    <input
+                        type="text"
+                        placeholder="Ctrl+K"
+                        class="input input-bordered input-sm join-item w-40 text-sm"
+                    />
+                    <button class="btn btn-neutral btn-sm join-item">
+                        <i-lucide name="search" class="h-4 w-4"></i-lucide>
                     </button>
                 </div>
             </div>
-            <div>
-                <router-outlet></router-outlet>
+            <div class="flex items-center gap-1">
+                <button
+                    class="btn btn-square btn-ghost btn-sm"
+                    [title]="t('shortcuts.toggle_status')"
+                    (click)="toggleStatusPanel()"
+                >
+                    <i-lucide name="panel-right" class="h-4 w-4"></i-lucide>
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm"
+                    [title]="t('settings.theme')"
+                >
+                    <i-lucide name="palette" class="h-4 w-4"></i-lucide>
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm"
+                    [title]="t('shortcuts.title')"
+                    (click)="showShortcuts()"
+                >
+                    <i-lucide name="keyboard" class="h-4 w-4"></i-lucide>
+                </button>
             </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-auto p-2 bg-base-100 min-h-0">
+            <router-outlet></router-outlet>
         </div>
 
-        <div class="drawer-side">
-            <label
-                for="menu-drawer"
-                aria-label="close sidebar"
-                class="drawer-overlay"
-            ></label>
-            <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                <li>
-                    <a routerLink="/home" (click)="drawerInput.checked = false">
-                        Home
-                    </a>
-                </li>
-                <li>
-                    <a routerLink="/404" (click)="drawerInput.checked = false">
-                        404
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</main>
+        <!-- Bottom Status Bar -->
+        <footer
+            class="h-7 border-t border-base-300 bg-base-200 flex items-center justify-between px-4 text-xs shrink-0"
+        >
+            <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                    <span class="hidden sm:inline">{{
+                        t('common.api_connected')
+                    }}</span>
+                    <span class="sm:hidden">API</span>
+                </span>
+                <span class="text-base-content/40">|</span>
+                <span class="text-base-content/60 truncate">{{
+                    t('common.last_update')
+                }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-base-content/40 font-mono">v0.1.0</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Right Status Panel (240px, hidden by default, toggle with Ctrl+S) -->
+    @if (showStatusPanel()) {
+        <aside
+            class="w-[240px] border-l border-base-300 bg-base-200 flex flex-col shrink-0"
+        >
+            <!-- Panel Header -->
+            <div
+                class="h-12 flex items-center justify-between px-4 border-b border-base-300 shrink-0"
+            >
+                <span class="font-medium text-xs uppercase tracking-wider">{{
+                    t('common.status_panel')
+                }}</span>
+                <button
+                    class="btn btn-ghost btn-xs btn-square"
+                    (click)="toggleStatusPanel()"
+                >
+                    <i-lucide name="x" class="h-4 w-4"></i-lucide>
+                </button>
+            </div>
+
+            <!-- Panel Content -->
+            <div
+                class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 min-h-0"
+            >
+                <!-- System Status Section -->
+                <div
+                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                >
+                    <div class="card-body p-3">
+                        <h3 class="card-title text-xs uppercase opacity-50">
+                            {{ t('common.system_status') }}
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <div
+                                class="flex justify-between items-center gap-2"
+                            >
+                                <span class="text-base-content/60 truncate">{{
+                                    t('common.api_connection')
+                                }}</span>
+                                <span
+                                    class="badge badge-success badge-sm h-4 text-[10px] font-medium"
+                                    >{{ t('common.connected') }}</span
+                                >
+                            </div>
+                            <div
+                                class="flex justify-between items-center gap-2"
+                            >
+                                <span class="text-base-content/60 truncate">{{
+                                    t('common.cache')
+                                }}</span>
+                                <span
+                                    class="badge badge-neutral badge-sm h-4 text-[10px] font-medium"
+                                    >{{ t('common.active') }}</span
+                                >
+                            </div>
+                            <div
+                                class="flex justify-between items-center gap-2"
+                            >
+                                <span class="text-base-content/60 truncate">{{
+                                    t('common.game_path')
+                                }}</span>
+                                <span
+                                    class="badge badge-warning badge-sm h-4 text-[10px] font-medium shrink-0"
+                                    >{{ t('common.not_set') }}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Section -->
+                <div
+                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                >
+                    <div class="card-body p-3">
+                        <h3 class="card-title text-xs uppercase opacity-50">
+                            {{ t('common.quick_stats') }}
+                        </h3>
+                        <div
+                            class="stats stats-vertical stats-sm bg-transparent p-0 w-full"
+                        >
+                            <div class="stat p-1">
+                                <div
+                                    class="stat-value text-xl font-bold leading-none"
+                                >
+                                    --
+                                </div>
+                                <div class="stat-desc text-[10px]">
+                                    {{ t('common.active_servers') }}
+                                </div>
+                            </div>
+                            <div class="stat p-1 border-t border-base-200">
+                                <div
+                                    class="stat-value text-xl font-bold leading-none"
+                                >
+                                    --
+                                </div>
+                                <div class="stat-desc text-[10px]">
+                                    {{ t('common.players_online') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Section -->
+                <div
+                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                >
+                    <div class="card-body p-3">
+                        <h3 class="card-title text-xs uppercase opacity-50">
+                            {{ t('common.recent_activity') }}
+                        </h3>
+                        <div class="mt-1 space-y-2">
+                            <div class="flex gap-2.5 items-start">
+                                <div class="mt-1">
+                                    <i-lucide
+                                        name="circle-dot"
+                                        class="h-2.5 w-2.5 text-primary"
+                                    ></i-lucide>
+                                </div>
+                                <div
+                                    class="text-xs leading-normal text-base-content/80"
+                                >
+                                    {{ t('app.welcome') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    }
+
+    <!-- Keyboard Shortcuts Modal -->
+    @if (showShortcutsModal()) {
+        <dialog class="modal modal-open">
+            <div class="modal-box p-4 max-w-sm">
+                <h3 class="font-bold text-base mb-3">
+                    {{ t('shortcuts.title') }}
+                </h3>
+                <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                    <!-- Navigation Shortcuts -->
+                    <div>
+                        <h4
+                            class="text-xs font-semibold uppercase opacity-50 mb-2"
+                        >
+                            {{ t('shortcuts.navigation') }}
+                        </h4>
+                        <table class="table table-xs">
+                            <tbody>
+                                @for (
+                                    item of getShortcutItems();
+                                    track item.shortcut
+                                ) {
+                                    <tr>
+                                        <td class="w-1/4 p-1">
+                                            <kbd
+                                                class="kbd kbd-xs text-[9px]"
+                                                >{{ item.shortcut }}</kbd
+                                            >
+                                        </td>
+                                        <td class="p-1 text-[11px]">
+                                            {{ t(item.label || '') }}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Global Shortcuts -->
+                    <div>
+                        <h4
+                            class="text-xs font-semibold uppercase opacity-50 mb-2"
+                        >
+                            {{ t('shortcuts.global') }}
+                        </h4>
+                        <table class="table table-xs">
+                            <tbody>
+                                <tr>
+                                    <td class="w-1/4 p-1">
+                                        <div class="flex gap-0.5">
+                                            <kbd class="kbd kbd-xs text-[9px]"
+                                                >Ctrl</kbd
+                                            >
+                                            <kbd class="kbd kbd-xs text-[9px]"
+                                                >K</kbd
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="p-1 text-[11px]">
+                                        {{ t('shortcuts.quick_search') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="w-1/4 p-1">
+                                        <div class="flex gap-0.5">
+                                            <kbd class="kbd kbd-xs text-[9px]"
+                                                >Ctrl</kbd
+                                            >
+                                            <kbd class="kbd kbd-xs text-[9px]"
+                                                >S</kbd
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="p-1 text-[11px]">
+                                        {{ t('shortcuts.toggle_status') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="w-1/4 p-1">
+                                        <kbd class="kbd kbd-xs text-[9px]"
+                                            >Esc</kbd
+                                        >
+                                    </td>
+                                    <td class="p-1 text-[11px]">
+                                        {{ t('shortcuts.close_modals') }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-action mt-4">
+                    <button
+                        class="btn btn-sm btn-ghost"
+                        (click)="closeShortcuts()"
+                    >
+                        {{ t('common.close') }}
+                    </button>
+                </div>
+            </div>
+            <form
+                method="dialog"
+                class="modal-backdrop bg-base-900/40 backdrop-blur-[1px]"
+            >
+                <button (click)="closeShortcuts()">close</button>
+            </form>
+        </dialog>
+    }
+</div>

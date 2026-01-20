@@ -2,7 +2,7 @@
 name = "rwr-toolbox"
 version = "0.1.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["Kreedzt"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,8 +18,19 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["protocol-asset"] }
 tauri-plugin-opener = "2"
+tauri-plugin-http = "2"
+tauri-plugin-store = "2"
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
+reqwest = { version = "0.12", features = ["rustls-tls", "json", "gzip", "brotli", "deflate"] }
+zip = "7.0"
+walkdir = "2.5"
+anyhow = "1.0"
+dirs = "5.0"
+quick-xml = { version = "0.37", features = ["serialize"] }
+glob = "0.3"
+base64 = "0.22"
+tauri-plugin-clipboard-manager = "2"
