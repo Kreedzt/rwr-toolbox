@@ -1,0 +1,93 @@
+./vanilla
+├── calls
+├── custom_matches
+├── factions
+├── fonts
+├── items
+├── languages
+│   ├── cn
+│   │   └── maps
+│   │       └── lobby
+│   ├── de
+│   │   └── maps
+│   │       └── lobby
+│   ├── en
+│   │   └── maps
+│   │       └── lobby
+│   ├── es
+│   │   └── maps
+│   │       └── lobby
+│   ├── fr
+│   │   └── maps
+│   │       └── lobby
+│   ├── it
+│   │   └── maps
+│   │       └── lobby
+│   ├── kr
+│   ├── pl
+│   │   └── maps
+│   │       └── lobby
+│   ├── pt
+│   │   └── maps
+│   │       └── lobby
+│   └── ru
+│       └── maps
+│           └── lobby
+├── maps
+│   ├── lobby
+│   ├── map1
+│   ├── map11
+│   │   └── materials
+│   ├── map13
+│   │   └── materials
+│   ├── map13_2
+│   ├── map14
+│   ├── map15
+│   ├── map16
+│   │   └── materials
+│   ├── map17
+│   ├── map18
+│   │   └── materials
+│   ├── map19
+│   │   └── materials
+│   ├── map1_2
+│   ├── map2
+│   ├── map20
+│   ├── map21
+│   │   └── materials
+│   ├── map3
+│   ├── map5
+│   ├── map7
+│   └── map8
+│       └── materials
+├── materials
+├── models
+├── names
+├── particles
+├── scripts
+│   ├── gamemodes
+│   │   ├── campaign
+│   │   ├── invasion
+│   │   ├── simple
+│   │   └── tester
+│   ├── internal
+│   └── trackers
+├── scripts.legacy
+│   ├── gamemodes
+│   │   ├── classic
+│   │   ├── deathmatch
+│   │   ├── invasion
+│   │   ├── minimodes
+│   │   ├── old_classic
+│   │   ├── team_elimination
+│   │   ├── teddy_hunt
+│   │   └── tester
+│   ├── internal
+│   └── trackers
+├── sounds
+├── static_objects
+├── textures
+├── vehicles
+└── weapons
+
+91 directories

@@ -25,8 +25,8 @@ This task list implements the fix for the tag column data reading bug and UI lab
 
 **Acceptance**: Branch `005-tag-column-fix` is checked out and ready for changes.
 
-- [ ] T001 Verify current branch is `005-tag-column-fix`
-- [ ] T002 Verify build succeeds before making changes (`pnpm build`)
+- [X] T001 Verify current branch is `005-tag-column-fix`
+- [X] T002 Verify build succeeds before making changes (`pnpm build`)
 
 ---
 
@@ -40,9 +40,9 @@ This task list implements the fix for the tag column data reading bug and UI lab
 
 ### Model Updates
 
-- [ ] T003 Rename `classTag: string` to `tag: string` in Weapon interface in `src/app/shared/models/weapons.models.ts`
-- [ ] T004 Update `WeaponColumnKey` type from `'classTag'` to `'tag'` in `src/app/shared/models/weapons.models.ts`
-- [ ] T005 Update `AdvancedFilters.classTag` to `tag` in `src/app/shared/models/weapons.models.ts`
+- [X] T003 Rename `classTag: string` to `tag: string` in Weapon interface in `src/app/shared/models/weapons.models.ts`
+- [X] T004 Update `WeaponColumnKey` type from `'classTag'` to `'tag'` in `src/app/shared/models/weapons.models.ts`
+- [X] T005 Update `AdvancedFilters.classTag` to `tag` in `src/app/shared/models/weapons.models.ts`
 
 ---
 
@@ -56,23 +56,23 @@ This task list implements the fix for the tag column data reading bug and UI lab
 
 ### Column Configuration
 
-- [ ] T006 [US1] Update column `key` from `'classTag'` to `'tag'` in `src/app/features/data/weapons/weapon-columns.ts`
-- [ ] T007 [US1] Update column `field` from `'classTag'` to `'tag'` in `src/app/features/data/weapons/weapon-columns.ts`
-- [ ] T008 [US1] Update column `i18nKey` from `weapons.columns.classTag` to `weapons.columns.tag` in `src/app/features/data/weapons/weapon-columns.ts`
+- [X] T006 [US1] Update column `key` from `'classTag'` to `'tag'` in `src/app/features/data/weapons/weapon-columns.ts`
+- [X] T007 [US1] Update column `field` from `'classTag'` to `'tag'` in `src/app/features/data/weapons/weapon-columns.ts`
+- [X] T008 [US1] Update column `i18nKey` from `weapons.columns.classTag` to `weapons.columns.tag` in `src/app/features/data/weapons/weapon-columns.ts`
 
 ### Component Logic with Migration
 
-- [ ] T009 [US1] Rename `selectedClassTag` signal to `selectedTag` in `src/app/features/data/weapons/weapons.component.ts`
-- [ ] T010 [US1] Rename `availableClassTags` computed to `availableTags` and update to read `w.tag` instead of `w.classTag` in `src/app/features/data/weapons/weapons.component.ts`
-- [ ] T011 [US1] Rename `onClassTagFilter` method to `onTagFilter` in `src/app/features/data/weapons/weapons.component.ts`
-- [ ] T012 [US1] Update `updateAdvancedFilters` to use `tag: this.selectedTag()` instead of `classTag: this.selectedClassTag()` in `src/app/features/data/weapons/weapons.component.ts`
-- [ ] T013 [US1] Update `onClearFilters` to use `this.selectedTag.set(undefined)` instead of `this.selectedClassTag.set(undefined)` in `src/app/features/data/weapons/weapons.component.ts`
-- [ ] T014 [US1] Add localStorage migration logic in constructor (migrate `classTag` → `tag` columnId) in `src/app/features/data/weapons/weapons.component.ts`
+- [X] T009 [US1] Rename `selectedClassTag` signal to `selectedTag` in `src/app/features/data/weapons/weapons.component.ts
+- [X] T010 [US1] Rename `availableClassTags` computed to `availableTags` and update to read `w.tag` instead of `w.classTag` in `src/app/features/data/weapons/weapons.component.ts`
+- [X] T011 [US1] Rename `onClassTagFilter` method to `onTagFilter` in `src/app/features/data/weapons/weapons.component.ts
+- [X] T012 [US1] Update `updateAdvancedFilters` to use `tag: this.selectedTag()` instead of `classTag: this.selectedClassTag()` in `src/app/features/data/weapons/weapons.component.ts`
+- [X] T013 [US1] Update `onClearFilters` to use `this.selectedTag.set(undefined)` instead of `this.selectedClassTag.set(undefined)` in `src/app/features/data/weapons/weapons.component.ts`
+- [X] T014 [US1] Add localStorage migration logic in constructor (migrate `classTag` → `tag` columnId) in `src/app/features/data/weapons/weapons.component.ts`
 
 ### HTML Template Updates
 
-- [ ] T015 [US1] Update filter dropdown binding from `selectedClassTag()` to `selectedTag()` in `src/app/features/data/weapons/weapons.component.html`
-- [ ] T016 [US1] Update filter dropdown event handler from `onClassTagFilter` to `onTagFilter` in `src/app/features/data/weapons/weapons.component.html`
+- [X] T015 [US1] Update filter dropdown binding from `selectedClassTag()` to `selectedTag()` in `src/app/features/data/weapons/weapons.component.html`
+- [X] T016 [US1] Update filter dropdown event handler from `onClassTagFilter` to `onTagFilter` in `src/app/features/data/weapons/weapons.component.html`
 
 ---
 
@@ -86,8 +86,8 @@ This task list implements the fix for the tag column data reading bug and UI lab
 
 ### i18n Translations
 
-- [ ] T017 [P] [US2] Rename `weapons.columns.classTag` key to `weapons.columns.tag` and update value to "Tag" in `src/assets/i18n/en.json`
-- [ ] T018 [P] [US2] Rename `weapons.columns.classTag` key to `weapons.columns.tag` and update value to "标签" in `src/assets/i18n/zh.json`
+- [X] T017 [P] [US2] Rename `weapons.columns.classTag` key to `weapons.columns.tag` and update value to "Tag" in `src/assets/i18n/en.json`
+- [X] T018 [P] [US2] Rename `weapons.columns.classTag` key to `weapons.columns.tag` and update value to "标签" in `src/assets/i18n/zh.json`
 
 ---
 
@@ -97,12 +97,12 @@ This task list implements the fix for the tag column data reading bug and UI lab
 
 **Acceptance**: Build succeeds, manual testing passes, documentation updated.
 
-- [ ] T019 Run build to verify no TypeScript compilation errors (`pnpm build`)
+- [X] T019 Run build to verify no TypeScript compilation errors (`pnpm build`)
 - [ ] T020 Manual testing: Verify tag values display correctly in Weapons table
 - [ ] T021 Manual testing: Verify column header shows "Tag" / "标签" (not "Class Tag")
 - [ ] T022 Manual testing: Verify tag filter in advanced search works
 - [ ] T023 Manual testing: Verify column visibility preferences migrated correctly
-- [ ] T024 Update `docs-ai/PROGRESS.md` with feature completion entry
+- [X] T024 Update `docs-ai/PROGRESS.md` with feature completion entry
 
 ---
 
