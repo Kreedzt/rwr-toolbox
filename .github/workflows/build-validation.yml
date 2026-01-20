@@ -1,0 +1,72 @@
+name: 'Build Validation'
+
+# Triggered on pushes to master branch and pull requests targeting master
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Build validation doesn't need any special permissions
+# It just verifies the code builds without errors
+
+jobs:
+  build-validation:
+    # Build on all target platforms in parallel
+    # fail-fast: true means stop immediately on any failure for faster feedback
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          # macOS ARM64 (Apple Silicon)
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          # macOS x86_64 (Intel)
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          # Linux (Ubuntu-based)
+          - platform: 'ubuntu-22.04'
+            args: ''
+          # Windows 64-bit
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      # Checkout repository code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup Node.js for frontend dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Setup Rust toolchain
+      # macOS runners need both ARM64 and x86_64 targets for cross-compilation
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      # Linux needs webkit libraries for WebView (Tauri dependency)
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      # Install frontend dependencies (pnpm for this project)
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      # Build and validate the application
+      # Using tauri-action without release parameters = build validation only
+      # --debug flag builds faster for validation purposes
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v1
+        with:
+          # No release parameters = build validation only, no GitHub release created
+          args: --debug ${{ matrix.args }}
