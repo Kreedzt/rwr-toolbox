@@ -116,7 +116,10 @@ async fn set_theme_preference(
 /// Platform-specific theme detection
 fn detect_theme_for_platform(platform: &str) -> Result<String, String> {
     match platform {
+        #[cfg(target_os = "macos")]
         "macos" => detect_theme_macos(),
+        #[cfg(not(target_os = "macos"))]
+        "macos" => Ok("light".to_string()),
         "linux" => detect_theme_linux(),
         #[cfg(target_os = "windows")]
         "windows" => detect_theme_windows(),
