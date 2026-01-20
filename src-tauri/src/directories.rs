@@ -145,7 +145,7 @@ fn is_readable(path: &Path) -> bool {
 
     #[cfg(windows)]
     {
-        // On Windows, try to read the directory
-        path.readable().unwrap_or(false)
+        // On Windows, try to read the directory entries
+        std::fs::read_dir(path).is_ok()
     }
 }
