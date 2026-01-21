@@ -5,6 +5,7 @@ import {
     TranslocoPipe,
     TranslocoService,
 } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
     SupportedLocale,
@@ -21,7 +22,7 @@ import { SettingsService } from '../../core/services/settings.service';
  */
 @Component({
     selector: 'app-settings',
-    imports: [CommonModule, TranslocoDirective, TranslocoPipe],
+    imports: [CommonModule, TranslocoDirective, TranslocoPipe, LucideAngularModule],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.css',
 })
@@ -148,6 +149,13 @@ export class SettingsComponent implements OnInit {
      */
     async onRevalidateDirectory(directoryId: string): Promise<void> {
         await this.directoryService.revalidateDirectory(directoryId);
+    }
+
+    /**
+     * Toggle active state of a directory
+     */
+    async onToggleActive(directoryId: string): Promise<void> {
+        await this.directoryService.toggleActive(directoryId);
     }
 
     /**

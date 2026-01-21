@@ -88,7 +88,10 @@
         "validatingDirectories": "Validating directories...",
         "noDirectories": "No directories configured yet",
         "lastScanned": "Last scanned: {{ date }}",
+        "packageCount": "{{ count }} packages",
         "itemCount": "{{ count }} items",
+        "activeDirectory": "Active - included in scans",
+        "inactiveDirectory": "Inactive - excluded from scans",
         "errors": {
             "pathNotFound": "The specified path does not exist",
             "notADirectory": "The path is not a directory",

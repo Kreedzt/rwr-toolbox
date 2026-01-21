@@ -99,6 +99,7 @@ export class WeaponService {
                 const errorMsg = this.transloco.translate('weapons.scanError', {
                     error: `${result.errors.length} files failed`,
                 });
+                console.log('Touch errors', result.errors);
                 this.error.set(errorMsg);
             }
 

@@ -537,26 +537,6 @@
 <!-- Detail Side Panel -->
 @if (isDetailPanelOpen() && selectedItem()) {
     <aside @slideIn class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-200 border-l border-base-300 shadow-lg z-50 flex flex-col">
-        <!-- Feature 007: Image/Icon Display Section (top of panel, centered, 192px for visual cue) -->
-        <div class="flex justify-center py-6 border-b border-base-300">
-            @if (getItemIconUrl(selectedItem()!)) {
-                <!-- Display actual game image if available -->
-                <img
-                    [src]="getItemIconUrl(selectedItem()!)"
-                    [alt]="selectedItem()!.name"
-                    class="w-48 h-48 object-contain bg-base-300 rounded-lg shadow-md p-4"
-                    (error)="onItemImageError()"
-                />
-            } @else {
-                <!-- Fallback to Lucide icon if no image available -->
-                <lucide-icon
-                    [name]="getIconForItemType(selectedItem()!.itemType || '')"
-                    class="w-48 h-48 p-8 bg-base-300 rounded-lg text-primary shadow-md"
-                    [attr.aria-label]="'Item type: ' + selectedItem()!.itemType">
-                </lucide-icon>
-            }
-        </div>
-
         <!-- Header -->
         <div class="flex justify-between items-center p-4 border-b border-base-300">
             <h3 class="font-bold text-lg">{{ selectedItem()!.name }}</h3>
@@ -567,31 +547,55 @@
 
         <!-- Content -->
         <div class="flex-1 p-4 overflow-y-auto">
-            <!-- Basic Info -->
-            <div class="mb-4">
-                <div class="mb-2">
-                    <span class="text-xs opacity-70">{{ 'items.columns.key' | transloco }}</span>
-                    <div class="font-mono text-sm">{{ selectedItem()!.key || '-' }}</div>
+            <!-- First row: Image + Basic Info -->
+            <div class="flex gap-4 mb-4">
+                <!-- Item Image/Icon (smaller, inline with content) -->
+                <div class="flex-shrink-0">
+                    @if (getItemIconUrl(selectedItem()!)) {
+                        <img
+                            [src]="getItemIconUrl(selectedItem()!)"
+                            [alt]="selectedItem()!.name"
+                            class="w-24 h-24 object-contain bg-base-300 rounded-lg shadow-md p-2"
+                            (error)="onItemImageError()"
+                        />
+                    } @else {
+                        <lucide-icon
+                            [name]="getIconForItemType(selectedItem()!.itemType || '')"
+                            class="w-24 h-24 p-4 bg-base-300 rounded-lg text-primary shadow-md"
+                            [attr.aria-label]="'Item type: ' + selectedItem()!.itemType">
+                        </lucide-icon>
+                    }
                 </div>
-                <div class="mb-2">
-                    <span class="text-xs opacity-70">{{ 'items.columns.itemType' | transloco }}</span>
-                    <div class="text-sm">{{ 'items.filters.' + selectedItem()!.itemType | transloco }}</div>
-                </div>
-                @if (getItemSlotValue()) {
+
+                <!-- Basic Info -->
+                <div class="flex-1 min-w-0">
                     <div class="mb-2">
-                        <span class="text-xs opacity-70">{{ 'items.columns.slot' | transloco }}</span>
-                        <div class="text-sm">{{ getItemSlotValue() }}</div>
+                        <span class="text-xs opacity-70">{{ 'items.columns.key' | transloco }}</span>
+                        <div class="font-mono text-sm truncate">{{ selectedItem()!.key || '-' }}</div>
                     </div>
-                }
-                <div class="mb-2">
-                    <span class="text-xs opacity-70">{{ 'items.columns.filePath' | transloco }}</span>
-                    <div class="file-path-cell">{{ selectedItem()!.filePath }}</div>
-                </div>
-                <div class="mb-2">
-                    <span class="text-xs opacity-70">{{ 'weapons.details.package' | transloco }}</span>
-                    <div class="text-sm">{{ selectedItem()!.packageName }}</div>
+                    <div class="mb-2">
+                        <span class="text-xs opacity-70">{{ 'items.columns.itemType' | transloco }}</span>
+                        <div class="text-sm truncate">{{ 'items.filters.' + selectedItem()!.itemType | transloco }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-xs opacity-70">{{ 'weapons.details.package' | transloco }}</span>
+                        <div class="text-sm truncate">{{ selectedItem()!.packageName }}</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- File Path (full width) -->
+            <div class="mb-4">
+                <span class="text-xs opacity-70">{{ 'items.columns.filePath' | transloco }}</span>
+                <div class="file-path-cell text-xs break-all">{{ selectedItem()!.filePath }}</div>
+            </div>
+
+            @if (getItemSlotValue()) {
+                <div class="mb-4">
+                    <span class="text-xs opacity-70">{{ 'items.columns.slot' | transloco }}</span>
+                    <div class="text-sm">{{ getItemSlotValue() }}</div>
+                </div>
+            }
 
             <!-- Specifications -->
             <h4 class="font-semibold text-md mb-2">{{ 'weapons.details.specifications' | transloco }}</h4>

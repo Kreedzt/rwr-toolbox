@@ -618,26 +618,6 @@
 <!-- Detail Side Panel -->
 @if (isDetailPanelOpen() && selectedWeapon()) {
     <aside @slideIn class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-200 border-l border-base-300 shadow-lg z-50 flex flex-col">
-        <!-- Feature 007: Image/Icon Display Section (top of panel, centered, 192px for visual cue) -->
-        <div class="flex justify-center py-6 border-b border-base-300">
-            @if (getWeaponIconUrl(selectedWeapon()!)) {
-                <!-- Display actual game image if available -->
-                <img
-                    [src]="getWeaponIconUrl(selectedWeapon()!)"
-                    [alt]="selectedWeapon()!.name"
-                    class="w-48 h-48 object-contain bg-base-300 rounded-lg shadow-md p-4"
-                    (error)="onWeaponImageError()"
-                />
-            } @else {
-                <!-- Fallback to Lucide icon if no image available -->
-                <lucide-icon
-                    [name]="getIconForWeaponType(selectedWeapon()!.tag || '')"
-                    class="w-48 h-48 p-8 bg-base-300 rounded-lg text-primary shadow-md"
-                    [attr.aria-label]="'Weapon type: ' + selectedWeapon()!.tag">
-                </lucide-icon>
-            }
-        </div>
-
         <!-- Header -->
         <div class="flex justify-between items-center p-4 border-b border-base-300">
             <h3 class="font-bold text-lg">{{ selectedWeapon()!.name }}</h3>
@@ -648,24 +628,47 @@
 
             <!-- Content -->
             <div class="flex-1 p-4 overflow-y-auto">
-                <!-- Basic Info -->
+                <!-- First row: Image + Basic Info -->
+                <div class="flex gap-4 mb-4">
+                    <!-- Weapon Image/Icon (smaller, inline with content) -->
+                    <div class="flex-shrink-0">
+                        @if (getWeaponIconUrl(selectedWeapon()!)) {
+                            <img
+                                [src]="getWeaponIconUrl(selectedWeapon()!)"
+                                [alt]="selectedWeapon()!.name"
+                                class="w-24 h-24 object-contain bg-base-300 rounded-lg shadow-md p-2"
+                                (error)="onWeaponImageError()"
+                            />
+                        } @else {
+                            <lucide-icon
+                                [name]="getIconForWeaponType(selectedWeapon()!.tag || '')"
+                                class="w-24 h-24 p-4 bg-base-300 rounded-lg text-primary shadow-md"
+                                [attr.aria-label]="'Weapon type: ' + selectedWeapon()!.tag">
+                            </lucide-icon>
+                        }
+                    </div>
+
+                    <!-- Basic Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="mb-2">
+                            <span class="text-xs opacity-70">{{ 'weapons.columns.key' | transloco }}</span>
+                            <div class="font-mono text-sm truncate">{{ selectedWeapon()!.key || '-' }}</div>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-xs opacity-70">{{ 'weapons.columns.class' | transloco }}</span>
+                            <div class="text-sm">{{ selectedWeapon()!.tag || '-' }}</div>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-xs opacity-70">{{ 'weapons.details.package' | transloco }}</span>
+                            <div class="text-sm truncate">{{ selectedWeapon()!.packageName }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Path (full width) -->
                 <div class="mb-4">
-                    <div class="mb-2">
-                        <span class="text-xs opacity-70">{{ 'weapons.columns.key' | transloco }}</span>
-                        <div class="font-mono text-sm">{{ selectedWeapon()!.key || '-' }}</div>
-                    </div>
-                    <div class="mb-2">
-                        <span class="text-xs opacity-70">{{ 'weapons.columns.class' | transloco }}</span>
-                        <div class="text-sm">{{ selectedWeapon()!.tag || '-' }}</div>
-                    </div>
-                    <div class="mb-2">
-                        <span class="text-xs opacity-70">{{ 'weapons.columns.filePath' | transloco }}</span>
-                        <div class="text-xs font-mono break-all">{{ selectedWeapon()!.filePath }}</div>
-                    </div>
-                    <div class="mb-2">
-                        <span class="text-xs opacity-70">{{ 'weapons.details.package' | transloco }}</span>
-                        <div class="text-sm">{{ selectedWeapon()!.packageName }}</div>
-                    </div>
+                    <span class="text-xs opacity-70">{{ 'weapons.columns.filePath' | transloco }}</span>
+                    <div class="text-xs font-mono break-all">{{ selectedWeapon()!.filePath }}</div>
                 </div>
 
             <!-- Specifications -->

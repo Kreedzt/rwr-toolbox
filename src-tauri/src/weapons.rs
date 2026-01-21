@@ -4,9 +4,11 @@
 //! and returns structured weapon data to the frontend.
 
 use quick_xml::de::from_str;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use walkdir::WalkDir;
 
 const MAX_TEMPLATE_DEPTH: usize = 10;
@@ -80,6 +82,10 @@ pub struct ValidationResult {
     #[serde(rename = "weaponsPath")]
     pub weapons_path: String,
     pub package_count: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
 }
 
 /// Raw weapon XML structure (for parsing)
@@ -197,7 +203,13 @@ pub async fn validate_game_path(path: String) -> Result<ValidationResult, String
 
     // Check if input path exists
     if !input_path.exists() {
-        return Err(format!("Path does not exist: {}", path));
+        return Ok(ValidationResult {
+            valid: false,
+            weapons_path: String::new(),
+            package_count: 0,
+            error_code: Some("PATH_NOT_EXISTS".to_string()),
+            message: Some(format!("Path does not exist: {}", path)),
+        });
     }
 
     // Determine packages directory:
@@ -211,18 +223,30 @@ pub async fn validate_game_path(path: String) -> Result<ValidationResult, String
 
     // Check if packages directory exists
     if !packages_dir.exists() {
-        return Err(format!(
-            "packages directory not found. Expected: {}",
-            packages_dir.display()
-        ));
+        return Ok(ValidationResult {
+            valid: false,
+            weapons_path: String::new(),
+            package_count: 0,
+            error_code: Some("PACKAGES_NOT_FOUND".to_string()),
+            message: Some(format!(
+                "packages directory not found. Expected: {}",
+                packages_dir.display()
+            )),
+        });
     }
 
     // Check if it's a directory
     if !packages_dir.is_dir() {
-        return Err(format!(
-            "packages path is not a directory: {}",
-            packages_dir.display()
-        ));
+        return Ok(ValidationResult {
+            valid: false,
+            weapons_path: String::new(),
+            package_count: 0,
+            error_code: Some("PACKAGES_NOT_DIRECTORY".to_string()),
+            message: Some(format!(
+                "packages path is not a directory: {}",
+                packages_dir.display()
+            )),
+        });
     }
 
     // Count packages
@@ -238,6 +262,8 @@ pub async fn validate_game_path(path: String) -> Result<ValidationResult, String
         valid: true,
         weapons_path: packages_dir.to_string_lossy().to_string(),
         package_count,
+        error_code: None,
+        message: Some("Directory is valid".to_string()),
     })
 }
 
@@ -276,36 +302,40 @@ pub async fn scan_weapons(
         });
     }
 
-    let mut weapons = Vec::new();
-    let mut errors = Vec::new();
-    let mut all_keys = HashMap::new();
+    // Thread-safe collections for parallel processing
+    let weapons = Mutex::new(Vec::new());
+    let errors = Mutex::new(Vec::new());
+    let all_keys = Mutex::new(HashMap::new());
 
-    // Parse each weapon file
-    for weapon_file in weapon_files {
+    // Parse each weapon file in parallel using rayon
+    weapon_files.into_par_iter().for_each(|weapon_file| {
         let file_str = weapon_file.to_string_lossy().to_string();
 
         match parse_weapon_file(&weapon_file, &input_path) {
             Ok(weapon) => {
                 // Check for duplicate keys
                 if let Some(key) = &weapon.key {
-                    if let Some(existing) = all_keys.get(key) {
-                        all_keys.insert(key.clone(), existing + 1);
-                    } else {
-                        all_keys.insert(key.clone(), 1);
-                    }
+                    let mut keys = all_keys.lock().unwrap();
+                    let entry = keys.entry(key.clone()).or_insert(0);
+                    *entry += 1;
                 }
 
-                weapons.push(weapon);
+                weapons.lock().unwrap().push(weapon);
             }
             Err(e) => {
-                errors.push(ScanError {
-                    file: file_str.clone(),
+                errors.lock().unwrap().push(ScanError {
+                    file: file_str,
                     error: e.to_string(),
                     severity: "error".to_string(),
                 });
             }
         }
-    }
+    });
+
+    // Extract results from mutex
+    let weapons = weapons.into_inner().unwrap();
+    let errors = errors.into_inner().unwrap();
+    let all_keys = all_keys.into_inner().unwrap();
 
     // Find duplicate keys
     let duplicate_keys: Vec<String> = all_keys
@@ -349,7 +379,10 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
 
     // Resolve template inheritance if needed
     if let Some(template_file) = &raw_weapon.template_file {
-        let resolved = resolve_template(input_path, template_file, &mut HashSet::new())?;
+        let weapon_parent = weapon_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Cannot get parent directory of weapon file"))?;
+        let resolved = resolve_template(weapon_parent, template_file, &mut HashSet::new())?;
         raw_weapon = merge_attributes(resolved, raw_weapon);
     }
 
@@ -460,12 +493,13 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
 }
 
 /// Recursively resolve template inheritance with cycle detection
+/// base_dir: Parent directory of the file being parsed (for resolving relative template paths)
 fn resolve_template(
-    input_path: &Path,
+    base_dir: &Path,
     template_file: &str,
     visited: &mut HashSet<PathBuf>,
 ) -> Result<RawWeapon, anyhow::Error> {
-    let template_path = input_path.join(template_file);
+    let template_path = base_dir.join(template_file);
 
     // Cycle detection
     if !visited.insert(template_path.clone()) {
@@ -487,7 +521,10 @@ fn resolve_template(
 
     // Resolve parent template if exists
     if let Some(parent_file) = &raw_weapon.template_file {
-        let parent = resolve_template(input_path, parent_file, visited)?;
+        let template_parent = template_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Cannot get parent directory of template"))?;
+        let parent = resolve_template(template_parent, parent_file, visited)?;
         raw_weapon = merge_attributes(parent, raw_weapon);
     }
 

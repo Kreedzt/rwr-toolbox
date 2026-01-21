@@ -88,7 +88,10 @@
         "validatingDirectories": "正在验证目录...",
         "noDirectories": "尚未配置目录",
         "lastScanned": "上次扫描：{{ date }}",
+        "packageCount": "{{ count }} 个包",
         "itemCount": "{{ count }} 个项目",
+        "activeDirectory": "激活 - 已包含在扫描中",
+        "inactiveDirectory": "未激活 - 已从扫描中排除",
         "errors": {
             "pathNotFound": "指定的路径不存在",
             "notADirectory": "该路径不是目录",

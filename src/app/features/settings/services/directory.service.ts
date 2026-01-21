@@ -158,6 +158,7 @@ export class DirectoryService {
                 lastScannedAt: 0,
                 itemCount: 0,
                 weaponCount: 0,
+                active: true, // Default to active for new directories
             };
 
             // Update state
@@ -178,6 +179,20 @@ export class DirectoryService {
     async removeDirectory(directoryId: string): Promise<void> {
         const updated = this.directoriesState().filter(
             (d) => d.id !== directoryId,
+        );
+        this.directoriesState.set(updated);
+        await this.saveScanDirs(updated);
+    }
+
+    /**
+     * Toggle active state of a directory
+     * @param directoryId ID of directory to toggle
+     */
+    async toggleActive(directoryId: string): Promise<void> {
+        const updated = this.directoriesState().map((d) =>
+            d.id === directoryId
+                ? { ...d, active: !(d.active ?? true) }
+                : d,
         );
         this.directoriesState.set(updated);
         await this.saveScanDirs(updated);
@@ -382,7 +397,7 @@ export class DirectoryService {
     }
 
     getValidDirectories(): ScanDirectory[] {
-        return this.directoriesState().filter((d) => d.status === 'valid');
+        return this.directoriesState().filter((d) => d.status === 'valid' && (d.active ?? true));
     }
 
     getTotalItemCount(): number {
@@ -421,6 +436,7 @@ export class DirectoryService {
                     lastScannedAt: 0,
                     itemCount: 0,
                     weaponCount: 0,
+                    active: true, // Default to active for existing directories
                 }));
                 this.directoriesState.set(scanDirs);
             } else {

@@ -270,12 +270,12 @@
                                                           }
                                             }}</span>
                                         }
-                                        @if (dir.itemCount !== undefined) {
+                                        @if (dir.packageCount !== undefined) {
                                             <span>{{
-                                                'settings.itemCount'
+                                                'settings.packageCount'
                                                     | transloco
                                                         : {
-                                                              count: dir.itemCount,
+                                                              count: dir.packageCount,
                                                           }
                                             }}</span>
                                         }
@@ -306,7 +306,21 @@
                                 </div>
 
                                 <!-- Action buttons -->
-                                <div class="flex gap-2 ml-4">
+                                <div class="flex gap-2 ml-4 items-center">
+                                    <!-- Active toggle -->
+                                    <button
+                                        class="btn btn-ghost btn-sm"
+                                        (click)="onToggleActive(dir.id)"
+                                        [class.opacity-50]="!(dir.active ?? true)"
+                                        title="{{ (dir.active ?? true) ? t('settings.activeDirectory') : t('settings.inactiveDirectory') }}"
+                                    >
+                                        <lucide-icon
+                                            class="h-4 w-4"
+                                            [name]="(dir.active ?? true) ? 'toggle-left' : 'toggle-left'"
+                                            [class.rotate-180]="!(dir.active ?? true)"
+                                        ></lucide-icon>
+                                    </button>
+
                                     <!-- Revalidate button -->
                                     <button
                                         class="btn btn-ghost btn-sm"
