@@ -89,7 +89,7 @@ export class DirectoryService {
     readonly selectedDirectorySig = computed(() => {
         const selectedId = this.settingsService.settings().selectedDirectoryId;
         if (!selectedId) return null;
-        return this.directoriesState().find(d => d.id === selectedId) || null;
+        return this.directoriesState().find((d) => d.id === selectedId) || null;
     });
 
     /**
@@ -125,7 +125,9 @@ export class DirectoryService {
      * Used by components to detect when directories become available for scanning
      */
     readonly validDirectoryCountSig = computed(() => {
-        return this.directoriesState().filter((d) => d.status === 'valid' && (d.active ?? true)).length;
+        return this.directoriesState().filter(
+            (d) => d.status === 'valid' && (d.active ?? true),
+        ).length;
     });
 
     /**
@@ -242,9 +244,7 @@ export class DirectoryService {
      */
     async toggleActive(directoryId: string): Promise<void> {
         const updated = this.directoriesState().map((d) =>
-            d.id === directoryId
-                ? { ...d, active: !(d.active ?? true) }
-                : d,
+            d.id === directoryId ? { ...d, active: !(d.active ?? true) } : d,
         );
         this.directoriesState.set(updated);
         await this.saveScanDirs(updated);
@@ -321,7 +321,7 @@ export class DirectoryService {
     }
 
     /**
-     * T022: Scan all configured directories sequentially
+     * T022: Scan all configured directories in parallel and batch updates
      */
     async scanAllDirectories(): Promise<void> {
         const directories = this.getValidDirectories();
@@ -330,70 +330,57 @@ export class DirectoryService {
             return;
         }
 
-        // Clear existing data before multi-directory scan
-        this.weaponService.clearWeapons();
-        this.itemService.clearItems();
-
         this.scanProgressState.set({
             total: directories.length,
             completed: 0,
-            currentPath: directories[0].path,
+            currentPath: 'Scanning all directories...',
             state: 'scanning',
             errors: {},
         });
 
-        const errors: Record<string, string> = {};
+        try {
+            const paths = directories.map((d) => d.path);
 
-        for (const dir of directories) {
+            // Execute batch scans which handle parallel backend calls and single signal updates
+            const [weapons, items] = await Promise.all([
+                this.weaponService.batchScanWeapons(paths),
+                this.itemService.batchScanItems(paths),
+            ]);
+
+            // Update directory metadata based on the loaded data
+            const updated = this.directoriesState().map((d) => {
+                const dirWeaponCount = weapons.filter(
+                    (w) => w.sourceDirectory === d.path,
+                ).length;
+                const dirItemCount = items.filter(
+                    (i) => i.sourceDirectory === d.path,
+                ).length;
+
+                return {
+                    ...d,
+                    lastScannedAt: Date.now(),
+                    weaponCount: dirWeaponCount,
+                    itemCount: dirItemCount,
+                };
+            });
+
+            this.directoriesState.set(updated);
+            await this.settingsService.updateScanDirectories(updated);
+
             this.scanProgressState.update((p) => ({
                 ...p,
-                currentPath: dir.path,
+                state: 'completed',
+                completed: directories.length,
+                currentPath: null,
             }));
-
-            try {
-                // Scan weapons and items for this directory, appending to results
-                const weapons = await this.weaponService.scanWeapons(
-                    dir.path,
-                    dir.path,
-                    true,
-                );
-                const items = await this.itemService.scanItems(
-                    dir.path,
-                    dir.path,
-                    true,
-                );
-
-                // Update directory metadata with scan results
-                const updated = this.directoriesState().map((d) =>
-                    d.id === dir.id
-                        ? {
-                              ...d,
-                              lastScannedAt: Date.now(),
-                              weaponCount: weapons.length,
-                              itemCount: items.length,
-                          }
-                        : d,
-                );
-                this.directoriesState.set(updated);
-                await this.settingsService.updateScanDirectories(updated);
-            } catch (e) {
-                errors[dir.path] = String(e);
-            }
-
+        } catch (e) {
+            console.error('[DirectoryService] Batch scan failed:', e);
             this.scanProgressState.update((p) => ({
                 ...p,
-                completed: p.completed + 1,
+                state: 'partial',
+                currentPath: null,
             }));
         }
-
-        const finalState: ScanState =
-            Object.keys(errors).length > 0 ? 'partial' : 'completed';
-        this.scanProgressState.update((p) => ({
-            ...p,
-            state: finalState,
-            errors,
-            currentPath: null,
-        }));
     }
 
     /**
@@ -451,7 +438,9 @@ export class DirectoryService {
     }
 
     getValidDirectories(): ScanDirectory[] {
-        return this.directoriesState().filter((d) => d.status === 'valid' && (d.active ?? true));
+        return this.directoriesState().filter(
+            (d) => d.status === 'valid' && (d.active ?? true),
+        );
     }
 
     /**
@@ -576,7 +565,9 @@ export class DirectoryService {
      * @param directoryId Directory ID to select, or null to clear selection
      */
     async setSelectedDirectory(directoryId: string | null): Promise<void> {
-        await this.settingsService.updateSettings({ selectedDirectoryId: directoryId });
+        await this.settingsService.updateSettings({
+            selectedDirectoryId: directoryId,
+        });
     }
 
     /**

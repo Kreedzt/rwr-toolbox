@@ -17,8 +17,8 @@ export interface StanceAccuracy {
  * Complete weapon definition from parsed .weapon XML file
  */
 export interface Weapon {
-    /** Unique identifier for tracking (generated frontend) - not persisted */
-    _id?: string;
+    /** Unique identifier for tracking (generated backend) */
+    id: string;
     /** Unique weapon identifier (filename without extension) */
     key?: string;
     /** Display name shown to users */

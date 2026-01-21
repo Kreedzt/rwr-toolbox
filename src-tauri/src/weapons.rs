@@ -17,6 +17,7 @@ const MAX_TEMPLATE_DEPTH: usize = 10;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")] // Apply camelCase to all fields by default
 pub struct Weapon {
+    pub id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub key: Option<String>,
     pub name: String,
@@ -46,6 +47,7 @@ pub struct Weapon {
     pub stance_accuracies: Vec<StanceAccuracy>,
     pub file_path: String,
     pub source_file: String,
+    pub source_directory: String,
     pub package_name: String,
     /// Error message if template resolution failed (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -309,13 +311,14 @@ pub async fn scan_weapons(
     // Thread-safe collections for parallel processing
     let weapons = Mutex::new(Vec::new());
     let errors = Mutex::new(Vec::new());
-    let all_keys = Mutex::new(HashMap::new());
+    let all_keys: Mutex<HashMap<String, i32>> = Mutex::new(HashMap::new());
 
     // Parse each weapon file in parallel using rayon
-    weapon_files.into_par_iter().for_each(|weapon_file| {
+    weapon_files.into_par_iter().enumerate().for_each(|(index, weapon_file)| {
         let file_str = weapon_file.to_string_lossy().to_string();
+        let id = format!("{}_{}", file_str, index);
 
-        match parse_weapon_file(&weapon_file, &input_path) {
+        match parse_weapon_file(&weapon_file, &input_path, id, &scan_path) {
             Ok(weapon) => {
                 // Check for duplicate keys
                 if let Some(key) = &weapon.key {
@@ -367,7 +370,12 @@ fn discover_weapons(input_path: &Path) -> Vec<PathBuf> {
 }
 
 /// Parse a single weapon XML file with template resolution
-fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, anyhow::Error> {
+fn parse_weapon_file(
+    weapon_path: &Path,
+    input_path: &Path,
+    id: String,
+    source_directory: &str,
+) -> Result<Weapon, anyhow::Error> {
     let content = std::fs::read_to_string(weapon_path)?;
 
     // Get package name from path
@@ -472,6 +480,7 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
 
     // Convert to final Weapon structure
     let weapon = Weapon {
+        id,
         key: raw_weapon.key.filter(|k| !k.is_empty()).or_else(|| {
             weapon_path
                 .file_stem()
@@ -499,6 +508,7 @@ fn parse_weapon_file(weapon_path: &Path, input_path: &Path) -> Result<Weapon, an
         stance_accuracies,
         file_path,
         source_file: weapon_path.to_string_lossy().to_string(),
+        source_directory: source_directory.to_string(),
         package_name: package_name.to_string(),
         template_error, // Set to Some(message) if template resolution failed, None otherwise
     };

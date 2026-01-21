@@ -68,6 +68,8 @@ import {
     Wrench,
     Radio,
     ToggleLeft,
+    ToggleRight,
+    Github,
     Copy,
 } from 'lucide-angular';
 
@@ -144,5 +146,7 @@ export const APP_ICONS = {
     Wrench,
     Radio,
     ToggleLeft,
+    ToggleRight,
+    Github,
     Copy,
 };

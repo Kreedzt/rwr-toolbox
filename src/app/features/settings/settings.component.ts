@@ -23,7 +23,12 @@ import { DatePipe } from '@angular/common';
  */
 @Component({
     selector: 'app-settings',
-    imports: [CommonModule, TranslocoDirective, TranslocoPipe, LucideAngularModule],
+    imports: [
+        CommonModule,
+        TranslocoDirective,
+        TranslocoPipe,
+        LucideAngularModule,
+    ],
     providers: [DatePipe],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.css',
@@ -54,8 +59,8 @@ export class SettingsComponent implements OnInit {
     readonly errorSig = this.directoryService.errorSig;
 
     /** T004: Selected directory ID from SettingsService */
-    readonly selectedDirectoryIdSig = computed(() =>
-        this.settingsService.settings().selectedDirectoryId
+    readonly selectedDirectoryIdSig = computed(
+        () => this.settingsService.settings().selectedDirectoryId,
     );
 
     /** Current locale from Transloco */

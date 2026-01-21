@@ -3,16 +3,15 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ItemService, ItemFilters } from './services/item.service';
 import { DirectoryService } from '../../settings/services/directory.service';
-import { GenericItem, getItemSlot, isCarryItem } from '../../../shared/models/items.models';
+import {
+    GenericItem,
+    getItemSlot,
+    isCarryItem,
+} from '../../../shared/models/items.models';
 import { ITEM_COLUMNS } from './item-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
 import type { PaginationState } from '../../../shared/models/common.models';
-import {
-    animate,
-    style,
-    transition,
-    trigger,
-} from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 /**
  * Items table component with search, filters, column visibility, and sorting
@@ -29,10 +28,16 @@ import {
         trigger('slideIn', [
             transition(':enter', [
                 style({ transform: 'translateX(100%)' }),
-                animate('300ms ease-out', style({ transform: 'translateX(0)' })),
+                animate(
+                    '300ms ease-out',
+                    style({ transform: 'translateX(0)' }),
+                ),
             ]),
             transition(':leave', [
-                animate('250ms ease-in', style({ transform: 'translateX(100%)' })),
+                animate(
+                    '250ms ease-in',
+                    style({ transform: 'translateX(100%)' }),
+                ),
             ]),
         ]),
     ],
@@ -79,39 +84,39 @@ export class ItemsComponent {
     // Feature 007: Icon mapping for item types
     readonly ITEM_ICONS: Record<string, string> = {
         // Medical items
-        'medkit': 'heart',
-        'bandage': 'heart',
-        'first_aid': 'heart',
-        'health': 'heart',
+        medkit: 'heart',
+        bandage: 'heart',
+        first_aid: 'heart',
+        health: 'heart',
 
         // Protection
-        'armor': 'shield',
-        'helmet': 'shield',
-        'vest': 'shield',
-        'body_armor': 'shield',
+        armor: 'shield',
+        helmet: 'shield',
+        vest: 'shield',
+        body_armor: 'shield',
 
         // Food/Consumables
-        'food': 'coffee',
-        'ration': 'coffee',
-        'drink': 'coffee',
-        'consumable': 'coffee',
+        food: 'coffee',
+        ration: 'coffee',
+        drink: 'coffee',
+        consumable: 'coffee',
 
         // Ammunition
-        'ammunition': 'package',
-        'ammo': 'package',
-        'magazine': 'package',
-        'bullet': 'package',
+        ammunition: 'package',
+        ammo: 'package',
+        magazine: 'package',
+        bullet: 'package',
 
         // Explosives
-        'grenade': 'sparkles',
-        'explosive': 'sparkles',
-        'c4': 'sparkles',
-        'rocket': 'sparkles',
+        grenade: 'sparkles',
+        explosive: 'sparkles',
+        c4: 'sparkles',
+        rocket: 'sparkles',
 
         // Equipment/Tools
-        'tool': 'wrench',
-        'radio': 'radio',
-        'equipment': 'wrench',
+        tool: 'wrench',
+        radio: 'radio',
+        equipment: 'wrench',
     };
 
     // Image URL cache: item.key -> image URL
@@ -186,7 +191,8 @@ export class ItemsComponent {
             void this.directoryService.ensureInitialized();
 
             const initialized = this.directoryService.initializedSig();
-            const validDirCount = this.directoryService.validDirectoryCountSig();
+            const validDirCount =
+                this.directoryService.validDirectoryCountSig();
             const scanState = this.directoryService.scanProgressSig().state;
             const hasAttempted = this.hasAttemptedLoad();
             const hasItems = this.items().length > 0;
@@ -204,7 +210,9 @@ export class ItemsComponent {
                 !hasAttempted &&
                 !hasItems
             ) {
-                console.log('[ItemsComponent] Auto-loading items on component mount...');
+                console.log(
+                    '[ItemsComponent] Auto-loading items on component mount...',
+                );
                 this.hasAttemptedLoad.set(true);
                 this.loadItems();
             }
@@ -226,7 +234,8 @@ export class ItemsComponent {
         }
 
         // T004: Use selected directory or fall back to first valid directory
-        const directory = this.directoryService.getSelectedDirectory() ||
+        const directory =
+            this.directoryService.getSelectedDirectory() ||
             this.directoryService.getFirstValidDirectory();
 
         if (!directory) {
@@ -234,7 +243,9 @@ export class ItemsComponent {
             const isAnyValidating = this.directoryService.isAnyValidatingSig();
             const initialized = this.directoryService.initializedSig();
             if (isAnyValidating || !initialized) {
-                console.log('[ItemsComponent] Waiting for valid directories to become available...');
+                console.log(
+                    '[ItemsComponent] Waiting for valid directories to become available...',
+                );
                 return;
             }
             const errorMsg = this.transloco.translate(
@@ -244,10 +255,7 @@ export class ItemsComponent {
             return;
         }
 
-        await this.itemService.scanItems(
-            directory.path,
-            directory.path,
-        );
+        await this.itemService.scanItems(directory.path, directory.path);
     }
 
     /** Handle search input */
@@ -415,7 +423,8 @@ export class ItemsComponent {
     /** Refresh items from game directory */
     async onRefresh(): Promise<void> {
         // T004: Use selected directory or fall back to first valid directory
-        const directory = this.directoryService.getSelectedDirectory() ||
+        const directory =
+            this.directoryService.getSelectedDirectory() ||
             this.directoryService.getFirstValidDirectory();
 
         if (!directory) {
@@ -426,10 +435,7 @@ export class ItemsComponent {
             return;
         }
 
-        await this.itemService.refreshItems(
-            directory.path,
-            directory.path,
-        );
+        await this.itemService.refreshItems(directory.path, directory.path);
     }
 
     /** Handle page size dropdown change */
@@ -448,13 +454,17 @@ export class ItemsComponent {
     async loadItemIcon(item: GenericItem): Promise<void> {
         const itemKey = item.key || '';
         // Only CarryItem has hudIcon
-        if (item.itemType !== 'carry_item' || !item.hudIcon || this.itemIconUrls().has(itemKey)) {
+        if (
+            item.itemType !== 'carry_item' ||
+            !item.hudIcon ||
+            this.itemIconUrls().has(itemKey)
+        ) {
             return;
         }
         try {
             const url = await this.itemService.getIconUrl(item);
             if (url) {
-                this.itemIconUrls.update(map => {
+                this.itemIconUrls.update((map) => {
                     const newMap = new Map(map);
                     newMap.set(itemKey, url);
                     return newMap;
@@ -540,7 +550,7 @@ export class ItemsComponent {
         if (!current) return;
 
         const items = this.paginatedItems();
-        const index = items.findIndex(i => i.key === current.key);
+        const index = items.findIndex((i) => i.key === current.key);
         if (index < items.length - 1) {
             this.selectItem(items[index + 1]);
         }
@@ -552,7 +562,7 @@ export class ItemsComponent {
         if (!current) return;
 
         const items = this.paginatedItems();
-        const index = items.findIndex(i => i.key === current.key);
+        const index = items.findIndex((i) => i.key === current.key);
         if (index > 0) {
             this.selectItem(items[index - 1]);
         }
@@ -562,7 +572,9 @@ export class ItemsComponent {
     getIconForItemType(itemType: string): string {
         const icon = this.ITEM_ICONS[itemType];
         if (!icon) {
-            console.warn(`[ItemsComponent] No icon mapping for item type: "${itemType}". Using fallback "box" icon.`);
+            console.warn(
+                `[ItemsComponent] No icon mapping for item type: "${itemType}". Using fallback "box" icon.`,
+            );
             return 'box';
         }
         return icon;
@@ -672,7 +684,11 @@ export class ItemsComponent {
 
     /** Helper to safely check if item has modifiers */
     hasModifiers(item: GenericItem): boolean {
-        return item.modifiers !== null && item.modifiers !== undefined && item.modifiers.length > 0;
+        return (
+            item.modifiers !== null &&
+            item.modifiers !== undefined &&
+            item.modifiers.length > 0
+        );
     }
 
     /** Helper to safely get capacity */
@@ -714,5 +730,45 @@ export class ItemsComponent {
 
     private max(a: number, b: number): number {
         return a > b ? a : b;
+    }
+
+    private escapeRegExp(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    private escapeHtml(text: string): string {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Highlight current search query inside text (case-insensitive).
+     * Returns HTML string; all non-markup content is escaped.
+     */
+    highlight(text: string | null | undefined): string {
+        const raw = (text ?? '').toString();
+        if (!raw) return '-';
+
+        const query = (this.searchTerm() ?? '').trim();
+        if (!query) return this.escapeHtml(raw);
+
+        const re = new RegExp(this.escapeRegExp(query), 'gi');
+        let result = '';
+        let lastIndex = 0;
+
+        for (const match of raw.matchAll(re)) {
+            const index = match.index ?? 0;
+            const matched = match[0] ?? '';
+            result += this.escapeHtml(raw.slice(lastIndex, index));
+            result += `<span class="bg-yellow-200/70 text-base-content px-0.5 rounded-sm">${this.escapeHtml(matched)}</span>`;
+            lastIndex = index + matched.length;
+        }
+
+        result += this.escapeHtml(raw.slice(lastIndex));
+        return result || this.escapeHtml(raw);
     }
 }

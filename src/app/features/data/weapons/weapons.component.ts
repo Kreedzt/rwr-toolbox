@@ -8,12 +8,7 @@ import { Weapon, AdvancedFilters } from '../../../shared/models/weapons.models';
 import { WEAPON_COLUMNS } from './weapon-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
 import type { PaginationState } from '../../../shared/models/common.models';
-import {
-    animate,
-    style,
-    transition,
-    trigger,
-} from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 /**
  * Weapons table component with search, filters, and column visibility
@@ -29,10 +24,16 @@ import {
         trigger('slideIn', [
             transition(':enter', [
                 style({ transform: 'translateX(100%)' }),
-                animate('300ms ease-out', style({ transform: 'translateX(0)' })),
+                animate(
+                    '300ms ease-out',
+                    style({ transform: 'translateX(0)' }),
+                ),
             ]),
             transition(':leave', [
-                animate('250ms ease-in', style({ transform: 'translateX(100%)' })),
+                animate(
+                    '250ms ease-in',
+                    style({ transform: 'translateX(100%)' }),
+                ),
             ]),
         ]),
     ],
@@ -79,34 +80,34 @@ export class WeaponsComponent {
     // Feature 007: Icon mapping for weapon types
     readonly WEAPON_ICONS: Record<string, string> = {
         // Assault rifles
-        'assault_rifle': 'crosshair',
-        'rifle_assault': 'crosshair',
-        'm4': 'crosshair',
-        'ak47': 'crosshair',
+        assault_rifle: 'crosshair',
+        rifle_assault: 'crosshair',
+        m4: 'crosshair',
+        ak47: 'crosshair',
 
         // SMGs
-        'smg': 'crosshair',
-        'submachine_gun': 'crosshair',
-        'mp5': 'crosshair',
+        smg: 'crosshair',
+        submachine_gun: 'crosshair',
+        mp5: 'crosshair',
 
         // Pistols
-        'pistol': 'crosshair',
-        'sidearm': 'crosshair',
+        pistol: 'crosshair',
+        sidearm: 'crosshair',
 
         // Sniper rifles
-        'sniper': 'crosshair',
-        'sniper_rifle': 'crosshair',
+        sniper: 'crosshair',
+        sniper_rifle: 'crosshair',
 
         // LMGs
-        'lmg': 'zap',
-        'machine_gun': 'zap',
+        lmg: 'zap',
+        machine_gun: 'zap',
 
         // Shotguns
-        'shotgun': 'crosshair',
+        shotgun: 'crosshair',
 
         // Heavy weapons
-        'rpg': 'zap',
-        'rocket_launcher': 'zap',
+        rpg: 'zap',
+        rocket_launcher: 'zap',
     };
 
     // T004: Image URL cache: weapon.key -> image URL
@@ -148,7 +149,7 @@ export class WeaponsComponent {
     constructor() {
         // Migrate localStorage preferences from 'classTag' to 'tag'
         const saved = this.weaponService.getColumnVisibility();
-        const migrated = saved.map(col => {
+        const migrated = saved.map((col) => {
             if (col.columnId === 'classTag') {
                 return { ...col, columnId: 'tag' };
             }
@@ -185,7 +186,8 @@ export class WeaponsComponent {
             void this.directoryService.ensureInitialized();
 
             const initialized = this.directoryService.initializedSig();
-            const validDirCount = this.directoryService.validDirectoryCountSig();
+            const validDirCount =
+                this.directoryService.validDirectoryCountSig();
             const scanState = this.directoryService.scanProgressSig().state;
             const hasAttempted = this.hasAttemptedLoad();
             const hasWeapons = this.weapons().length > 0;
@@ -203,7 +205,9 @@ export class WeaponsComponent {
                 !hasAttempted &&
                 !hasWeapons
             ) {
-                console.log('[WeaponsComponent] Auto-loading weapons on component mount...');
+                console.log(
+                    '[WeaponsComponent] Auto-loading weapons on component mount...',
+                );
                 this.hasAttemptedLoad.set(true);
                 this.loadWeapons();
             }
@@ -220,12 +224,15 @@ export class WeaponsComponent {
         // Bug fix: Skip loading if weapons are already loaded
         // Only load on first visit or when directories change
         if (this.weapons().length > 0) {
-            console.log('[WeaponsComponent] Weapons already loaded, skipping...');
+            console.log(
+                '[WeaponsComponent] Weapons already loaded, skipping...',
+            );
             return;
         }
 
         // T004: Use selected directory or fall back to first valid directory
-        const directory = this.directoryService.getSelectedDirectory() ||
+        const directory =
+            this.directoryService.getSelectedDirectory() ||
             this.directoryService.getFirstValidDirectory();
 
         if (!directory) {
@@ -233,7 +240,9 @@ export class WeaponsComponent {
             const isAnyValidating = this.directoryService.isAnyValidatingSig();
             const initialized = this.directoryService.initializedSig();
             if (isAnyValidating || !initialized) {
-                console.log('[WeaponsComponent] Waiting for valid directories to become available...');
+                console.log(
+                    '[WeaponsComponent] Waiting for valid directories to become available...',
+                );
                 return;
             }
             const errorMsg = this.transloco.translate(
@@ -389,7 +398,8 @@ export class WeaponsComponent {
     /** Refresh weapons from game directory */
     async onRefresh(): Promise<void> {
         // T004: Use selected directory or fall back to first valid directory
-        const directory = this.directoryService.getSelectedDirectory() ||
+        const directory =
+            this.directoryService.getSelectedDirectory() ||
             this.directoryService.getFirstValidDirectory();
 
         if (!directory) {
@@ -454,7 +464,7 @@ export class WeaponsComponent {
         if (!current) return;
 
         const weapons = this.paginatedWeapons();
-        const index = weapons.findIndex(w => w.key === current.key);
+        const index = weapons.findIndex((w) => w.key === current.key);
         if (index < weapons.length - 1) {
             this.selectWeapon(weapons[index + 1]);
         }
@@ -466,7 +476,7 @@ export class WeaponsComponent {
         if (!current) return;
 
         const weapons = this.paginatedWeapons();
-        const index = weapons.findIndex(w => w.key === current.key);
+        const index = weapons.findIndex((w) => w.key === current.key);
         if (index > 0) {
             this.selectWeapon(weapons[index - 1]);
         }
@@ -476,7 +486,9 @@ export class WeaponsComponent {
     getIconForWeaponType(weaponType: string): string {
         const icon = this.WEAPON_ICONS[weaponType];
         if (!icon) {
-            console.warn(`[WeaponsComponent] No icon mapping for weapon type: "${weaponType}". Using fallback "box" icon.`);
+            console.warn(
+                `[WeaponsComponent] No icon mapping for weapon type: "${weaponType}". Using fallback "box" icon.`,
+            );
             return 'box';
         }
         return icon;
@@ -526,7 +538,7 @@ export class WeaponsComponent {
         try {
             const url = await this.weaponService.getIconUrl(weapon);
             if (url) {
-                this.weaponIconUrls.update(map => {
+                this.weaponIconUrls.update((map) => {
                     const newMap = new Map(map);
                     newMap.set(weaponKey, url);
                     return newMap;
@@ -633,5 +645,45 @@ export class WeaponsComponent {
 
     private max(a: number, b: number): number {
         return a > b ? a : b;
+    }
+
+    private escapeRegExp(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    private escapeHtml(text: string): string {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Highlight current search query inside text (case-insensitive).
+     * Returns HTML string; all non-markup content is escaped.
+     */
+    highlight(text: string | null | undefined): string {
+        const raw = (text ?? '').toString();
+        if (!raw) return '-';
+
+        const query = (this.searchTerm() ?? '').trim();
+        if (!query) return this.escapeHtml(raw);
+
+        const re = new RegExp(this.escapeRegExp(query), 'gi');
+        let result = '';
+        let lastIndex = 0;
+
+        for (const match of raw.matchAll(re)) {
+            const index = match.index ?? 0;
+            const matched = match[0] ?? '';
+            result += this.escapeHtml(raw.slice(lastIndex, index));
+            result += `<span class="bg-yellow-200/70 text-base-content px-0.5 rounded-sm">${this.escapeHtml(matched)}</span>`;
+            lastIndex = index + matched.length;
+        }
+
+        result += this.escapeHtml(raw.slice(lastIndex));
+        return result || this.escapeHtml(raw);
     }
 }
