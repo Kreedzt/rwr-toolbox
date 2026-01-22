@@ -416,61 +416,96 @@
 }
 
 <!-- Weapons Table -->
-<div class="border border-base-300 rounded-box bg-base-100 overflow-x-auto">
+<div class="border border-base-300 rounded-box bg-base-100 overflow-hidden">
+    <!-- Header is rendered outside the virtual-scroll viewport to avoid sticky + transform issues -->
+    <div class="sticky top-0 z-20 border-b border-base-300 bg-base-100">
+        <div class="table-header-clip overflow-hidden">
+            <table
+                class="table table-xs w-max table-fixed table-header-table"
+                [style.width.px]="tableWidthPx()"
+                [style.minWidth.px]="tableWidthPx()"
+                [style.transform]="headerTransform()"
+            >
+                <colgroup>
+                    @for (col of visibleColumnsForDisplay(); track col.key) {
+                        <col [style.width.px]="getColumnWidthPx(col.key)" />
+                    }
+                </colgroup>
+                <thead>
+                    <tr>
+                        @for (
+                            col of visibleColumnsForDisplay();
+                            track col.key
+                        ) {
+                            <th
+                                [class.text-right]="col.alignment === 'right'"
+                                class="cursor-pointer hover:bg-base-200 transition-colors py-3 px-4"
+                                [title]="
+                                    'weapons.sort.' +
+                                        (getColumnSortDirection(col.key) ||
+                                            'unsorted') | transloco
+                                "
+                                (click)="onColumnClick(col.key)"
+                            >
+                                <div
+                                    class="flex items-center gap-1"
+                                    [class.justify-end]="
+                                        col.alignment === 'right'
+                                    "
+                                >
+                                    <span
+                                        class="uppercase tracking-wider text-[10px] opacity-60"
+                                        >{{ col.i18nKey | transloco }}</span
+                                    >
+                                    @if (
+                                        getColumnSortDirection(col.key) ===
+                                        'asc'
+                                    ) {
+                                        <i-lucide
+                                            name="chevron-up"
+                                            class="h-3 w-3 text-primary"
+                                        ></i-lucide>
+                                    } @else if (
+                                        getColumnSortDirection(col.key) ===
+                                        'desc'
+                                    ) {
+                                        <i-lucide
+                                            name="chevron-down"
+                                            class="h-3 w-3 text-primary"
+                                        ></i-lucide>
+                                    }
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
     <cdk-virtual-scroll-viewport
         #weaponsViewport
-        class="h-[calc(100vh-380px)] w-full"
+        class="h-[calc(100vh-420px)] w-full"
+        (scroll)="onViewportScroll()"
         [itemSize]="rowHeight"
         [minBufferPx]="rowHeight * 8"
         [maxBufferPx]="rowHeight * 30"
     >
-        <table class="table table-xs table-zebra table-pin-rows w-full">
-            <thead>
-                <tr>
-                    @for (col of getVisibleColumns(); track col.key) {
-                        <th
-                            [class.text-right]="col.alignment === 'right'"
-                            class="cursor-pointer hover:bg-base-200 transition-colors py-3 px-4"
-                            [title]="
-                                'weapons.sort.' +
-                                    (getColumnSortDirection(col.key) ||
-                                        'unsorted') | transloco
-                            "
-                            (click)="onColumnClick(col.key)"
-                        >
-                            <div
-                                class="flex items-center gap-1"
-                                [class.justify-end]="col.alignment === 'right'"
-                            >
-                                <span
-                                    class="uppercase tracking-wider text-[10px] opacity-60"
-                                    >{{ col.i18nKey | transloco }}</span
-                                >
-                                @if (
-                                    getColumnSortDirection(col.key) === 'asc'
-                                ) {
-                                    <i-lucide
-                                        name="chevron-up"
-                                        class="h-3 w-3 text-primary"
-                                    ></i-lucide>
-                                } @else if (
-                                    getColumnSortDirection(col.key) === 'desc'
-                                ) {
-                                    <i-lucide
-                                        name="chevron-down"
-                                        class="h-3 w-3 text-primary"
-                                    ></i-lucide>
-                                }
-                            </div>
-                        </th>
-                    }
-                </tr>
-            </thead>
+        <table
+            class="table table-xs table-zebra w-max table-fixed"
+            [style.width.px]="tableWidthPx()"
+            [style.minWidth.px]="tableWidthPx()"
+        >
+            <colgroup>
+                @for (col of visibleColumnsForDisplay(); track col.key) {
+                    <col [style.width.px]="getColumnWidthPx(col.key)" />
+                }
+            </colgroup>
             <tbody>
                 @if (weaponCount() === 0) {
                     <tr>
                         <td
-                            [colSpan]="getVisibleColumns().length"
+                            [colSpan]="visibleColumnsForDisplay().length"
                             class="text-center py-20"
                         >
                             <div class="flex flex-col items-center opacity-20">
@@ -500,7 +535,10 @@
                         "
                         (click)="selectWeapon(weapon)"
                     >
-                        @for (col of getVisibleColumns(); track col.key) {
+                        @for (
+                            col of visibleColumnsForDisplay();
+                            track col.key
+                        ) {
                             <td
                                 class="py-2 px-4"
                                 [class.text-right]="col.alignment === 'right'"
@@ -537,7 +575,7 @@
                                         class="flex items-center gap-1 group/path"
                                     >
                                         <span
-                                            class="text-[10px] font-mono truncate flex-1 opacity-60"
+                                            class="text-[10px] font-mono whitespace-normal break-all flex-1 opacity-60"
                                             [title]="weapon.filePath"
                                         >
                                             {{ weapon.filePath }}

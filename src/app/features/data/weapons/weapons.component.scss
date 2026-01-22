@@ -1,6 +1,25 @@
 :host {
     display: block;
 
+    ::ng-deep .table-header-clip {
+        contain: paint;
+    }
+
+    ::ng-deep .table-header-table {
+        will-change: transform;
+    }
+
+    // Ensure the virtual-scroll wrapper contributes a precise scrollWidth.
+    ::ng-deep .cdk-virtual-scroll-content-wrapper {
+        display: inline-block;
+        width: max-content;
+    }
+
+    // The viewport is the only visible horizontal scrollbar.
+    ::ng-deep cdk-virtual-scroll-viewport {
+        overflow-x: auto;
+    }
+
     // T013: GPU acceleration for smooth collapse animations
     ::ng-deep .collapse .collapse-content {
         will-change: transform, opacity;
@@ -9,6 +28,9 @@
 }
 
 table {
+    width: max-content;
+    table-layout: fixed;
+
     tr.hover {
         cursor: pointer;
     }

@@ -98,6 +98,15 @@ export class ItemsComponent implements AfterViewInit {
     @ViewChild('itemsViewport')
     private itemsViewport?: CdkVirtualScrollViewport;
 
+    // RAF-throttled horizontal scroll state for header transform.
+    private readonly horizontalScrollLeft = signal<number>(0);
+    private pendingHorizontalRaf = 0;
+    private latestHorizontalScrollLeft = 0;
+
+    readonly headerTransform = computed(
+        () => `translate3d(${-this.horizontalScrollLeft()}px, 0, 0)`,
+    );
+
     readonly rowHeight = 44;
     private iconLoadToken = 0;
 
@@ -132,6 +141,47 @@ export class ItemsComponent implements AfterViewInit {
 
     // Table columns
     readonly columns = ITEM_COLUMNS;
+
+    // Keep header/body column widths consistent when we render two separate tables.
+    private readonly columnWidthPxByKey: Record<string, number> = {
+        image: 56,
+        key: 180,
+        name: 240,
+        itemType: 140,
+        slot: 120,
+        encumbrance: 110,
+        price: 110,
+        capacityValue: 130,
+        capacitySource: 160,
+        commonnessValue: 140,
+        inStock: 110,
+        canRespawnWith: 150,
+        transformOnConsume: 220,
+        timeToLive: 120,
+        draggable: 110,
+        filePath: 360,
+    };
+
+    readonly visibleColumnsForDisplay = computed(() => {
+        const visibilityMap = new Map(
+            this.visibleColumns().map((c) => [c.columnId, c.visible]),
+        );
+        return this.columns.filter(
+            (col) => visibilityMap.get(col.key) !== false,
+        );
+    });
+
+    readonly tableWidthPx = computed(() => {
+        // Make header/body tables the exact same width to avoid subtle drift.
+        return this.visibleColumnsForDisplay().reduce((sum, col) => {
+            const widthPx = this.getColumnWidthPx(col.key) ?? 160;
+            return sum + widthPx;
+        }, 0);
+    });
+
+    getColumnWidthPx(columnKey: string): number | null {
+        return this.columnWidthPxByKey[columnKey] ?? null;
+    }
 
     // Page size options
     readonly pageSizeOptions = [25, 50, 100, 200];
@@ -219,6 +269,13 @@ export class ItemsComponent implements AfterViewInit {
             this.itemService.getColumnVisibility(),
         );
 
+        this.destroyRef.onDestroy(() => {
+            if (this.pendingHorizontalRaf) {
+                cancelAnimationFrame(this.pendingHorizontalRaf);
+                this.pendingHorizontalRaf = 0;
+            }
+        });
+
         // Load page size from localStorage
         const savedPageSize = localStorage.getItem('items-page-size');
         if (savedPageSize) {
@@ -279,6 +336,23 @@ export class ItemsComponent implements AfterViewInit {
 
         // Ensure the viewport calculates its initial range.
         queueMicrotask(() => viewport.checkViewportSize());
+    }
+
+    onViewportScroll(): void {
+        const viewportEl = this.itemsViewport?.elementRef.nativeElement as
+            | HTMLElement
+            | undefined;
+        if (!viewportEl) return;
+
+        this.latestHorizontalScrollLeft = viewportEl.scrollLeft;
+
+        // Avoid hammering signal updates during trackpad scrolling.
+        if (this.pendingHorizontalRaf) return;
+
+        this.pendingHorizontalRaf = requestAnimationFrame(() => {
+            this.pendingHorizontalRaf = 0;
+            this.horizontalScrollLeft.set(this.latestHorizontalScrollLeft);
+        });
     }
 
     private async loadVisibleItemIcons(
@@ -495,12 +569,7 @@ export class ItemsComponent implements AfterViewInit {
 
     /** Get visible columns for display */
     getVisibleColumns() {
-        const visibilityMap = new Map(
-            this.visibleColumns().map((c) => [c.columnId, c.visible]),
-        );
-        return this.columns.filter(
-            (col) => visibilityMap.get(col.key) !== false,
-        );
+        return this.visibleColumnsForDisplay();
     }
 
     /** Refresh items from game directory */
