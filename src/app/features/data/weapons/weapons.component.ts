@@ -92,6 +92,15 @@ export class WeaponsComponent implements AfterViewInit {
     @ViewChild('weaponsViewport')
     private weaponsViewport?: CdkVirtualScrollViewport;
 
+    // RAF-throttled horizontal scroll state for header transform.
+    private readonly horizontalScrollLeft = signal<number>(0);
+    private pendingHorizontalRaf = 0;
+    private latestHorizontalScrollLeft = 0;
+
+    readonly headerTransform = computed(
+        () => `translate3d(${-this.horizontalScrollLeft()}px, 0, 0)`,
+    );
+
     readonly rowHeight = 44;
     private iconLoadToken = 0;
 
@@ -239,6 +248,13 @@ export class WeaponsComponent implements AfterViewInit {
         });
         this.weaponService.setColumnVisibility(migrated);
 
+        this.destroyRef.onDestroy(() => {
+            if (this.pendingHorizontalRaf) {
+                cancelAnimationFrame(this.pendingHorizontalRaf);
+                this.pendingHorizontalRaf = 0;
+            }
+        });
+
         // Load page size from localStorage
         const savedPageSize = localStorage.getItem('weapons-page-size');
         if (savedPageSize) {
@@ -298,6 +314,23 @@ export class WeaponsComponent implements AfterViewInit {
             });
 
         queueMicrotask(() => viewport.checkViewportSize());
+    }
+
+    onViewportScroll(): void {
+        const viewportEl = this.weaponsViewport?.elementRef.nativeElement as
+            | HTMLElement
+            | undefined;
+        if (!viewportEl) return;
+
+        this.latestHorizontalScrollLeft = viewportEl.scrollLeft;
+
+        // Avoid hammering signal updates during trackpad scrolling.
+        if (this.pendingHorizontalRaf) return;
+
+        this.pendingHorizontalRaf = requestAnimationFrame(() => {
+            this.pendingHorizontalRaf = 0;
+            this.horizontalScrollLeft.set(this.latestHorizontalScrollLeft);
+        });
     }
 
     private async loadVisibleWeaponIcons(
