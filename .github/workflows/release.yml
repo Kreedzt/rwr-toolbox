@@ -27,7 +27,7 @@ jobs:
                       args: ''
                     # Windows 64-bit
                     - platform: 'windows-latest'
-                      args: ''
+                      args: '--bundles nsis'
 
         runs-on: ${{ matrix.platform }}
 
@@ -82,6 +82,8 @@ jobs:
                   # Mark as pre-release if tag contains beta, rc, or test
                   prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') || contains(github.ref_name, 'test') }}
                   # Generate updater.json for in-app update detection
-                  uploadUpdaterJson: true
+                  includeUpdaterJson: true
+                  # Upload plain binary (EXE) in addition to installer
+                  uploadPlainBinary: true
                   # Platform-specific build target
                   args: ${{ matrix.args }}
