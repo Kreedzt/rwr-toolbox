@@ -33,11 +33,9 @@ jobs:
       - pwsh: |
           $pnpmStore = "$(Pipeline.Workspace)/.pnpm-store"
           if (!(Test-Path $pnpmStore)) { New-Item -ItemType Directory -Force -Path $pnpmStore }
-          
           $homePath = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
           $cargoReg = Join-Path $homePath ".cargo"
           if (!(Test-Path $cargoReg)) { New-Item -ItemType Directory -Force -Path $cargoReg }
-          
           Write-Host "##vso[task.setvariable variable=CARGO_HOME]$cargoReg"
         displayName: 'Pre-create Cache Directories'
 
@@ -65,7 +63,7 @@ jobs:
       - script: |
           corepack enable
           pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
-          pnpm install
+          pnpm install --frozen-lockfile
         displayName: 'Install Frontend Deps'
 
       - script: |
@@ -83,7 +81,8 @@ jobs:
         displayName: 'Install Linux Deps'
         condition: eq(variables['Agent.OS'], 'Linux')
 
-      - script: pnpm tauri build $(TAURI_ARGS)
+      # 修复点：使用 pnpm exec
+      - script: pnpm exec tauri build $(TAURI_ARGS)
         displayName: 'Build Tauri App (Release)'
 
       - task: PublishBuildArtifacts@1
