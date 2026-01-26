@@ -7,7 +7,6 @@ pr:
 
 jobs:
   - job: build_validation
-    displayName: Build Validation
     strategy:
       matrix:
         macos:
@@ -23,49 +22,49 @@ jobs:
     pool:
       vmImage: $(vmImage)
 
+    variables:
+      # 参考 pnpm 官方 CI 文档：定义 pnpm 全局目录
+      PNPM_CACHE_FOLDER: $(Pipeline.Workspace)/pnpm_cache
+
     steps:
       - checkout: self
 
+      # 1. 跨平台创建目录（使用原生 PowerShell 语法）
       - pwsh: |
-          $pnpmStore = "$(Pipeline.Workspace)/.pnpm-store"
-          if (!(Test-Path $pnpmStore)) { New-Item -ItemType Directory -Force -Path $pnpmStore }
+          New-Item -ItemType Directory -Force -Path "$(PNPM_CACHE_FOLDER)"
           $homePath = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
           $cargoReg = Join-Path $homePath ".cargo"
           if (!(Test-Path $cargoReg)) { New-Item -ItemType Directory -Force -Path $cargoReg }
           Write-Host "##vso[task.setvariable variable=CARGO_HOME]$cargoReg"
         displayName: 'Pre-create Cache Directories'
 
+      # 2. 缓存配置 (参考 Azure 官方 Cache@2 最佳实践)
       - task: Cache@2
         inputs:
           key: 'pnpm | "$(Agent.OS)" | **/pnpm-lock.yaml'
-          path: $(Pipeline.Workspace)/.pnpm-store
+          path: $(PNPM_CACHE_FOLDER)
         displayName: 'Cache pnpm'
 
       - task: Cache@2
         inputs:
           key: 'cargo-reg | "$(Agent.OS)" | src-tauri/Cargo.lock'
           path: $(CARGO_HOME)
-        displayName: 'Cache Cargo Registry'
-
-      - task: Cache@2
-        inputs:
-          key: 'cargo-target-debug | "$(Agent.OS)" | src-tauri/Cargo.lock'
-          path: src-tauri/target
-        displayName: 'Cache Rust Debug Target'
+        displayName: 'Cache Cargo'
 
       - task: UseNode@1
         inputs: { version: '20.x' }
 
+      # 3. 依赖安装 (参考 Corepack 官方文档)
       - script: |
           corepack enable
-          pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
+          pnpm config set store-dir $(PNPM_CACHE_FOLDER)
           pnpm install --frozen-lockfile
-        displayName: 'Install Frontend Deps'
+        displayName: 'Install Dependencies'
 
       - script: |
           rustup toolchain install stable --profile minimal
           rustup default stable
-        displayName: 'Install Rust'
+        displayName: 'Setup Rust'
 
       - script: rustup target add aarch64-apple-darwin x86_64-apple-darwin
         displayName: 'Add macOS targets'
@@ -77,6 +76,6 @@ jobs:
         displayName: 'Install Linux Deps'
         condition: eq(variables['Agent.OS'], 'Linux')
 
-      # 修复点：使用 pnpm exec 确保能找到 node_modules/.bin 中的命令
-      - script: pnpm exec tauri build --debug $(TAURI_ARGS)
-        displayName: 'Tauri Build (Debug Validation)'
+      # 4. 执行构建：明确使用 npm 脚本定义的 tauri 命令
+      - script: pnpm run tauri build --debug $(TAURI_ARGS)
+        displayName: 'Tauri Build'

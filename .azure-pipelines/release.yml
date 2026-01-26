@@ -4,7 +4,6 @@ trigger:
 
 jobs:
   - job: publish_tauri
-    displayName: Publish Release
     strategy:
       matrix:
         macos:
@@ -26,50 +25,46 @@ jobs:
     pool:
       vmImage: $(vmImage)
 
+    variables:
+      PNPM_CACHE_FOLDER: $(Pipeline.Workspace)/pnpm_cache
+
     steps:
       - checkout: self
         fetchDepth: 0
 
       - pwsh: |
-          $pnpmStore = "$(Pipeline.Workspace)/.pnpm-store"
-          if (!(Test-Path $pnpmStore)) { New-Item -ItemType Directory -Force -Path $pnpmStore }
+          New-Item -ItemType Directory -Force -Path "$(PNPM_CACHE_FOLDER)"
           $homePath = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
           $cargoReg = Join-Path $homePath ".cargo"
           if (!(Test-Path $cargoReg)) { New-Item -ItemType Directory -Force -Path $cargoReg }
           Write-Host "##vso[task.setvariable variable=CARGO_HOME]$cargoReg"
-        displayName: 'Pre-create Cache Directories'
+        displayName: 'Pre-create Directories'
 
       - task: Cache@2
         inputs:
           key: 'pnpm | "$(Agent.OS)" | **/pnpm-lock.yaml'
-          path: $(Pipeline.Workspace)/.pnpm-store
+          path: $(PNPM_CACHE_FOLDER)
         displayName: 'Cache pnpm'
 
       - task: Cache@2
         inputs:
           key: 'cargo-reg | "$(Agent.OS)" | src-tauri/Cargo.lock'
           path: $(CARGO_HOME)
-        displayName: 'Cache Cargo Registry'
-
-      - task: Cache@2
-        inputs:
-          key: 'cargo-target-release | "$(Agent.OS)" | src-tauri/Cargo.lock'
-          path: src-tauri/target
-        displayName: 'Cache Rust Release Target'
+        displayName: 'Cache Cargo'
 
       - task: UseNode@1
         inputs: { version: '20.x' }
 
       - script: |
           corepack enable
-          pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
+          pnpm config set store-dir $(PNPM_CACHE_FOLDER)
           pnpm install --frozen-lockfile
-        displayName: 'Install Frontend Deps'
+        displayName: 'Install Dependencies'
 
       - script: |
           rustup toolchain install stable --profile minimal
           rustup default stable
-        displayName: 'Install Rust'
+        displayName: 'Setup Rust'
 
       - script: rustup target add aarch64-apple-darwin x86_64-apple-darwin
         displayName: 'Add macOS targets'
@@ -81,12 +76,11 @@ jobs:
         displayName: 'Install Linux Deps'
         condition: eq(variables['Agent.OS'], 'Linux')
 
-      # 修复点：使用 pnpm exec
-      - script: pnpm exec tauri build $(TAURI_ARGS)
-        displayName: 'Build Tauri App (Release)'
+      # 执行正式构建
+      - script: pnpm run tauri build $(TAURI_ARGS)
+        displayName: 'Build Release'
 
       - task: PublishBuildArtifacts@1
-        displayName: 'Publish Release Bundles'
         inputs:
           pathToPublish: $(ARTIFACT_PATH)
           artifactName: 'Tauri-App-$(OS_NAME)'
