@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2026-01-15
 
 ## Active Technologies
+
 - File-based configuration (Tauri settings store) (001-multi-directory-support)
 - TypeScript 5.8.3 (Angular v20.3.15), Rust Edition 2021 (Tauri 2.x) + Angular, Tailwind CSS v4.1.18, DaisyUI v5.5.14, Transloco v8.x, Tauri plugin-store, Lucide Angular v0.562.0 (001-ui-optimizations)
 - Tauri plugin-store for scan directories and scrolling mode preferences (001-ui-optimizations)
@@ -25,6 +26,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-15
 - Tauri plugin-store（settings.json） (001-game-path-setup)
 - TypeScript 5.8.3；Rust 2021 (用于 Tauri 侧，但本特性主要在前端) + Angular 20.3.x、@jsverse/transloco、Angular CDK（包含 virtual scroll）、Tailwind CSS、DaisyUI、lucide-angular、marked（用于 Markdown 渲染） (001-i18n-table-changelog)
 - 文件（`CHANGELOG.md`）+ 现有 i18n JSON（`src/assets/i18n/*.json`） (001-i18n-table-changelog)
+- TypeScript 5.8.3 + Rust (edition 2021) + Angular 20.3.x, Tauri 2.x, @jsverse/transloco, Tailwind CSS 4.x + DaisyUI 5.x, lucide-angular (001-steam-launch-args)
+- Tauri plugin-store (`settings.json`) + `tauri-plugin-opener` + `tauri-plugin-clipboard-manager` (001-steam-launch-args)
 
 - TypeScript 5.8.3 (Angular 20.3.15), Rust Edition 2021 (Tauri 2.x) + Angular 20.3.15, Transloco 8.x, Tailwind CSS 4.x, DaisyUI 5.x, Tauri 2.x, quick-xml (001-multi-directory-support)
 
@@ -44,10 +47,11 @@ cargo test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECH
 TypeScript 5.8.3 (Angular 20.3.15), Rust Edition 2021 (Tauri 2.x): Follow standard conventions
 
 ## Recent Changes
+
+- 001-steam-launch-args: Added TypeScript 5.8.3 + Rust (edition 2021) + Angular 20.3.x, Tauri 2.x, @jsverse/transloco, Tailwind CSS 4.x + DaisyUI 5.x, lucide-angular
 - 001-i18n-table-changelog: Added TypeScript 5.8.3；Rust 2021 (用于 Tauri 侧，但本特性主要在前端) + Angular 20.3.x、@jsverse/transloco、Angular CDK（包含 virtual scroll）、Tailwind CSS、DaisyUI、lucide-angular、marked（用于 Markdown 渲染）
 - 001-game-path-setup: Added TypeScript 5.8.3 + Rust (edition 2021) + Angular v20.3.15, Transloco, TailwindCSS v4 + DaisyUI v5, Lucide Angular, Tauri 2.x, Tauri plugin-store
 - 001-ui-layout-optimization: Added TypeScript 5.8.3 (Angular 20.3.15), Rust Edition 2021 (Tauri 2.x) + Web Workers, Tauri IPC Channels, Angular Animations, DaisyUI v5
-
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

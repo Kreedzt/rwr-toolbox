@@ -153,6 +153,37 @@
             "selected": "已选扫描库",
             "noneSelected": "未选择扫描库",
             "selectFirst": "请选择一个库以启用扫描"
+        },
+        "steamLaunch": {
+            "title": "Steam 启动",
+            "description": "通过 Steam 启动 Running with Rifles，并可携带参数",
+            "launch": "启动游戏",
+            "copyArgs": "复制参数",
+            "bool": {
+                "skip_nat_server_usage": "skip_nat_server_usage",
+                "debugmode": "debugmode",
+                "no_simulation": "no_simulation",
+                "no_ai": "no_ai",
+                "metagame_debugmode": "metagame_debugmode",
+                "verbose": "verbose",
+                "opengl": "opengl",
+                "flip": "flip",
+                "big_water": "big_water"
+            },
+            "keyValue": {
+                "title": "Key=Value",
+                "hint": "添加 key=value 参数（支持任意 key）",
+                "add": "添加 Key=Value"
+            },
+            "custom": {
+                "title": "自定义 Token",
+                "hint": "每行一个 token（用于隐藏/高级参数）"
+            },
+            "errors": {
+                "steamUnavailable": "Steam 不可用",
+                "gameUnavailable": "游戏不可用（未安装）",
+                "launchFailed": "启动游戏失败"
+            }
         }
     },
     "servers": {

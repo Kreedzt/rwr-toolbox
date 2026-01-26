@@ -41,6 +41,16 @@ export interface AppSettings {
 
     /** Game installation directory path (base game). */
     gameInstallDirectory: string | null;
+
+    /** Steam launch: boolean flags (known + custom). */
+    steamLaunchBoolParams: Record<string, boolean>;
+
+    /** Steam launch: key=value params (supports any key). */
+    steamLaunchKeyValueParams: Record<string, string>;
+
+    /** Steam launch: custom tokens (one token per item). */
+    steamLaunchCustomTokens: string[];
+
     /** Server page size for pagination */
     serverPageSize: number;
     /** Player page size for pagination */
