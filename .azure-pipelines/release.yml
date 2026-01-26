@@ -27,6 +27,8 @@ jobs:
 
     variables:
       PNPM_CACHE_FOLDER: $(Pipeline.Workspace)/pnpm_cache
+      # Tauri CLI relies on platform-specific optionalDependencies; ensure they are not skipped in CI.
+      NPM_CONFIG_OPTIONAL: 'true'
 
     steps:
       - checkout: self
@@ -57,9 +59,12 @@ jobs:
 
       - script: |
           corepack enable
-          pnpm config set store-dir $(PNPM_CACHE_FOLDER)
-          pnpm install --frozen-lockfile
-          pnpm add -D @tauri-apps/cli
+          corepack prepare pnpm@10.28.1 --activate
+          pnpm --version
+          pnpm config set store-dir "$(PNPM_CACHE_FOLDER)"
+          pnpm config set optional true
+          pnpm install --frozen-lockfile --prod=false
+          pnpm exec tauri --version
         displayName: 'Install Dependencies'
 
       - script: |
