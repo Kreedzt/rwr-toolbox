@@ -18,6 +18,19 @@ import { DEFAULT_SERVER_COLUMN_VISIBILITY } from '../../features/servers/server-
 const DEFAULT_SETTINGS: AppSettings = {
     apiEndpoint: 'global',
     gameInstallDirectory: null,
+    steamLaunchBoolParams: {
+        skip_nat_server_usage: false,
+        debugmode: false,
+        no_simulation: false,
+        no_ai: false,
+        metagame_debugmode: false,
+        verbose: false,
+        opengl: false,
+        flip: false,
+        big_water: false,
+    },
+    steamLaunchKeyValueParams: {},
+    steamLaunchCustomTokens: [],
     serverPageSize: 100,
     playerPageSize: 100,
     enablePing: true,
@@ -151,6 +164,20 @@ export class SettingsService {
             if (stored.gamePath && stored.gamePath.trim() !== '') {
                 stored.gameInstallDirectory = stored.gamePath.trim();
                 delete stored.gamePath;
+            }
+
+            // Keep new steam-launch settings backward compatible if missing.
+            if (!stored.steamLaunchBoolParams) {
+                stored.steamLaunchBoolParams =
+                    DEFAULT_SETTINGS.steamLaunchBoolParams;
+            }
+            if (!stored.steamLaunchKeyValueParams) {
+                stored.steamLaunchKeyValueParams =
+                    DEFAULT_SETTINGS.steamLaunchKeyValueParams;
+            }
+            if (!stored.steamLaunchCustomTokens) {
+                stored.steamLaunchCustomTokens =
+                    DEFAULT_SETTINGS.steamLaunchCustomTokens;
             }
 
             this.settingsState.set({ ...DEFAULT_SETTINGS, ...stored });

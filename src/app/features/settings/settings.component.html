@@ -62,6 +62,157 @@
         </div>
     </div>
 
+    <!-- Steam Launch -->
+    <div
+        class="card bg-base-100 shadow-sm border border-base-300/50 mb-6"
+        *transloco="let t"
+    >
+        <div class="card-body">
+            <div class="flex justify-between items-start gap-4">
+                <div class="min-w-0">
+                    <h2 class="card-title text-sm uppercase opacity-50">
+                        {{ t('settings.steamLaunch.title') }}
+                    </h2>
+                    <p class="text-[11px] opacity-60 mt-1">
+                        {{ t('settings.steamLaunch.description') }}
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        class="btn btn-outline btn-sm"
+                        (click)="onCopySteamArgsText()"
+                    >
+                        <i-lucide name="clipboard" class="h-4 w-4"></i-lucide>
+                        {{ t('settings.steamLaunch.copyArgs') }}
+                    </button>
+                    <button
+                        class="btn btn-primary btn-sm"
+                        (click)="onLaunchSteamGame()"
+                        [disabled]="steamLaunchIsLaunchingSig()"
+                    >
+                        @if (steamLaunchIsLaunchingSig()) {
+                            <span
+                                class="loading loading-spinner loading-xs"
+                            ></span>
+                        }
+                        <i-lucide name="play" class="h-4 w-4"></i-lucide>
+                        {{ t('settings.steamLaunch.launch') }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="mb-2">
+                    <p
+                        class="text-[11px] opacity-60 font-mono"
+                        [title]="steamLaunchArgsTextSig()"
+                    >
+                        {{ steamLaunchArgsTextSig() || '-' }}
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @for (
+                        p of steamLaunchBoolParamsSig() | keyvalue;
+                        track p.key
+                    ) {
+                        <label
+                            class="flex items-center justify-between gap-3 bg-base-200/40 border border-base-300/40 rounded-lg px-3 py-2"
+                        >
+                            <span class="text-sm truncate" [title]="p.key">
+                                {{ t('settings.steamLaunch.bool.' + p.key) }}
+                            </span>
+                            <input
+                                type="checkbox"
+                                class="toggle toggle-sm"
+                                [checked]="p.value"
+                                (change)="onToggleSteamBoolParam(p.key, $event)"
+                            />
+                        </label>
+                    }
+                </div>
+
+                <div class="divider my-4"></div>
+
+                <h3 class="text-sm font-semibold opacity-70">
+                    {{ t('settings.steamLaunch.keyValue.title') }}
+                </h3>
+                <p class="text-[11px] opacity-60 mt-1">
+                    {{ t('settings.steamLaunch.keyValue.hint') }}
+                </p>
+
+                @for (
+                    kv of steamLaunchKeyValueParamsSig() | keyvalue;
+                    track kv.key
+                ) {
+                    <div class="flex items-center gap-2 mt-2">
+                        <input
+                            class="input input-bordered input-sm flex-1"
+                            [value]="kv.key"
+                            (change)="
+                                onSteamKeyValueKeyChange(
+                                    kv.key,
+                                    $any($event.target).value
+                                )
+                            "
+                        />
+                        <input
+                            class="input input-bordered input-sm flex-1"
+                            [value]="kv.value"
+                            (change)="
+                                onSteamKeyValueValueChange(
+                                    kv.key,
+                                    $any($event.target).value
+                                )
+                            "
+                        />
+                        <button
+                            class="btn btn-ghost btn-sm"
+                            (click)="onRemoveSteamKeyValue(kv.key)"
+                        >
+                            <i-lucide name="trash-2" class="h-4 w-4"></i-lucide>
+                        </button>
+                    </div>
+                }
+
+                <button
+                    class="btn btn-outline btn-sm mt-3"
+                    (click)="onAddSteamKeyValue()"
+                >
+                    <i-lucide name="plus" class="h-4 w-4"></i-lucide>
+                    {{ t('settings.steamLaunch.keyValue.add') }}
+                </button>
+
+                <div class="divider my-4"></div>
+
+                <h3 class="text-sm font-semibold opacity-70">
+                    {{ t('settings.steamLaunch.custom.title') }}
+                </h3>
+                <p class="text-[11px] opacity-60 mt-1">
+                    {{ t('settings.steamLaunch.custom.hint') }}
+                </p>
+
+                <textarea
+                    class="textarea textarea-bordered textarea-sm w-full mt-2 font-mono"
+                    rows="4"
+                    [value]="(steamLaunchCustomTokensSig() || []).join('\n')"
+                    (change)="
+                        onSteamCustomTokensChange($any($event.target).value)
+                    "
+                ></textarea>
+            </div>
+
+            @if (steamLaunchErrorKeySig(); as errKey) {
+                @if (errKey) {
+                    <div class="alert alert-error mt-4">
+                        <span class="text-sm">{{ t(errKey) }}</span>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
     <!-- Directory Management (Full Width) -->
     <div class="card bg-base-100 shadow-sm border border-base-300/50">
         <div class="card-body">

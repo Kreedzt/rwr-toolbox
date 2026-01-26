@@ -13,6 +13,7 @@ import {
     DEFAULT_LOCALE,
 } from '../../../i18n/locales';
 import { DirectoryService } from './services/directory.service';
+import { SteamLaunchService } from './services/steam-launch.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { DatePipe } from '@angular/common';
@@ -37,6 +38,7 @@ export class SettingsComponent implements OnInit {
     private directoryService = inject(DirectoryService);
     private themeService = inject(ThemeService);
     private settingsService = inject(SettingsService);
+    private steamLaunchService = inject(SteamLaunchService);
     private datePipe = inject(DatePipe);
 
     private readonly validatingGameInstallDir = signal(false);
@@ -57,6 +59,16 @@ export class SettingsComponent implements OnInit {
 
     /** Theme preferences */
     readonly theme = this.themeService.theme;
+
+    /** Steam launch */
+    readonly steamLaunchBoolParamsSig = this.steamLaunchService.boolParamsSig;
+    readonly steamLaunchKeyValueParamsSig =
+        this.steamLaunchService.keyValueParamsSig;
+    readonly steamLaunchCustomTokensSig =
+        this.steamLaunchService.customTokensSig;
+    readonly steamLaunchArgsTextSig = this.steamLaunchService.argsText;
+    readonly steamLaunchIsLaunchingSig = this.steamLaunchService.isLaunching;
+    readonly steamLaunchErrorKeySig = this.steamLaunchService.errorKey;
 
     /** T034: Directory management - readonly directories signal reference */
     readonly directoriesSig = this.directoryService.directoriesSig;
@@ -235,6 +247,56 @@ export class SettingsComponent implements OnInit {
      * @param timestamp Unix timestamp in milliseconds
      * @returns Formatted date string or empty string if timestamp is 0
      */
+    async onToggleSteamBoolParam(paramId: string, event: Event): Promise<void> {
+        const target = event.target as HTMLInputElement;
+        await this.steamLaunchService.setBoolParamEnabled(
+            paramId,
+            Boolean(target?.checked),
+        );
+    }
+
+    async onLaunchSteamGame(): Promise<void> {
+        try {
+            await this.steamLaunchService.launchGame();
+        } catch {
+            // Error message is handled via steamLaunchErrorKeySig.
+        }
+    }
+
+    async onCopySteamArgsText(): Promise<void> {
+        await this.steamLaunchService.copyArgsTextToClipboard();
+    }
+
+    async onAddSteamKeyValue(): Promise<void> {
+        await this.steamLaunchService.setKeyValueParam('key', 'value');
+    }
+
+    async onRemoveSteamKeyValue(key: string): Promise<void> {
+        await this.steamLaunchService.removeKeyValueParam(key);
+    }
+
+    async onSteamKeyValueKeyChange(
+        oldKey: string,
+        newKey: string,
+    ): Promise<void> {
+        // Move value to a new key.
+        const current = this.steamLaunchKeyValueParamsSig();
+        const value = current[oldKey] ?? '';
+        await this.steamLaunchService.removeKeyValueParam(oldKey);
+        await this.steamLaunchService.setKeyValueParam(newKey, value);
+    }
+
+    async onSteamKeyValueValueChange(
+        key: string,
+        value: string,
+    ): Promise<void> {
+        await this.steamLaunchService.setKeyValueParam(key, value);
+    }
+
+    async onSteamCustomTokensChange(multiline: string): Promise<void> {
+        await this.steamLaunchService.setCustomTokensFromText(multiline);
+    }
+
     formatTimestamp(timestamp: number): string {
         if (timestamp === 0) return '';
         return this.datePipe.transform(timestamp, 'short') || '';

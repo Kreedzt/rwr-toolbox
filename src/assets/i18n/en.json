@@ -153,6 +153,37 @@
             "selected": "Selected Scan Library",
             "noneSelected": "No scan library selected",
             "selectFirst": "Select a library to enable scanning"
+        },
+        "steamLaunch": {
+            "title": "Steam Launch",
+            "description": "Launch Running with Rifles via Steam with optional parameters",
+            "launch": "Launch Game",
+            "copyArgs": "Copy Args",
+            "bool": {
+                "skip_nat_server_usage": "skip_nat_server_usage",
+                "debugmode": "debugmode",
+                "no_simulation": "no_simulation",
+                "no_ai": "no_ai",
+                "metagame_debugmode": "metagame_debugmode",
+                "verbose": "verbose",
+                "opengl": "opengl",
+                "flip": "flip",
+                "big_water": "big_water"
+            },
+            "keyValue": {
+                "title": "Key=Value",
+                "hint": "Add key=value parameters (any key supported)",
+                "add": "Add Key=Value"
+            },
+            "custom": {
+                "title": "Custom Tokens",
+                "hint": "One token per line (for hidden/advanced params)"
+            },
+            "errors": {
+                "steamUnavailable": "Steam is not available",
+                "gameUnavailable": "Game not available (not installed)",
+                "launchFailed": "Failed to launch game"
+            }
         }
     },
     "servers": {
