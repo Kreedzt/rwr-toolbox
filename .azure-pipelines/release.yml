@@ -1,76 +1,82 @@
 trigger:
-    tags:
-        include:
-            - '*'
+  tags:
+    include: [ '*' ]
 
 jobs:
-    - job: publish_tauri
-      displayName: Publish Tauri Release (Matrix)
-      strategy:
-          matrix:
-              macos:
-                  vmImage: 'macos-latest'
-                  TAURI_ARGS: '--target universal-apple-darwin'
-                  OS_NAME: 'macos'
-              linux:
-                  vmImage: 'ubuntu-22.04'
-                  TAURI_ARGS: ''
-                  OS_NAME: 'linux'
-              windows:
-                  vmImage: 'windows-latest'
-                  TAURI_ARGS: '--bundles nsis'
-                  OS_NAME: 'windows'
+  - job: publish_tauri
+    displayName: Publish Release (Optimized)
+    strategy:
+      matrix:
+        macos:
+          vmImage: 'macos-latest'
+          TAURI_ARGS: '--target universal-apple-darwin'
+          OS_NAME: 'macos'
+          # macOS 通用二进制构建后的产物路径不同
+          ARTIFACT_PATH: 'src-tauri/target/universal-apple-darwin/release/bundle'
+        linux:
+          vmImage: 'ubuntu-22.04'
+          TAURI_ARGS: ''
+          OS_NAME: 'linux'
+          ARTIFACT_PATH: 'src-tauri/target/release/bundle'
+        windows:
+          vmImage: 'windows-latest'
+          TAURI_ARGS: '--bundles nsis'
+          OS_NAME: 'windows'
+          ARTIFACT_PATH: 'src-tauri/target/release/bundle'
 
-      pool:
-          vmImage: $(vmImage)
+    pool:
+      vmImage: $(vmImage)
 
-      continueOnError: true
+    steps:
+      - checkout: self
+        fetchDepth: 0 # 确保 Tauri 能正确读取 Git Tag 作为版本号
 
-      steps:
-          - checkout: self
+      # 缓存策略同上，但使用独立的 release 缓存 Key
+      - task: Cache@2
+        inputs:
+          key: 'pnpm | "$(Agent.OS)" | **/pnpm-lock.yaml'
+          path: $(Pipeline.Workspace)/.pnpm-store
+        displayName: 'Cache pnpm'
 
-          # Node.js
-          - task: UseNode@1
-            displayName: Setup Node.js
-            inputs:
-                version: '20.x'
+      - task: Cache@2
+        inputs:
+          key: 'cargo-reg | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          path: $(HOME)/.cargo
+        displayName: 'Cache Cargo Registry'
 
-          - script: corepack enable
-            displayName: Enable pnpm
+      - task: Cache@2
+        inputs:
+          key: 'cargo-target-release | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          path: src-tauri/target
+        displayName: 'Cache Rust Release Target'
 
-          # Rust
-          - script: |
-                rustup toolchain install stable
-                rustup default stable
-            displayName: Install Rust stable
+      - task: UseNode@1
+        inputs: { version: '20.x' }
 
-          - script: |
-                rustup target add aarch64-apple-darwin x86_64-apple-darwin
-            displayName: Add macOS targets
-            condition: eq(variables['vmImage'], 'macos-latest')
+      - script: corepack enable && pnpm install
+        displayName: 'Install Frontend Deps'
 
-          # Linux deps
-          - script: |
-                sudo apt-get update
-                sudo apt-get install -y \
-                  libwebkit2gtk-4.1-dev \
-                  libappindicator3-dev \
-                  librsvg2-dev \
-                  patchelf
-            displayName: Install Linux dependencies
-            condition: eq(variables['vmImage'], 'ubuntu-22.04')
+      - script: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          if [ "$(Agent.OS)" = "Darwin" ]; then
+            rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          fi
+        displayName: 'Install Rust'
 
-          # Frontend deps
-          - script: pnpm install
-            displayName: Install frontend dependencies
+      - script: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        condition: eq(variables['Agent.OS'], 'Linux')
+        displayName: 'Install Linux Deps'
 
-          # Build Tauri (release)
-          - script: pnpm run tauri build $(TAURI_ARGS)
-            displayName: Build Tauri app (release)
+      # 构建 Release 版本
+      - script: pnpm tauri build $(TAURI_ARGS)
+        displayName: 'Build Tauri App (Release)'
 
-          # Collect artifacts
-          - task: PublishBuildArtifacts@1
-            displayName: Publish build artifacts
-            inputs:
-                pathToPublish: src-tauri/target/release
-                artifactName: tauri-$(OS_NAME)
+      # 精确收集安装包，排除庞大的中间编译产物
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Release Bundles'
+        inputs:
+          pathToPublish: $(ARTIFACT_PATH)
+          artifactName: 'Tauri-App-$(OS_NAME)'

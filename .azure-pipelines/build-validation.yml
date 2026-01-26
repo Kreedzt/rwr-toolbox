@@ -1,75 +1,74 @@
-# Azure Pipelines Build Validation
-# Validates that the application builds successfully on all platforms
-# Triggers on pushes to master branch and pull requests targeting master
-
 trigger:
-    branches:
-        include:
-            - master
-
+  branches:
+    include: [ master ]
 pr:
-    branches:
-        include:
-            - master
+  branches:
+    include: [ master ]
 
 jobs:
-    - job: build_validation
-      displayName: Build Validation (Matrix)
-      strategy:
-          matrix:
-              macos:
-                  vmImage: 'macos-latest'
-                  TAURI_ARGS: '--target universal-apple-darwin'
-              linux:
-                  vmImage: 'ubuntu-22.04'
-                  TAURI_ARGS: ''
-              windows:
-                  vmImage: 'windows-latest'
-                  TAURI_ARGS: ''
+  - job: build_validation
+    displayName: Build Validation (Optimized)
+    strategy:
+      matrix:
+        macos:
+          vmImage: 'macos-latest'
+          TAURI_ARGS: '--target universal-apple-darwin'
+        linux:
+          vmImage: 'ubuntu-22.04'
+          TAURI_ARGS: ''
+        windows:
+          vmImage: 'windows-latest'
+          TAURI_ARGS: ''
 
-      pool:
-          vmImage: $(vmImage)
+    pool:
+      vmImage: $(vmImage)
 
-      steps:
-          - checkout: self
+    steps:
+      - checkout: self
 
-          # Setup Node.js
-          - task: UseNode@1
-            displayName: 'Setup Node.js LTS'
-            inputs:
-                version: '20.x'
+      # 1. 前端 pnpm 缓存
+      - task: Cache@2
+        inputs:
+          key: 'pnpm | "$(Agent.OS)" | **/pnpm-lock.yaml'
+          path: $(Pipeline.Workspace)/.pnpm-store
+        displayName: 'Cache pnpm'
 
-          # Enable pnpm
-          - script: corepack enable
-            displayName: 'Enable pnpm'
+      # 2. Rust Cargo 注册表缓存 (加速依赖下载)
+      - task: Cache@2
+        inputs:
+          key: 'cargo-reg | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          path: $(HOME)/.cargo
+        displayName: 'Cache Cargo Registry'
 
-          # Install Rust stable
-          - script: |
-                rustup toolchain install stable
-                rustup default stable
-            displayName: 'Install Rust stable'
+      # 3. Rust Target 增量编译缓存 (加速编译过程)
+      - task: Cache@2
+        inputs:
+          key: 'cargo-target-debug | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          path: src-tauri/target
+        displayName: 'Cache Rust Debug Target'
 
-          # Add macOS targets for universal binary
-          - script: |
-                rustup target add aarch64-apple-darwin x86_64-apple-darwin
-            displayName: 'Add macOS targets'
-            condition: eq(variables['Agent.OS'], 'Darwin')
+      - task: UseNode@1
+        inputs: { version: '24.x' }
+        displayName: 'Setup Node.js'
 
-          # Install Linux dependencies for Tauri (WebView)
-          - script: |
-                sudo apt-get update
-                sudo apt-get install -y \
-                  libwebkit2gtk-4.1-dev \
-                  libappindicator3-dev \
-                  librsvg2-dev \
-                  patchelf
-            displayName: 'Install Linux dependencies'
-            condition: eq(variables['Agent.OS'], 'Linux')
+      - script: corepack enable && pnpm install
+        displayName: 'Install Frontend Deps'
 
-          # Install frontend dependencies
-          - script: pnpm install
-            displayName: 'Install frontend dependencies'
+      - script: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          # 仅在 macOS 下添加 target
+          if [ "$(Agent.OS)" = "Darwin" ]; then
+            rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          fi
+        displayName: 'Install Rust (Minimal)'
 
-          # Build Tauri app in debug mode (validation only)
-          - script: pnpm run tauri build --debug $(TAURI_ARGS)
-            displayName: 'Build Tauri app (debug)'
+      - script: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        condition: eq(variables['Agent.OS'], 'Linux')
+        displayName: 'Install Linux Deps'
+
+      # 使用 --debug 快速校验编译逻辑
+      - script: pnpm tauri build --debug $(TAURI_ARGS)
+        displayName: 'Tauri Build (Debug Validation)'
