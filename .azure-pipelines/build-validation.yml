@@ -1,0 +1,74 @@
+# Azure Pipelines Build Validation
+# Validates that the application builds successfully on all platforms
+# Triggers on pushes to master branch and pull requests targeting master
+
+trigger:
+  branches:
+    include:
+      - master
+
+pr:
+  branches:
+    include:
+      - master
+
+variables:
+  # Define matrix variables for each platform
+  vmImage.macos: 'macOS-latest'
+  vmImage.linux: 'ubuntu-22.04'
+  vmImage.windows: 'windows-latest'
+  tauriArgs.macos: '--target universal-apple-darwin'
+  tauriArgs.linux: ''
+  tauriArgs.windows: ''
+
+jobs:
+  - ${{ each platform in parameters.platforms }}:
+    - job: build_validation_${{ platform }}
+      displayName: 'Build Validation (${{ platform }})'
+      pool:
+        vmImage: $(vmImage.${{ platform }})
+
+      steps:
+        # Checkout repository
+        - checkout: self
+
+        # Setup Node.js
+        - task: UseNode@1
+          displayName: 'Setup Node.js LTS'
+          inputs:
+            version: 'lts/*'
+
+        # Enable pnpm
+        - script: corepack enable
+          displayName: 'Enable pnpm'
+
+        # Install Rust stable
+        - script: |
+            rustup toolchain install stable
+            rustup default stable
+          displayName: 'Install Rust stable'
+
+        # Add macOS targets for universal binary
+        - script: |
+            rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          displayName: 'Add macOS targets'
+          condition: eq(variables['Agent.OS'], 'Darwin')
+
+        # Install Linux dependencies for Tauri (WebView)
+        - script: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              libwebkit2gtk-4.1-dev \
+              libappindicator3-dev \
+              librsvg2-dev \
+              patchelf
+          displayName: 'Install Linux dependencies'
+          condition: eq(variables['Agent.OS'], 'Linux')
+
+        # Install frontend dependencies
+        - script: pnpm install
+          displayName: 'Install frontend dependencies'
+
+        # Build Tauri app in debug mode (validation only)
+        - script: cargo tauri build --debug $(tauriArgs.${{ platform }})
+          displayName: 'Build Tauri app (debug)'
