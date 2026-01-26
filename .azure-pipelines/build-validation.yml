@@ -52,13 +52,15 @@ jobs:
         displayName: 'Cache Cargo'
 
       - task: UseNode@1
-        inputs: { version: '20.x' }
+        inputs:
+          version: '24.x'
 
-      # 3. 依赖安装 (参考 Corepack 官方文档)
+      # 3. 依赖安装（包含 tauri CLI）
       - script: |
           corepack enable
           pnpm config set store-dir $(PNPM_CACHE_FOLDER)
           pnpm install --frozen-lockfile
+          pnpm add -D @tauri-apps/cli
         displayName: 'Install Dependencies'
 
       - script: |
@@ -76,6 +78,6 @@ jobs:
         displayName: 'Install Linux Deps'
         condition: eq(variables['Agent.OS'], 'Linux')
 
-      # 4. 执行构建：明确使用 npm 脚本定义的 tauri 命令
-      - script: pnpm run tauri build --debug $(TAURI_ARGS)
+      # 4. 执行构建（通过 pnpm exec 确保正确解析 tauri CLI）
+      - script: pnpm exec tauri build --debug $(TAURI_ARGS)
         displayName: 'Tauri Build'
