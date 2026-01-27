@@ -1,74 +1,117 @@
-# Azure Pipelines Build Validation
-# Validates that the application builds successfully on all platforms
-# Triggers on pushes to master branch and pull requests targeting master
-
 trigger:
   branches:
-    include:
-      - master
-
+    include: [ master ]
 pr:
   branches:
-    include:
-      - master
-
-variables:
-  # Define matrix variables for each platform
-  vmImage.macos: 'macOS-latest'
-  vmImage.linux: 'ubuntu-22.04'
-  vmImage.windows: 'windows-latest'
-  tauriArgs.macos: '--target universal-apple-darwin'
-  tauriArgs.linux: ''
-  tauriArgs.windows: ''
+    include: [ master ]
 
 jobs:
-  - ${{ each platform in parameters.platforms }}:
-    - job: build_validation_${{ platform }}
-      displayName: 'Build Validation (${{ platform }})'
-      pool:
-        vmImage: $(vmImage.${{ platform }})
+  - job: build_validation
+    strategy:
+      matrix:
+        macos:
+          vmImage: 'macos-latest'
+          TAURI_ARGS: '--target universal-apple-darwin'
+        linux:
+          vmImage: 'ubuntu-22.04'
+          TAURI_ARGS: ''
+        windows:
+          vmImage: 'windows-latest'
+          TAURI_ARGS: ''
 
-      steps:
-        # Checkout repository
-        - checkout: self
+    pool:
+      vmImage: $(vmImage)
 
-        # Setup Node.js
-        - task: UseNode@1
-          displayName: 'Setup Node.js LTS'
-          inputs:
-            version: 'lts/*'
+    variables:
+      # 参考 pnpm 官方 CI 文档：定义 pnpm 全局目录
+      PNPM_CACHE_FOLDER: $(Pipeline.Workspace)/pnpm_cache
 
-        # Enable pnpm
-        - script: corepack enable
-          displayName: 'Enable pnpm'
+    steps:
+      - checkout: self
 
-        # Install Rust stable
-        - script: |
-            rustup toolchain install stable
-            rustup default stable
-          displayName: 'Install Rust stable'
+      # 1. 跨平台创建目录（使用原生 PowerShell 语法）
+      - pwsh: |
+          New-Item -ItemType Directory -Force -Path "$(PNPM_CACHE_FOLDER)"
+          $homePath = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+          $cargoReg = Join-Path $homePath ".cargo"
+          if (!(Test-Path $cargoReg)) { New-Item -ItemType Directory -Force -Path $cargoReg }
+          Write-Host "##vso[task.setvariable variable=CARGO_HOME]$cargoReg"
+        displayName: 'Pre-create Cache Directories'
 
-        # Add macOS targets for universal binary
-        - script: |
-            rustup target add aarch64-apple-darwin x86_64-apple-darwin
-          displayName: 'Add macOS targets'
-          condition: eq(variables['Agent.OS'], 'Darwin')
+      # 2. 缓存配置 (参考 Azure 官方 Cache@2 最佳实践)
+      - task: Cache@2
+        inputs:
+          key: 'pnpm | "$(Agent.OS)" | **/pnpm-lock.yaml'
+          path: $(PNPM_CACHE_FOLDER)
+        displayName: 'Cache pnpm'
 
-        # Install Linux dependencies for Tauri (WebView)
-        - script: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              libwebkit2gtk-4.1-dev \
-              libappindicator3-dev \
-              librsvg2-dev \
-              patchelf
-          displayName: 'Install Linux dependencies'
-          condition: eq(variables['Agent.OS'], 'Linux')
+      - task: Cache@2
+        inputs:
+          key: 'cargo-reg | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          path: $(CARGO_HOME)
+        displayName: 'Cache Cargo'
 
-        # Install frontend dependencies
-        - script: pnpm install
-          displayName: 'Install frontend dependencies'
+      # Cache Rust build outputs (similar to what GitHub Actions often achieves via action-level caching).
+      # This is typically the biggest win for Windows builds.
+      - task: Cache@2
+        inputs:
+          key: 'cargo-target | "$(Agent.OS)" | src-tauri/Cargo.lock'
+          restoreKeys: |
+            cargo-target | "$(Agent.OS)"
+          path: $(Build.SourcesDirectory)/src-tauri/target
+        displayName: 'Cache Cargo target/'
 
-        # Build Tauri app in debug mode (validation only)
-        - script: cargo tauri build --debug $(tauriArgs.${{ platform }})
-          displayName: 'Build Tauri app (debug)'
+      - task: UseNode@1
+        inputs:
+          version: '24.x'
+
+      # 3. 依赖安装（包含 tauri CLI）
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+          corepack enable
+          corepack prepare pnpm@10.28.1 --activate
+          pnpm config set store-dir "$(PNPM_CACHE_FOLDER)"
+          pnpm config set prefer-offline true
+          # Warm the pnpm store from the lockfile, then install.
+          pnpm fetch --frozen-lockfile
+          pnpm install --frozen-lockfile --offline
+          if ($LASTEXITCODE -ne 0) {
+            # First run (cold cache) may not have everything in the store yet.
+            pnpm install --frozen-lockfile
+          }
+          pnpm exec tauri --version
+        displayName: 'Install Dependencies'
+        workingDirectory: $(Build.SourcesDirectory)
+        env:
+          # pnpm/tauri cli uses platform-specific optionalDependencies (e.g. @tauri-apps/cli-win32-x64-msvc).
+          # Some CI environments set npm_config_optional=false; force it on explicitly.
+          npm_config_optional: 'true'
+          npm_config_no_optional: 'false'
+          # Ensure devDependencies are installed (where @tauri-apps/cli lives).
+          npm_config_production: 'false'
+          NODE_ENV: 'development'
+
+      - script: |
+          rustup default stable
+        displayName: 'Setup Rust'
+
+      - script: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+        displayName: 'Add macOS targets'
+        condition: eq(variables['Agent.OS'], 'Darwin')
+
+      - script: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        displayName: 'Install Linux Deps'
+        condition: eq(variables['Agent.OS'], 'Linux')
+
+      # 4. 执行构建（通过 pnpm exec 确保正确解析 tauri CLI）
+      # Build validation should compile fast; skip bundling/packaging.
+      - script: pnpm exec tauri build --debug --no-bundle $(TAURI_ARGS)
+        displayName: 'Tauri Build'
+        workingDirectory: $(Build.SourcesDirectory)
+        env:
+          npm_config_optional: 'true'
+          npm_config_no_optional: 'false'
+          npm_config_production: 'false'
+          NODE_ENV: 'development'
