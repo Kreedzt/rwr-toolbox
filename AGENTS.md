@@ -16,7 +16,7 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-02-14
 
 - Product: Desktop toolbox for Running With Rifles players/modders
 - App type: Angular + Tauri desktop application (not web/mobile-first)
-- Current app version: `0.1.0`
+- Current app version: `0.1.2`
 - UI baseline: 800x600 minimum, 3840x2160 maximum supported
 
 ## Active Technologies
