@@ -146,6 +146,18 @@ export class HotkeyService {
         );
     }
 
+    syncReadConfigToProfilesWhenEmpty(
+        title: string,
+        config: IHotkeyConfigItem[],
+    ): Observable<void> {
+        const current = this.profilesState();
+        if (current.profiles.length > 0) {
+            return from(Promise.resolve());
+        }
+
+        return this.upsertAndActivateProfile(title, config);
+    }
+
     /**
      * Write hotkey configuration to game directory
      */

@@ -53,7 +53,17 @@ export class HotkeysComponent implements OnInit {
      */
     onReadFromGame(): void {
         this.hotkeyService.readFromGame().subscribe({
-            next: () => {
+            next: (config) => {
+                const defaultProfileTitle = this.transloco.translate(
+                    'hotkeys.default_profile_title',
+                );
+                this.hotkeyService
+                    .syncReadConfigToProfilesWhenEmpty(
+                        defaultProfileTitle,
+                        config,
+                    )
+                    .subscribe();
+
                 // Preview is now automatically available via currentConfig signal
                 this.showCreateDefaultHotkeysModal = false;
             },
