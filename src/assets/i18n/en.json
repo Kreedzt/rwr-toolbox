@@ -64,7 +64,6 @@
         "footer": "Created with ❤️ for the RWR Community"
     },
     "common": {
-        "quick_search": "Quick Search:",
         "status_panel": "Status Panel",
         "system_status": "System Status",
         "api_connection": "API Connection",
@@ -96,7 +95,6 @@
         "title": "Keyboard Shortcuts",
         "navigation": "Navigation",
         "global": "Global",
-        "quick_search": "Quick Search",
         "toggle_status": "Toggle Status Panel",
         "close_modals": "Close Modals / Panels"
     },

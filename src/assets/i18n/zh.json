@@ -64,7 +64,6 @@
         "footer": "为 RWR 社区精心打造 ❤️"
     },
     "common": {
-        "quick_search": "快速搜索：",
         "status_panel": "状态面板",
         "system_status": "系统状态",
         "api_connection": "API 连接",
@@ -96,7 +95,6 @@
         "title": "键盘快捷键",
         "navigation": "导航",
         "global": "全局",
-        "quick_search": "快速搜索",
         "toggle_status": "切换状态面板",
         "close_modals": "关闭模态框 / 面板"
     },
