@@ -16,6 +16,7 @@ import { PingService } from '../../core/services/ping.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { SERVER_COLUMNS } from './server-columns';
 import { ScrollingModeService } from '../shared/services/scrolling-mode.service';
+import { buildSteamLaunchArgsText } from '../settings/services/steam-launch.constants';
 
 /**
  * Servers list component with filtering, sorting, pagination, and ping functionality
@@ -434,7 +435,16 @@ export class ServersComponent implements OnInit {
             return '';
         }
 
-        return `server_address=${server.address} server_port=${server.port}`;
+        const baseArgs = buildSteamLaunchArgsText({
+            boolParams: this.settingsService.settings().steamLaunchBoolParams,
+            keyValueParams:
+                this.settingsService.settings().steamLaunchKeyValueParams,
+            customTokens:
+                this.settingsService.settings().steamLaunchCustomTokens,
+        });
+        const joinArgs = `server_address=${server.address} server_port=${server.port}`;
+
+        return [baseArgs, joinArgs].filter(Boolean).join(' ');
     }
 
     private min(a: number, b: number): number {
