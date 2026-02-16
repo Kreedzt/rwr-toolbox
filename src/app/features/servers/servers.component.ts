@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { invoke } from '@tauri-apps/api/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
@@ -50,6 +51,8 @@ export class ServersComponent implements OnInit {
         currentPage: 1,
         pageSize: 100,
     });
+    joinLaunchingServerId = signal<string | null>(null);
+    joinErrorKey = signal<string | null>(null);
 
     // Column configuration
     columns = SERVER_COLUMNS;
@@ -224,6 +227,39 @@ export class ServersComponent implements OnInit {
         this.loadData();
     }
 
+    async onJoinServer(server: Server): Promise<void> {
+        const argsText = this.buildJoinArgs(server);
+        if (!argsText) {
+            this.joinErrorKey.set('settings.steamLaunch.errors.launchFailed');
+            return;
+        }
+
+        this.joinErrorKey.set(null);
+        this.joinLaunchingServerId.set(server.id);
+
+        try {
+            await invoke('steam_launch_rwr', { argsText });
+        } catch (error) {
+            const code = typeof error === 'string' ? error : 'unknown';
+            if (code === 'steam_unavailable') {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.steamUnavailable',
+                );
+            } else if (code === 'game_unavailable') {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.gameUnavailable',
+                );
+            } else {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.launchFailed',
+                );
+            }
+            console.error('Failed to launch server join URL:', error);
+        } finally {
+            this.joinLaunchingServerId.set(null);
+        }
+    }
+
     /**
      * Check if a column is visible
      */
@@ -391,6 +427,14 @@ export class ServersComponent implements OnInit {
         const start = (currentPage - 1) * pageSize + 1;
         const end = this.min(currentPage * pageSize, totalItems);
         return { start, end };
+    }
+
+    private buildJoinArgs(server: Server): string {
+        if (!server.address || !server.port) {
+            return '';
+        }
+
+        return `server_address=${server.address} server_port=${server.port}`;
     }
 
     private min(a: number, b: number): number {
