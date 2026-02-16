@@ -162,12 +162,14 @@ export class ServerService {
             const mapNameFromId = mapId.split('/').pop() || '';
             const mapName =
                 (server.map_name?.toString() || '').trim() || mapNameFromId;
+            const address = server.address?.toString() || '';
+            const port = Number(server.port) || 0;
 
             const parsedServer: Server = {
-                id: `${server.address || ''}:${server.port || 0}`,
+                id: `${address}:${port}`,
                 name: server.name?.toString() || '',
-                address: server.address?.toString() || '',
-                port: Number(server.port) || 0,
+                address,
+                port,
                 country: server.country?.toString() || '',
                 mapId,
                 map: mapName,

@@ -10,19 +10,24 @@ const ERR_STEAM_UNAVAILABLE: &str = "steam_unavailable";
 const ERR_GAME_UNAVAILABLE: &str = "game_unavailable";
 const ERR_LAUNCH_FAILED: &str = "launch_failed";
 
-fn percent_encode(input: &str) -> String {
-    // Minimal percent-encoding for URL component.
-    // Allowed: ALPHA / DIGIT / "-" / "." / "_" / "~"
+fn encode_launch_args(input: &str) -> String {
     let mut out = String::with_capacity(input.len());
-    for b in input.as_bytes() {
-        match *b {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
-                out.push(*b as char)
-            }
-            b' ' => out.push_str("%20"),
-            _ => out.push_str(&format!("%{:02X}", b)),
+
+    for b in input.bytes() {
+        let keep_raw = b.is_ascii_alphanumeric()
+            || matches!(
+                b,
+                b'-' | b'.' | b'_' | b'~' | b'=' | b':' | b'+' | b'/' | b','
+            );
+
+        if keep_raw {
+            out.push(char::from(b));
+        } else {
+            out.push('%');
+            out.push_str(&format!("{:02X}", b));
         }
     }
+
     out
 }
 
@@ -148,12 +153,15 @@ pub async fn steam_launch_rwr(app: tauri::AppHandle, args_text: String) -> Resul
     // Q4: fail fast when game is clearly unavailable (not installed).
     steam_check_rwr_available().await?;
 
-    let encoded_args = percent_encode(args_text.trim());
-    let url = if encoded_args.is_empty() {
+    let launch_args = args_text.trim();
+    let url = if launch_args.is_empty() {
         format!("steam://run/{}/", RWR_APP_ID)
     } else {
-        // Steam convention: steam://run/<appid>//<args>
-        format!("steam://run/{}/{}{}", RWR_APP_ID, "//", encoded_args)
+        format!(
+            "steam://run/{appid}//{args}",
+            appid = RWR_APP_ID,
+            args = encode_launch_args(launch_args)
+        )
     };
 
     app.opener().open_url(url, None::<String>).map_err(|e| {

@@ -83,6 +83,13 @@
         </div>
     }
 
+    @if (joinErrorKey()) {
+        <div class="alert alert-error mb-4 py-2 text-sm">
+            <i-lucide name="alert-circle" class="h-4 w-4"></i-lucide>
+            <span>{{ t(joinErrorKey()!) }}</span>
+        </div>
+    }
+
     <!-- Filters (Compact) -->
     <div class="card bg-base-200 mb-4 shadow-sm">
         <div class="card-body p-3 sm:p-4">
@@ -474,15 +481,20 @@
                                                 </span>
                                             }
                                             @case ('steamLink') {
-                                                <a
-                                                    [href]="server.steamLink"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                <button
+                                                    type="button"
                                                     class="link link-primary text-[10px] truncate max-w-[220px] inline-block"
-                                                    [title]="server.steamLink"
+                                                    [title]="t('servers.join')"
+                                                    [disabled]="
+                                                        joinLaunchingServerId() ===
+                                                        server.id
+                                                    "
+                                                    (click)="
+                                                        onJoinServer(server)
+                                                    "
                                                 >
                                                     {{ t('servers.join') }}
-                                                </a>
+                                                </button>
                                             }
                                             @case ('version') {
                                                 <span
@@ -531,21 +543,31 @@
                                 [class.bg-base-100]="i % 2 === 0"
                                 [class.bg-base-200]="i % 2 === 1"
                             >
-                                <a
-                                    [href]="server.steamLink"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <button
+                                    type="button"
                                     class="btn btn-primary btn-xs px-2"
                                     [title]="t('servers.join')"
+                                    [disabled]="
+                                        joinLaunchingServerId() === server.id
+                                    "
+                                    (click)="onJoinServer(server)"
                                 >
-                                    <i-lucide
-                                        name="external-link"
-                                        class="h-3 w-3"
-                                    ></i-lucide>
+                                    @if (
+                                        joinLaunchingServerId() === server.id
+                                    ) {
+                                        <span
+                                            class="loading loading-spinner loading-xs"
+                                        ></span>
+                                    } @else {
+                                        <i-lucide
+                                            name="external-link"
+                                            class="h-3 w-3"
+                                        ></i-lucide>
+                                    }
                                     <span class="hidden xs:inline">{{
                                         t('servers.join')
                                     }}</span>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     }

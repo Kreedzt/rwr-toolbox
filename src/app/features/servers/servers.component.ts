@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { invoke } from '@tauri-apps/api/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
@@ -15,6 +16,7 @@ import { PingService } from '../../core/services/ping.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { SERVER_COLUMNS } from './server-columns';
 import { ScrollingModeService } from '../shared/services/scrolling-mode.service';
+import { buildSteamLaunchArgsText } from '../settings/services/steam-launch.constants';
 
 /**
  * Servers list component with filtering, sorting, pagination, and ping functionality
@@ -50,6 +52,8 @@ export class ServersComponent implements OnInit {
         currentPage: 1,
         pageSize: 100,
     });
+    joinLaunchingServerId = signal<string | null>(null);
+    joinErrorKey = signal<string | null>(null);
 
     // Column configuration
     columns = SERVER_COLUMNS;
@@ -224,6 +228,39 @@ export class ServersComponent implements OnInit {
         this.loadData();
     }
 
+    async onJoinServer(server: Server): Promise<void> {
+        const argsText = this.buildJoinArgs(server);
+        if (!argsText) {
+            this.joinErrorKey.set('settings.steamLaunch.errors.launchFailed');
+            return;
+        }
+
+        this.joinErrorKey.set(null);
+        this.joinLaunchingServerId.set(server.id);
+
+        try {
+            await invoke('steam_launch_rwr', { argsText });
+        } catch (error) {
+            const code = typeof error === 'string' ? error : 'unknown';
+            if (code === 'steam_unavailable') {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.steamUnavailable',
+                );
+            } else if (code === 'game_unavailable') {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.gameUnavailable',
+                );
+            } else {
+                this.joinErrorKey.set(
+                    'settings.steamLaunch.errors.launchFailed',
+                );
+            }
+            console.error('Failed to launch server join URL:', error);
+        } finally {
+            this.joinLaunchingServerId.set(null);
+        }
+    }
+
     /**
      * Check if a column is visible
      */
@@ -391,6 +428,23 @@ export class ServersComponent implements OnInit {
         const start = (currentPage - 1) * pageSize + 1;
         const end = this.min(currentPage * pageSize, totalItems);
         return { start, end };
+    }
+
+    private buildJoinArgs(server: Server): string {
+        if (!server.address || !server.port) {
+            return '';
+        }
+
+        const baseArgs = buildSteamLaunchArgsText({
+            boolParams: this.settingsService.settings().steamLaunchBoolParams,
+            keyValueParams:
+                this.settingsService.settings().steamLaunchKeyValueParams,
+            customTokens:
+                this.settingsService.settings().steamLaunchCustomTokens,
+        });
+        const joinArgs = `server_address=${server.address} server_port=${server.port}`;
+
+        return [baseArgs, joinArgs].filter(Boolean).join(' ');
     }
 
     private min(a: number, b: number): number {
