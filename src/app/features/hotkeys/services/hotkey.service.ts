@@ -27,6 +27,18 @@ import {
 })
 export class HotkeyService {
     private settingsService = inject(SettingsService);
+    private readonly defaultHotkeysConfig: IHotkeyConfigItem[] = [
+        { label: 'Hotkey 1', value: 'enter here text for Hotkey 1' },
+        { label: 'Hotkey 2', value: 'enter here text for Hotkey 2' },
+        { label: 'Hotkey 3', value: 'enter here text for Hotkey 3' },
+        { label: 'Hotkey 4', value: 'enter here text for Hotkey 4' },
+        { label: 'Hotkey 5', value: 'enter here text for Hotkey 5' },
+        { label: 'Hotkey 6', value: 'enter here text for Hotkey 6' },
+        { label: 'Hotkey 7', value: 'enter here text for Hotkey 7' },
+        { label: 'Hotkey 8', value: 'enter here text for Hotkey 8' },
+        { label: 'Hotkey 9', value: 'enter here text for Hotkey 9' },
+        { label: 'Hotkey 10', value: 'enter here text for Hotkey 10' },
+    ];
 
     // State management with signals (Principle IX: Signal管状态)
     private loadingState = signal<boolean>(false);
@@ -113,13 +125,18 @@ export class HotkeyService {
                 this.currentConfigState.set(config);
             }),
             catchError((error) => {
-                this.errorState.set(`Failed to read hotkeys: ${error}`);
-                return throwError(() => error);
+                const errorKey = this.mapReadErrorToKey(error);
+                this.errorState.set(errorKey);
+                return throwError(() => errorKey);
             }),
             finalize(() => {
                 this.loadingState.set(false);
             }),
         );
+    }
+
+    createDefaultHotkeys(): Observable<void> {
+        return this.writeToGame([...this.defaultHotkeysConfig]);
     }
 
     /**
@@ -383,6 +400,29 @@ export class HotkeyService {
      */
     clearError(): void {
         this.errorState.set(null);
+    }
+
+    private mapReadErrorToKey(error: unknown): string {
+        const message =
+            typeof error === 'string'
+                ? error
+                : error instanceof Error
+                  ? error.message
+                  : String(error);
+
+        if (message.startsWith('hotkeys.')) {
+            return message;
+        }
+
+        if (message.includes('hotkeys.xml not found')) {
+            return 'hotkeys.hotkeys_file_missing';
+        }
+
+        if (message.includes('Failed to parse XML')) {
+            return 'hotkeys.read_parse_failed';
+        }
+
+        return 'hotkeys.read_failed';
     }
 
     /**

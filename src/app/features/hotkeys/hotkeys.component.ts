@@ -33,6 +33,7 @@ export class HotkeysComponent implements OnInit {
     showDeleteConfirm = false;
     profileToDelete: string | null = null;
     showImportFromClipboardModal = false;
+    showCreateDefaultHotkeysModal = false;
     clipboardImportError: string | null = null;
     clipboardImportSuccess = false;
     showShareSuccessModal = false;
@@ -54,8 +55,35 @@ export class HotkeysComponent implements OnInit {
         this.hotkeyService.readFromGame().subscribe({
             next: () => {
                 // Preview is now automatically available via currentConfig signal
+                this.showCreateDefaultHotkeysModal = false;
             },
-            error: (err) => console.error('Failed to read:', err),
+            error: (err) => {
+                const message =
+                    typeof err === 'string'
+                        ? err
+                        : err instanceof Error
+                          ? err.message
+                          : String(err);
+
+                if (
+                    message === 'hotkeys.hotkeys_file_missing' ||
+                    message.includes('hotkeys.xml not found')
+                ) {
+                    this.showCreateDefaultHotkeysModal = true;
+                }
+                console.error('Failed to read:', err);
+            },
+        });
+    }
+
+    onCreateDefaultHotkeys(): void {
+        this.hotkeyService.createDefaultHotkeys().subscribe({
+            next: () => {
+                this.showCreateDefaultHotkeysModal = false;
+                this.onReadFromGame();
+            },
+            error: (err) =>
+                console.error('Failed to create default hotkeys:', err),
         });
     }
 

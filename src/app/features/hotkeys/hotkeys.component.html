@@ -423,6 +423,42 @@
         </div>
     }
 
+    @if (showCreateDefaultHotkeysModal) {
+        <div class="modal modal-open">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">
+                    {{ t('hotkeys.hotkeys_file_missing_title') }}
+                </h3>
+                <p class="py-4 text-sm">
+                    {{ t('hotkeys.hotkeys_file_missing_desc') }}
+                </p>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-ghost"
+                        [disabled]="loading()"
+                        (click)="showCreateDefaultHotkeysModal = false"
+                    >
+                        {{ t('hotkeys.cancel') }}
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        [disabled]="loading()"
+                        (click)="onCreateDefaultHotkeys()"
+                    >
+                        @if (loading()) {
+                            <span class="loading loading-spinner"></span>
+                        }
+                        {{ t('hotkeys.create_default_hotkeys') }}
+                    </button>
+                </div>
+            </div>
+            <div
+                class="modal-backdrop"
+                (click)="showCreateDefaultHotkeysModal = false"
+            ></div>
+        </div>
+    }
+
     <!-- Delete Confirm Modal -->
     @if (showDeleteConfirm) {
         <div class="modal modal-open">
