@@ -7,6 +7,7 @@ import { ModService } from '../services/mod.service';
 import {
     ModReadInfo,
     ModInstallOptions,
+    ModFileEntry,
 } from '../../../shared/models/mod.models';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
@@ -36,6 +37,7 @@ export class InstallComponent implements OnInit {
     installOptions: ModInstallOptions = {
         backup: true,
         overwrite: false,
+        selectedFiles: [],
     };
 
     showFileList = false;
@@ -50,6 +52,7 @@ export class InstallComponent implements OnInit {
                 next: (info) => {
                     this.modInfo = info;
                     this.selectedFilePath = pendingPath;
+                    this.initFileSelection();
                     this.activeStep = 1;
                 },
                 error: (err) => {
@@ -64,11 +67,74 @@ export class InstallComponent implements OnInit {
         }
     }
 
+    /**
+     * Initialize file selection after reading mod info.
+     * Default: select all non-txt files.
+     */
+    initFileSelection(): void {
+        if (!this.modInfo) return;
+        this.installOptions.selectedFiles = this.modInfo.file_entries
+            .filter((entry) => !entry.path.toLowerCase().endsWith('.txt'))
+            .map((entry) => entry.path);
+    }
+
+    /** Toggle selection of a single file */
+    toggleFileSelection(path: string): void {
+        const idx = this.installOptions.selectedFiles.indexOf(path);
+        if (idx >= 0) {
+            this.installOptions.selectedFiles.splice(idx, 1);
+        } else {
+            this.installOptions.selectedFiles.push(path);
+        }
+    }
+
+    /** Check if a file is selected */
+    isFileSelected(path: string): boolean {
+        return this.installOptions.selectedFiles.includes(path);
+    }
+
+    /** Select all files */
+    selectAllFiles(): void {
+        if (!this.modInfo) return;
+        this.installOptions.selectedFiles = this.modInfo.file_entries.map(
+            (entry) => entry.path,
+        );
+    }
+
+    /** Invert selection */
+    invertSelection(): void {
+        if (!this.modInfo) return;
+        const allPaths = new Set(this.modInfo.file_entries.map((e) => e.path));
+        const selected = new Set(this.installOptions.selectedFiles);
+        this.installOptions.selectedFiles = this.modInfo.file_entries
+            .filter((e) => !selected.has(e.path))
+            .map((e) => e.path);
+    }
+
+    /** Calculate total size of selected files */
+    get selectedSize(): number {
+        if (!this.modInfo) return 0;
+        const selected = new Set(this.installOptions.selectedFiles);
+        return this.modInfo.file_entries
+            .filter((e) => selected.has(e.path))
+            .reduce((sum, e) => sum + e.size, 0);
+    }
+
+    /** Format bytes to human-readable string */
+    formatBytes(bytes: number): string {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
     onSelectFile(): void {
         this.modService.selectAndReadModFile().subscribe({
             next: (result) => {
                 this.modInfo = result.info;
                 this.selectedFilePath = result.path;
+                this.initFileSelection();
                 this.activeStep = 1;
             },
             error: (err) => {
@@ -85,6 +151,11 @@ export class InstallComponent implements OnInit {
         const targetPath = this.modService.getTargetPath();
         if (!targetPath) {
             alert('Game path not configured. Please set it in Settings first.');
+            return;
+        }
+
+        if (this.installOptions.selectedFiles.length === 0) {
+            alert('Please select at least one file to install.');
             return;
         }
 
@@ -115,7 +186,9 @@ export class InstallComponent implements OnInit {
         this.modService
             .makeBackup(
                 this.selectedFilePath,
-                this.modInfo.file_path_list,
+                this.installOptions.selectedFiles.length > 0
+                    ? this.installOptions.selectedFiles
+                    : this.modInfo.file_path_list,
                 targetPath,
             )
             .subscribe({
@@ -167,6 +240,11 @@ export class InstallComponent implements OnInit {
         this.activeStep = 0;
         this.selectedFilePath = null;
         this.modInfo = null;
+        this.installOptions = {
+            backup: true,
+            overwrite: false,
+            selectedFiles: [],
+        };
         this.showFileList = false;
         this.showReadme = false;
         this.showChangelog = false;

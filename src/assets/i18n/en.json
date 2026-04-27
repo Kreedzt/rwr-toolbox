@@ -341,7 +341,12 @@
             "backup_section": "Backup & Recovery",
             "backup": "Backup",
             "recover": "Recover Backup",
-            "backup_note": "Only one backup is retained. Second backup will overwrite the first."
+            "backup_note": "Only one backup is retained. Second backup will overwrite the first.",
+            "selectedFiles": "Selected Files",
+            "files": "files",
+            "estimatedSize": "Estimated Size",
+            "selectAll": "Select All",
+            "invertSelection": "Invert"
         },
         "bundle": {
             "title": "Bundle Local Mods",

@@ -341,7 +341,12 @@
             "backup_section": "备份与恢复",
             "backup": "备份",
             "recover": "恢复备份",
-            "backup_note": "仅保留一份备份。二次备份会覆盖第一次备份。"
+            "backup_note": "仅保留一份备份。二次备份会覆盖第一次备份。",
+            "selectedFiles": "已选文件",
+            "files": "个文件",
+            "estimatedSize": "预计大小",
+            "selectAll": "全选",
+            "invertSelection": "反选"
         },
         "bundle": {
             "title": "打包本地模组",

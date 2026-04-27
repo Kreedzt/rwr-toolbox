@@ -1,4 +1,14 @@
 /**
+ * Mod 文件条目（包含路径和大小，用于选择性安装）
+ */
+export interface ModFileEntry {
+    /** 文件在 zip 中的路径 */
+    path: string;
+    /** 文件大小（字节） */
+    size: number;
+}
+
+/**
  * Mod 读取信息（从 RWRMI ZIP 中解析）
  * 对应 Rust 端 OutputConfig 结构
  */
@@ -17,6 +27,8 @@ export interface ModReadInfo {
     file_log_info: string[];
     /** 文件路径列表（用于备份） */
     file_path_list: string[];
+    /** 文件条目列表（用于选择性安装） */
+    file_entries: ModFileEntry[];
     /** README.md 内容（Markdown 格式） */
     readme_content: string;
     /** CHANGELOG.md 内容（Markdown 格式） */
@@ -31,6 +43,8 @@ export interface ModInstallOptions {
     backup: boolean;
     /** 覆盖已存在的文件 */
     overwrite: boolean;
+    /** 用户选中的要安装的文件路径列表 */
+    selectedFiles: string[];
 }
 
 /**

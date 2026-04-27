@@ -92,6 +92,10 @@ export class ModService {
                 invoke('install_mod', {
                     path: filePath,
                     targetPath,
+                    selectedFiles:
+                        options.selectedFiles.length > 0
+                            ? options.selectedFiles
+                            : null,
                 }),
             ).pipe(map(() => undefined));
         };
