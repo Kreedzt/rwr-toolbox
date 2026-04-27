@@ -76,3 +76,23 @@ export interface ModInstallHistory {
     /** 错误信息 */
     error?: string;
 }
+
+/**
+ * Mod 归档条目（assets 列表展示）
+ */
+export interface ModArchiveEntry {
+    /** 唯一标识 */
+    id: string;
+    /** 归档文件绝对路径 */
+    filePath: string;
+    /** 原始文件名 */
+    fileName: string;
+    /** 归档时间戳 */
+    archivedAt: number;
+    /** 缓存的元数据 */
+    title?: string;
+    description?: string;
+    version?: string;
+    gameVersion?: string;
+    authors?: string[];
+}
