@@ -22,23 +22,49 @@
                     {{ t('about_page.footer') }}
                 </p>
                 <div
-                    class="card bg-base-100 shadow-md border border-base-300 mt-6"
+                    class="card bg-base-100 shadow-md border border-base-300 mt-6 w-full"
                 >
-                    <div class="card-body">
+                    <div class="card-body items-start text-left">
                         <h2
                             class="card-title text-sm uppercase opacity-50 mb-2"
                         >
                             {{ t('about_page.versionHistoryTitle') }}
                         </h2>
                         <div
-                            class="changelog-container text-sm leading-relaxed max-h-96 overflow-y-auto pr-2 custom-scrollbar"
+                            class="changelog-container w-full text-sm leading-relaxed max-h-96 overflow-y-auto pr-2 custom-scrollbar"
                         >
                             @if (changelogLoadFailed()) {
                                 <p class="opacity-50">
                                     {{ t('about_page.changelogUnavailable') }}
                                 </p>
                             } @else {
-                                <div [innerHTML]="changelogHtml()"></div>
+                                <div class="flex flex-col gap-4">
+                                    @for (
+                                        entry of changelogEntries();
+                                        track entry.version
+                                    ) {
+                                        <div
+                                            class="rounded-lg border border-base-300 bg-base-200/40 p-3"
+                                        >
+                                            <div
+                                                class="flex items-center gap-2 mb-2"
+                                            >
+                                                <span
+                                                    class="badge badge-primary badge-sm font-semibold"
+                                                >
+                                                    v{{ entry.version }}
+                                                </span>
+                                                <span class="text-xs opacity-50">
+                                                    {{ entry.date }}
+                                                </span>
+                                            </div>
+                                            <div
+                                                class="changelog-body"
+                                                [innerHTML]="entry.bodyHtml"
+                                            ></div>
+                                        </div>
+                                    }
+                                </div>
                             }
                         </div>
                     </div>

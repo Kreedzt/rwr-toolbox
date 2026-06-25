@@ -9,6 +9,7 @@ import {
     StanceAccuracy,
 } from '../../../../shared/models/weapons.models';
 import { SortState } from '../../../../shared/models/sort.models';
+import { GameTranslationService } from '../../../../shared/services/game-translation.service';
 
 import { yieldToMain } from '../../../../core/utils/performance.utils';
 
@@ -20,6 +21,7 @@ import { yieldToMain } from '../../../../core/utils/performance.utils';
 @Injectable({ providedIn: 'root' })
 export class WeaponService implements OnDestroy {
     private transloco = inject(TranslocoService);
+    private translationService = inject(GameTranslationService);
     private worker: Worker | null = null;
     private currentRequestId: string | null = null;
 
@@ -128,6 +130,9 @@ export class WeaponService implements OnDestroy {
         const weapons = this.weapons();
         const term = this.searchTerm();
         const filters = this.advancedFilters();
+        // Read the localized-name map so filtering re-runs when translations
+        // load or the UI language changes.
+        this.translationService.translations();
 
         return weapons.filter(
             (w) =>
@@ -172,6 +177,10 @@ export class WeaponService implements OnDestroy {
             this.weapons.set([]);
             this.weaponBuffer = [];
         }
+
+        // Load the localized-name map for the current language so weapons can
+        // be searched by their translated names (fire-and-forget, non-blocking).
+        void this.translationService.load(gamePath, directory);
 
         this.currentRequestId = crypto.randomUUID();
         const onEvent = new Channel<any>();
@@ -435,10 +444,12 @@ export class WeaponService implements OnDestroy {
     private matchesSearch(weapon: Weapon, term: string): boolean {
         if (!term) return true;
         const lowerTerm = term.toLowerCase();
+        const localizedName = this.translationService.translate(weapon.name);
         return (
             weapon.name.toLowerCase().includes(lowerTerm) ||
             (weapon.key?.toLowerCase().includes(lowerTerm) ?? false) ||
-            (weapon.tag?.toLowerCase().includes(lowerTerm) ?? false)
+            (weapon.tag?.toLowerCase().includes(lowerTerm) ?? false) ||
+            (localizedName?.toLowerCase().includes(lowerTerm) ?? false)
         );
     }
 

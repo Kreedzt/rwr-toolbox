@@ -23,6 +23,7 @@ import { Weapon, AdvancedFilters } from '../../../shared/models/weapons.models';
 import { yieldToMain } from '../../../core/utils/performance.utils';
 import { WEAPON_COLUMNS } from './weapon-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
+import { GameTranslationService } from '../../../shared/services/game-translation.service';
 import type { PaginationState } from '../../../shared/models/common.models';
 import {
     animate,
@@ -88,6 +89,7 @@ export class WeaponsComponent implements AfterViewInit {
     private directoryService = inject(DirectoryService);
     private transloco = inject(TranslocoService);
     private scrollingModeService = inject(ScrollingModeService);
+    private translationService = inject(GameTranslationService);
     private destroyRef = inject(DestroyRef);
 
     @ViewChild('weaponsViewport')
@@ -914,5 +916,15 @@ export class WeaponsComponent implements AfterViewInit {
 
         result += this.escapeHtml(raw.slice(lastIndex));
         return result || this.escapeHtml(raw);
+    }
+
+    /**
+     * Localized (translated) name for an English in-game name, or null when
+     * there is no translation or it equals the original name.
+     */
+    localizedName(name: string | null | undefined): string | null {
+        if (!name) return null;
+        const localized = this.translationService.translate(name);
+        return localized && localized !== name ? localized : null;
     }
 }

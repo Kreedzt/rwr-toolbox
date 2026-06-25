@@ -9,6 +9,7 @@ import {
 } from '../../../../shared/models/items.models';
 import { ColumnVisibility } from '../../../../shared/models/column.models';
 import { SortState } from '../../../../shared/models/sort.models';
+import { GameTranslationService } from '../../../../shared/services/game-translation.service';
 
 import { yieldToMain } from '../../../../core/utils/performance.utils';
 
@@ -33,6 +34,7 @@ export interface ItemFilters {
 @Injectable({ providedIn: 'root' })
 export class ItemService implements OnDestroy {
     private transloco = inject(TranslocoService);
+    private translationService = inject(GameTranslationService);
     private worker: Worker | null = null;
     private currentRequestId: string | null = null;
 
@@ -139,6 +141,9 @@ export class ItemService implements OnDestroy {
         const items = this.items();
         const term = this.searchTerm();
         const filters = this.filters();
+        // Read the localized-name map so filtering re-runs when translations
+        // load or the UI language changes.
+        this.translationService.translations();
 
         return items.filter(
             (i) =>
@@ -181,6 +186,10 @@ export class ItemService implements OnDestroy {
             this.items.set([]);
             this.itemBuffer = [];
         }
+
+        // Load the localized-name map for the current language so items can
+        // be searched by their translated names (fire-and-forget, non-blocking).
+        void this.translationService.load(gamePath, directory);
 
         this.currentRequestId = crypto.randomUUID();
         const onEvent = new Channel<any>();
@@ -437,11 +446,13 @@ export class ItemService implements OnDestroy {
     private matchesSearch(item: GenericItem, term: string): boolean {
         if (!term) return true;
         const lowerTerm = term.toLowerCase();
+        const localizedName = this.translationService.translate(item.name);
         return (
             item.name.toLowerCase().includes(lowerTerm) ||
             item.key?.toLowerCase().includes(lowerTerm) ||
             item.itemType.toLowerCase().includes(lowerTerm) ||
-            item.packageName.toLowerCase().includes(lowerTerm)
+            item.packageName.toLowerCase().includes(lowerTerm) ||
+            (localizedName?.toLowerCase().includes(lowerTerm) ?? false)
         );
     }
 

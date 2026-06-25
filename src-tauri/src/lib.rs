@@ -2,6 +2,7 @@ mod directories;
 mod events;
 mod hotkeys;
 mod items;
+mod localization;
 mod ping;
 mod rwrmi;
 mod steam_launch;
@@ -304,6 +305,7 @@ pub fn run() {
             items::scan_items_collect,
             items::get_item_texture_path,
             items::get_item_icon_base64,
+            localization::get_game_translations,
             directories::validate_directory,
             directories::validate_game_install_directory,
             steam_launch::steam_check_rwr_available,
