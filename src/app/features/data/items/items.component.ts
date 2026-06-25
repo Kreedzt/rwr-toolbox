@@ -25,6 +25,7 @@ import {
 } from '../../../shared/models/items.models';
 import { ITEM_COLUMNS } from './item-columns';
 import { ScrollingModeService } from '../../shared/services/scrolling-mode.service';
+import { GameTranslationService } from '../../../shared/services/game-translation.service';
 import type { PaginationState } from '../../../shared/models/common.models';
 import {
     animate,
@@ -93,6 +94,7 @@ export class ItemsComponent implements AfterViewInit {
     private directoryService = inject(DirectoryService);
     private transloco = inject(TranslocoService);
     private scrollingModeService = inject(ScrollingModeService);
+    private translationService = inject(GameTranslationService);
     private destroyRef = inject(DestroyRef);
 
     @ViewChild('itemsViewport')
@@ -1042,5 +1044,15 @@ export class ItemsComponent implements AfterViewInit {
 
         result += this.escapeHtml(raw.slice(lastIndex));
         return result || this.escapeHtml(raw);
+    }
+
+    /**
+     * Localized (translated) name for an English in-game name, or null when
+     * there is no translation or it equals the original name.
+     */
+    localizedName(name: string | null | undefined): string | null {
+        if (!name) return null;
+        const localized = this.translationService.translate(name);
+        return localized && localized !== name ? localized : null;
     }
 }

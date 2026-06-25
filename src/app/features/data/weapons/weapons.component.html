@@ -601,6 +601,12 @@
                                     class="font-medium text-sm"
                                     [innerHTML]="highlight(weapon.name)"
                                 ></span>
+                                @if (localizedName(weapon.name); as localized) {
+                                    <span
+                                        class="block text-xs opacity-60"
+                                        [innerHTML]="highlight(localized)"
+                                    ></span>
+                                }
                             } @else if (col.field === 'tag') {
                                 <span
                                     class="badge badge-ghost badge-sm font-mono text-[10px] opacity-70"
