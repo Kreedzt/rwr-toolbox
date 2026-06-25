@@ -1,13 +1,4 @@
-.changelog-container :host ::ng-deep h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    border-bottom: 1px solid oklch(var(--b3));
-    padding-bottom: 0.25rem;
-}
-
-.changelog-container :host ::ng-deep h3 {
+:host ::ng-deep .changelog-body h3 {
     font-size: 0.9rem;
     font-weight: 600;
     margin-top: 1rem;
@@ -15,21 +6,34 @@
     color: oklch(var(--p));
 }
 
-.changelog-container :host ::ng-deep ul {
+:host ::ng-deep .changelog-body h3:first-child {
+    margin-top: 0;
+}
+
+:host ::ng-deep .changelog-body ul {
     list-style-type: disc;
     margin-left: 1.5rem;
     margin-bottom: 1rem;
 }
 
-.changelog-container :host ::ng-deep li {
+:host ::ng-deep .changelog-body ul ul {
+    list-style-type: circle;
     margin-bottom: 0.25rem;
 }
 
-.changelog-container :host ::ng-deep a {
+:host ::ng-deep .changelog-body li {
+    margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep .changelog-body a {
     color: oklch(var(--p));
     text-decoration: underline;
 }
 
-.changelog-container :host ::ng-deep p {
+:host ::ng-deep .changelog-body p {
     margin-bottom: 0.75rem;
+}
+
+:host ::ng-deep .changelog-body p:last-child {
+    margin-bottom: 0;
 }

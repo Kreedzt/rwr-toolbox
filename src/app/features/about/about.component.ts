@@ -5,6 +5,12 @@ import { invoke } from '@tauri-apps/api/core';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+interface ChangelogEntry {
+    version: string;
+    date: string;
+    bodyHtml: SafeHtml;
+}
+
 @Component({
     selector: 'app-about',
     imports: [LucideAngularModule, TranslocoDirective],
@@ -14,7 +20,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class AboutComponent implements OnInit {
     private sanitizer = inject(DomSanitizer);
 
-    changelogHtml = signal<SafeHtml>('');
+    changelogEntries = signal<ChangelogEntry[]>([]);
     changelogLoadFailed = signal(false);
 
     async ngOnInit(): Promise<void> {
@@ -22,15 +28,42 @@ export class AboutComponent implements OnInit {
 
         try {
             const content = await invoke<string>('get_changelog');
-            // Parse markdown to HTML
-            const html = await marked.parse(content);
-            this.changelogHtml.set(
-                this.sanitizer.bypassSecurityTrustHtml(html),
-            );
+            this.changelogEntries.set(await this.parseChangelog(content));
         } catch (error) {
             console.error('Failed to load changelog:', error);
             this.changelogLoadFailed.set(true);
-            this.changelogHtml.set(this.sanitizer.bypassSecurityTrustHtml(''));
+            this.changelogEntries.set([]);
         }
+    }
+
+    /**
+     * Split the changelog markdown by version headings (`## [version] - date`)
+     * and render each version body as standalone, sanitized HTML.
+     */
+    private async parseChangelog(markdown: string): Promise<ChangelogEntry[]> {
+        const versionRegex = /^##\s*\[([^\]]+)\]\s*-\s*(.+?)\s*$/;
+        const sections: { version: string; date: string; body: string[] }[] =
+            [];
+        let current: (typeof sections)[number] | null = null;
+
+        for (const line of markdown.split('\n')) {
+            const match = line.match(versionRegex);
+            if (match) {
+                current = { version: match[1], date: match[2], body: [] };
+                sections.push(current);
+            } else if (current) {
+                current.body.push(line);
+            }
+        }
+
+        return Promise.all(
+            sections.map(async (section) => ({
+                version: section.version,
+                date: section.date,
+                bodyHtml: this.sanitizer.bypassSecurityTrustHtml(
+                    await marked.parse(section.body.join('\n').trim()),
+                ),
+            })),
+        );
     }
 }
