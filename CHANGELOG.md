@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-06-25
+
+### Added
+
+- **Localized Name Display & Search**: Weapons and items now show their localized name (from RWR's bundled `misc_text*.xml` translation files) below the English name.
+  - New Rust `localization` module with a `get_game_translations` Tauri command that parses RWR's localization files.
+  - New frontend `GameTranslationService` exposing a reactive translation map.
+  - Weapon and item search now matches against localized names, so users can find entries by their translated names.
+
+### Changed
+
+- **About Page**: The version history is now split into per-version cards with left-aligned layout, each version shown with a version badge and date.
+
 ## [0.2.0] - 2026-04-30
 
 ### Added
