@@ -64,6 +64,8 @@ Thumbs.db
 /.vscode
 /.trae
 /.augment
+/.kilo
+/.codegraph
 
 # spec-kit runtime / cache
 .speckit/

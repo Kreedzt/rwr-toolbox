@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { invoke } from '@tauri-apps/api/core';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { VersionCheckService } from '../../core/services/version-check.service';
 
 interface ChangelogEntry {
     version: string;
@@ -19,6 +20,9 @@ interface ChangelogEntry {
 })
 export class AboutComponent implements OnInit {
     private sanitizer = inject(DomSanitizer);
+    private versionCheckService = inject(VersionCheckService);
+
+    readonly updateStatus = this.versionCheckService.updateStatus;
 
     changelogEntries = signal<ChangelogEntry[]>([]);
     changelogLoadFailed = signal(false);
@@ -33,6 +37,17 @@ export class AboutComponent implements OnInit {
             console.error('Failed to load changelog:', error);
             this.changelogLoadFailed.set(true);
             this.changelogEntries.set([]);
+        }
+    }
+
+    async onDownloadRelease(): Promise<void> {
+        const url = this.updateStatus().releaseUrl;
+        if (url) {
+            try {
+                await invoke('open_releases_url', { url });
+            } catch (error) {
+                console.error('Failed to open releases page:', error);
+            }
         }
     }
 

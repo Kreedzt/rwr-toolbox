@@ -59,6 +59,8 @@
         "title": "About RWR Toolbox",
         "description": "A powerful desktop utility for Running With Rifles players and modders. Easily scan, search, and explore game data including weapons, items, and servers.",
         "github_button": "View on GitHub",
+        "updateAvailable": "Version {{ version }} is available!",
+        "downloadRelease": "Download from GitHub Releases",
         "versionHistoryTitle": "Version History",
         "changelogUnavailable": "Changelog not available.",
         "footer": "Created with ❤️ for the RWR Community"
@@ -196,6 +198,13 @@
             "selectDirectory": "Select",
             "clearDirectory": "Clear",
             "selectDirectoryTitle": "Select Mod Archive Directory"
+        },
+        "gameLog": {
+            "title": "Game Log",
+            "description": "Open the location of rwr_game.log (Running with rifles) in your file manager",
+            "open": "Open Log Location",
+            "notFound": "Could not find the rwr_game.log location. The game may not have been launched yet.",
+            "error": "Failed to open the log location."
         }
     },
     "servers": {
