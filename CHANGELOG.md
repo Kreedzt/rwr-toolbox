@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-29
+
+### Added
+
+- **Update Notifications**: The app now alerts you when a new version is available.
+  - A red dot badge appears on the "About" menu item in the sidebar when an update is detected.
+  - The About page shows a prominent banner with a "Download from GitHub Releases" button to get the latest version.
+
+- **Game Log Access**: Quickly open the `rwr_game.log` file location from the Settings page with a single click — useful for troubleshooting or sharing logs.
+
 ## [0.2.1] - 2026-06-25
 
 ### Added
