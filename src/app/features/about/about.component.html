@@ -18,6 +18,21 @@
                     {{ t('about_page.github_button') }}
                 </a>
 
+                @if (updateStatus().isAvailable) {
+                    <div class="alert alert-info mt-4 w-full">
+                        <i-lucide name="download" class="h-5 w-5 shrink-0"></i-lucide>
+                        <div class="flex-1 text-left">
+                            <span class="text-sm font-semibold">{{
+                                t('about_page.updateAvailable', { version: updateStatus().availableVersion })
+                            }}</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm" (click)="onDownloadRelease()">
+                            {{ t('about_page.downloadRelease') }}
+                            <i-lucide name="external-link" class="h-4 w-4"></i-lucide>
+                        </button>
+                    </div>
+                }
+
                 <p class="text-sm opacity-50 mt-4">
                     {{ t('about_page.footer') }}
                 </p>

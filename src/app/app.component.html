@@ -78,6 +78,11 @@
                             <span class="flex-1 truncate">{{
                                 t(item.label || '')
                             }}</span>
+                            @if (item.label === 'menu.about' && hasUpdate()) {
+                                <span
+                                    class="badge badge-xs badge-error w-2 h-2 p-0 rounded-full"
+                                ></span>
+                            }
                             @if (item.shortcut) {
                                 <span
                                     class="text-[10px] text-base-content/40 shrink-0"

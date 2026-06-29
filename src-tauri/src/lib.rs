@@ -1,5 +1,6 @@
 mod directories;
 mod events;
+mod game_log;
 mod hotkeys;
 mod items;
 mod localization;
@@ -295,6 +296,7 @@ pub fn run() {
             hotkeys::export_profile,
             hotkeys::import_profile,
             hotkeys::open_hotkeys_in_editor,
+            game_log::reveal_rwr_game_log,
             weapons::validate_game_path,
             weapons::scan_weapons,
             weapons::scan_weapons_collect,

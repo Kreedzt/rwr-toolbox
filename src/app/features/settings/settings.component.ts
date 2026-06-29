@@ -7,6 +7,7 @@ import {
 } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { open } from '@tauri-apps/plugin-dialog';
+import { invoke } from '@tauri-apps/api/core';
 import {
     SupportedLocale,
     LOCALES,
@@ -73,6 +74,12 @@ export class SettingsComponent implements OnInit {
     /** Mod archive settings */
     readonly modArchiveEnabledSig = this.settingsService.modArchiveEnabledSig;
     readonly modArchiveDirectorySig = this.settingsService.modArchiveDirectorySig;
+
+    /** Game log */
+    private readonly gameLogErrorKey = signal<string | null>(null);
+    readonly gameLogErrorKeySig = this.gameLogErrorKey.asReadonly();
+    private readonly revealingGameLog = signal(false);
+    readonly revealingGameLogSig = this.revealingGameLog.asReadonly();
 
     /** T034: Directory management - readonly directories signal reference */
     readonly directoriesSig = this.directoryService.directoriesSig;
@@ -330,5 +337,25 @@ export class SettingsComponent implements OnInit {
 
     async onClearModArchiveDirectory(): Promise<void> {
         await this.settingsService.setModArchiveDirectory(null);
+    }
+
+    async onOpenGameLog(): Promise<void> {
+        this.revealingGameLog.set(true);
+        this.gameLogErrorKey.set(null);
+        try {
+            const res = await invoke<{ kind: string; expectedPath?: string; message?: string }>(
+                'reveal_rwr_game_log',
+            );
+            if (res.kind === 'notFound') this.gameLogErrorKey.set('settings.gameLog.notFound');
+            else if (res.kind === 'failed') {
+                console.error('[Settings] reveal rwr_game.log failed:', res.message);
+                this.gameLogErrorKey.set('settings.gameLog.error');
+            }
+        } catch (e) {
+            console.error('[Settings] reveal_rwr_game_log invoke failed:', e);
+            this.gameLogErrorKey.set('settings.gameLog.error');
+        } finally {
+            this.revealingGameLog.set(false);
+        }
     }
 }
