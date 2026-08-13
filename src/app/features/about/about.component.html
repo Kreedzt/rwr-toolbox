@@ -1,77 +1,59 @@
-<div class="p-6 max-w-2xl mx-auto" *transloco="let t">
-    <div class="card bg-base-100 shadow-xl border border-base-300">
-        <div class="card-body items-center text-center">
-            <h1 class="card-title text-3xl font-bold mb-4">
-                {{ t('about_page.title') }}
-            </h1>
-            <p class="text-lg opacity-80 mb-6">
-                {{ t('about_page.description') }}
-            </p>
+<div class="mx-auto max-w-2xl space-y-4 p-4" *transloco="let t">
+    <app-page-header
+        titleKey="about_page.title"
+        icon="info"
+        descriptionKey="about_page.description"
+    >
+        <a
+            actions
+            href="https://github.com/rwr-infra/rwr-toolbox"
+            target="_blank"
+            rel="noreferrer"
+            class="btn btn-primary btn-sm gap-2"
+        >
+            <i-lucide name="github" class="h-4 w-4"></i-lucide>
+            {{ t('about_page.github_button') }}
+        </a>
+    </app-page-header>
 
-            <div class="flex flex-col items-center gap-4 w-full">
-                <a
-                    href="https://github.com/rwr-infra/rwr-toolbox"
-                    target="_blank"
-                    class="btn btn-primary gap-2"
-                >
-                    <i-lucide name="github" class="h-5 w-5"></i-lucide>
-                    {{ t('about_page.github_button') }}
-                </a>
+    <section class="rounded-box border border-base-300 bg-base-100 p-4">
+        <app-section-title labelKey="about_page.versionHistoryTitle" />
 
-                <p class="text-sm opacity-50 mt-4">
-                    {{ t('about_page.footer') }}
+        <div
+            class="changelog-container custom-scrollbar mt-3 max-h-96 w-full overflow-y-auto pr-2 text-sm leading-relaxed"
+        >
+            @if (changelogLoadFailed()) {
+                <p class="text-base-content/50">
+                    {{ t('about_page.changelogUnavailable') }}
                 </p>
-                <div
-                    class="card bg-base-100 shadow-md border border-base-300 mt-6 w-full"
-                >
-                    <div class="card-body items-start text-left">
-                        <h2
-                            class="card-title text-sm uppercase opacity-50 mb-2"
+            } @else {
+                <div class="flex flex-col gap-4">
+                    @for (entry of changelogEntries(); track entry.version) {
+                        <article
+                            class="rounded-box border border-base-300 bg-base-200/40 p-3"
                         >
-                            {{ t('about_page.versionHistoryTitle') }}
-                        </h2>
-                        <div
-                            class="changelog-container w-full text-sm leading-relaxed max-h-96 overflow-y-auto pr-2 custom-scrollbar"
-                        >
-                            @if (changelogLoadFailed()) {
-                                <p class="opacity-50">
-                                    {{ t('about_page.changelogUnavailable') }}
-                                </p>
-                            } @else {
-                                <div class="flex flex-col gap-4">
-                                    @for (
-                                        entry of changelogEntries();
-                                        track entry.version
-                                    ) {
-                                        <div
-                                            class="rounded-lg border border-base-300 bg-base-200/40 p-3"
-                                        >
-                                            <div
-                                                class="flex items-center gap-2 mb-2"
-                                            >
-                                                <span
-                                                    class="badge badge-primary badge-sm font-semibold"
-                                                >
-                                                    v{{ entry.version }}
-                                                </span>
-                                                <span
-                                                    class="text-xs opacity-50"
-                                                >
-                                                    {{ entry.date }}
-                                                </span>
-                                            </div>
-                                            <div
-                                                class="changelog-body"
-                                                [innerHTML]="entry.bodyHtml"
-                                            ></div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
+                            <div class="mb-2 flex items-center gap-2">
+                                <span
+                                    class="badge badge-primary badge-sm font-semibold"
+                                >
+                                    v{{ entry.version }}
+                                </span>
+                                <span class="text-xs text-base-content/50">
+                                    {{ entry.date }}
+                                </span>
+                            </div>
+                            <div
+                                class="changelog-body"
+                                [innerHTML]="entry.bodyHtml"
+                            ></div>
+                        </article>
+                    }
                 </div>
-            </div>
+            }
         </div>
-    </div>
+    </section>
+
+    <p class="text-center text-sm text-base-content/50">
+        {{ t('about_page.footer') }}
+    </p>
 </div>

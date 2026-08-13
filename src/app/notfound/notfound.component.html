@@ -1,1 +1,12 @@
-<p>notfound works!</p>
+<div class="p-4">
+    <app-empty-state
+        icon="alert-circle"
+        messageKey="common.notFoundTitle"
+        descriptionKey="common.notFoundDescription"
+        size="lg"
+    >
+        <a action class="btn btn-primary btn-sm" routerLink="/dashboard">
+            {{ 'menu.dashboard' | transloco }}
+        </a>
+    </app-empty-state>
+</div>

@@ -4,3 +4,4 @@ export { LabelValueComponent } from './label-value/label-value.component';
 export { PageHeaderComponent } from './page-header/page-header.component';
 export { PaginationComponent } from './pagination/pagination.component';
 export { SectionTitleComponent } from './section-title/section-title.component';
+export { StatCardComponent } from './stat-card/stat-card.component';

@@ -4,6 +4,10 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { invoke } from '@tauri-apps/api/core';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {
+    PageHeaderComponent,
+    SectionTitleComponent,
+} from '../../shared/components';
 
 interface ChangelogEntry {
     version: string;
@@ -13,7 +17,12 @@ interface ChangelogEntry {
 
 @Component({
     selector: 'app-about',
-    imports: [LucideAngularModule, TranslocoDirective],
+    imports: [
+        LucideAngularModule,
+        TranslocoDirective,
+        PageHeaderComponent,
+        SectionTitleComponent,
+    ],
     templateUrl: './about.component.html',
     styleUrl: './about.component.css',
 })

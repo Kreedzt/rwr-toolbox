@@ -5,6 +5,12 @@ import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoDirective } from '@jsverse/transloco';
 import {
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionTitleComponent,
+    StatCardComponent,
+} from '../../shared/components';
+import {
     DashboardService,
     DashboardStats,
     Activity,
@@ -17,6 +23,10 @@ import {
         LucideAngularModule,
         RouterLink,
         TranslocoDirective,
+        EmptyStateComponent,
+        PageHeaderComponent,
+        SectionTitleComponent,
+        StatCardComponent,
     ],
     templateUrl: './dashboard.component.html',
 })
