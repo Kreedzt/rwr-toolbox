@@ -31,7 +31,7 @@
         <div class="tabs tabs-boxed">
             @for (tab of tabs; track tab.key) {
                 <a
-                    class="tab"
+                    class="tab gap-2"
                     [class.tab-active]="activeTab() === tab.key"
                     (click)="activeTab.set(tab.key)"
                 >
