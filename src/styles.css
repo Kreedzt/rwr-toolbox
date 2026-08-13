@@ -288,6 +288,18 @@
         );
     }
 
+    /* A position:sticky cell does not inherit the row background it sits in —
+       other cells scroll underneath it — so frozen columns in a zebra table
+       need to repaint the stripe themselves. Needs :nth-child plus a
+       descendant selector, which utilities cannot express. */
+    .table-sticky-zebra tbody tr td.sticky {
+        background-color: var(--color-base-100);
+    }
+
+    .table-sticky-zebra tbody tr:nth-child(2n) td.sticky {
+        background-color: var(--color-base-200);
+    }
+
     /* Query/filter toolbar. Temporary — replaced by <app-filter-toolbar>. */
     .control-area {
         display: flex;

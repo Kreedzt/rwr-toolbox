@@ -17,6 +17,13 @@ import { SettingsService } from '../../core/services/settings.service';
 import { SERVER_COLUMNS } from './server-columns';
 import { ScrollingModeService } from '../shared/services/scrolling-mode.service';
 import { buildSteamLaunchArgsText } from '../settings/services/steam-launch.constants';
+import {
+    EmptyStateComponent,
+    FilterToolbarComponent,
+    PageHeaderComponent,
+    PaginationComponent,
+} from '../../shared/components';
+import { HighlightPipe } from '../../shared/pipes/highlight.pipe';
 
 /**
  * Servers list component with filtering, sorting, pagination, and ping functionality
@@ -29,6 +36,11 @@ import { buildSteamLaunchArgsText } from '../settings/services/steam-launch.cons
         LucideAngularModule,
         TranslocoDirective,
         TranslocoPipe,
+        EmptyStateComponent,
+        FilterToolbarComponent,
+        PageHeaderComponent,
+        PaginationComponent,
+        HighlightPipe,
     ],
     templateUrl: './servers.component.html',
 })
@@ -312,46 +324,6 @@ export class ServersComponent implements OnInit {
         }
     }
 
-    private escapeRegExp(text: string): string {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    private escapeHtml(text: string): string {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    /**
-     * Highlight current search query inside text (case-insensitive).
-     * Returns HTML string; all non-markup content is escaped.
-     */
-    highlight(text: string | null | undefined): string {
-        const raw = (text ?? '').toString();
-        if (!raw) return '-';
-
-        const query = (this.filter().search ?? '').trim();
-        if (!query) return this.escapeHtml(raw);
-
-        const re = new RegExp(this.escapeRegExp(query), 'gi');
-        let result = '';
-        let lastIndex = 0;
-
-        for (const match of raw.matchAll(re)) {
-            const index = match.index ?? 0;
-            const matched = match[0] ?? '';
-            result += this.escapeHtml(raw.slice(lastIndex, index));
-            result += `<span class="bg-yellow-200/70 text-base-content px-0.5 rounded-sm">${this.escapeHtml(matched)}</span>`;
-            lastIndex = index + matched.length;
-        }
-
-        result += this.escapeHtml(raw.slice(lastIndex));
-        return result || this.escapeHtml(raw);
-    }
-
     /**
      * Capacity badge classes (colored by occupancy).
      */
@@ -359,15 +331,12 @@ export class ServersComponent implements OnInit {
         const { currentPlayers, maxPlayers } = server;
         const occupancy = maxPlayers > 0 ? currentPlayers / maxPlayers : 0;
 
-        if (currentPlayers === 0)
-            return 'badge bg-gray-100 text-gray-500 border-gray-200 opacity-60';
+        if (currentPlayers === 0) return 'badge-ghost';
         if (occupancy >= 1.0 || currentPlayers >= maxPlayers)
-            return 'badge bg-red-100 text-red-700 border-red-200';
-        if (occupancy >= 0.8)
-            return 'badge bg-orange-100 text-orange-700 border-orange-200';
-        if (occupancy >= 0.6)
-            return 'badge bg-amber-100 text-amber-700 border-amber-200';
-        return 'badge bg-green-100 text-green-700 border-green-200';
+            return 'badge-soft badge-error';
+        if (occupancy >= 0.8) return 'badge-soft badge-warning';
+        if (occupancy >= 0.6) return 'badge-soft badge-secondary';
+        return 'badge-soft badge-success';
     }
 
     getCapacityTitle(server: Server): string {
@@ -380,53 +349,13 @@ export class ServersComponent implements OnInit {
     }
 
     /**
-     * Get page numbers for pagination
-     */
-    getPageNumbers(): number[] {
-        const totalPages = this.totalPages();
-        const currentPage = this.pagination().currentPage;
-        const pages: number[] = [];
-
-        if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            // Always show first page
-            pages.push(1);
-
-            if (currentPage > 3) {
-                pages.push(-1); // Ellipsis
-            }
-
-            const start = this.max(2, currentPage - 1);
-            const end = this.min(totalPages - 1, currentPage + 1);
-
-            for (let i = start; i <= end; i++) {
-                pages.push(i);
-            }
-
-            if (currentPage < totalPages - 2) {
-                pages.push(-1); // Ellipsis
-            }
-
-            // Always show last page
-            if (totalPages > 1) {
-                pages.push(totalPages);
-            }
-        }
-
-        return pages;
-    }
-
-    /**
      * Get display range for pagination stats
      */
     getDisplayRange(): { start: number; end: number } {
         const { currentPage, pageSize } = this.pagination();
         const totalItems = this.totalItems();
         const start = (currentPage - 1) * pageSize + 1;
-        const end = this.min(currentPage * pageSize, totalItems);
+        const end = Math.min(currentPage * pageSize, totalItems);
         return { start, end };
     }
 
@@ -445,13 +374,5 @@ export class ServersComponent implements OnInit {
         const joinArgs = `server_address=${server.address} server_port=${server.port}`;
 
         return [baseArgs, joinArgs].filter(Boolean).join(' ');
-    }
-
-    private min(a: number, b: number): number {
-        return a < b ? a : b;
-    }
-
-    private max(a: number, b: number): number {
-        return a > b ? a : b;
     }
 }
