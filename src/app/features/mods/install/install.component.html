@@ -1,4 +1,6 @@
-<div class="container mx-auto p-2 sm:p-4" *transloco="let t">
+<div class="space-y-4 p-4" *transloco="let t">
+    <app-page-header titleKey="mods.install.title" icon="cloud-download" />
+
     <!-- Stepper -->
     <ul class="steps w-full mb-4">
         <li class="step" [class.step-primary]="activeStep >= 0">
@@ -45,7 +47,7 @@
                         <p class="font-bold">
                             {{ t('mods.install.file_format_note') }}
                         </p>
-                        <p class="opacity-70">
+                        <p class="text-base-content/70">
                             [RWRMI][{{ '{' }}game_version{{ '}' }}]title v{{
                                 '{'
                             }}version{{ '}' }}.zip
@@ -69,7 +71,7 @@
                 </button>
 
                 <!-- Instructions -->
-                <div class="text-xs opacity-70 mt-4">
+                <div class="text-xs text-base-content/70 mt-4">
                     <ol class="list-decimal list-inside space-y-1">
                         <li>{{ t('mods.install.instruction1') }}</li>
                         <li>{{ t('mods.install.instruction2') }}</li>
@@ -174,7 +176,7 @@
 
                 <!-- Target Path Display -->
                 @if (gamePath) {
-                    <div class="text-xs opacity-70 mb-4">
+                    <div class="text-xs text-base-content/70 mb-4">
                         <span class="font-bold"
                             >{{ t('mods.install.target_path') }}:</span
                         >
@@ -184,19 +186,20 @@
 
                 <!-- Selected Files Summary -->
                 @if (modInfo) {
-                    <div class="bg-base-300/50 rounded-lg p-3 mb-4">
+                    <div class="bg-base-300/50 rounded-box p-3 mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold opacity-70">{{
-                                t('mods.install.selectedFiles')
-                            }}</span>
-                            <span class="text-xs opacity-60"
+                            <span
+                                class="text-xs font-bold text-base-content/70"
+                                >{{ t('mods.install.selectedFiles') }}</span
+                            >
+                            <span class="text-xs text-base-content/70"
                                 >{{ installOptions.selectedFiles.length }} /
                                 {{ modInfo.file_entries.length }}
                                 {{ t('mods.install.files') }}</span
                             >
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-xs opacity-60">{{
+                            <span class="text-xs text-base-content/70">{{
                                 t('mods.install.estimatedSize')
                             }}</span>
                             <span class="text-xs font-mono font-bold">{{
@@ -208,26 +211,26 @@
 
                 <!-- Install Options -->
                 <div class="space-y-2 mb-4">
-                    <div class="form-control">
+                    <div class="flex flex-col gap-1">
                         <label class="label cursor-pointer justify-start gap-3">
                             <input
                                 type="checkbox"
                                 class="checkbox checkbox-sm checkbox-primary"
                                 [(ngModel)]="installOptions.backup"
                             />
-                            <span class="label-text text-xs">{{
+                            <span class="text-xs">{{
                                 t('mods.install.backup_option')
                             }}</span>
                         </label>
                     </div>
-                    <div class="form-control">
+                    <div class="flex flex-col gap-1">
                         <label class="label cursor-pointer justify-start gap-3">
                             <input
                                 type="checkbox"
                                 class="checkbox checkbox-sm checkbox-primary"
                                 [(ngModel)]="installOptions.overwrite"
                             />
-                            <span class="label-text text-xs">{{
+                            <span class="text-xs">{{
                                 t('mods.install.overwrite_option')
                             }}</span>
                         </label>
@@ -295,7 +298,7 @@
                 </div>
 
                 <!-- Backup Note -->
-                <div class="text-xs opacity-70 mt-4">
+                <div class="text-xs text-base-content/70 mt-4">
                     {{ t('mods.install.backup_note') }}
                 </div>
             </div>
@@ -330,7 +333,9 @@
                 </div>
                 <div class="divider"></div>
                 <!-- Estimated size bar -->
-                <div class="flex justify-between text-xs opacity-70 mb-2">
+                <div
+                    class="flex justify-between text-xs text-base-content/70 mb-2"
+                >
                     <span
                         >{{ t('mods.install.estimatedSize') }}:
                         <span class="font-mono font-bold">{{
@@ -342,7 +347,9 @@
                         {{ t('mods.install.files') }}</span
                     >
                 </div>
-                <div class="h-80 overflow-y-auto bg-base-300/40 rounded-lg p-2">
+                <div
+                    class="h-80 overflow-y-auto bg-base-300/40 rounded-box p-2"
+                >
                     <ul class="space-y-0.5">
                         @for (entry of modInfo.file_entries; track entry.path) {
                             <li
@@ -360,7 +367,7 @@
                                     entry.path
                                 }}</span>
                                 <span
-                                    class="font-mono opacity-60 text-[10px] shrink-0"
+                                    class="font-mono text-base-content/70 text-xs shrink-0"
                                     >{{ formatBytes(entry.size) }}</span
                                 >
                             </li>

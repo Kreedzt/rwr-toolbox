@@ -1,16 +1,18 @@
-<div class="container mx-auto p-2 sm:p-4" *transloco="let t">
+<div class="space-y-4 p-4" *transloco="let t">
+    <app-page-header titleKey="mods.assets.title" icon="archive" />
+
     <!-- Onboarding: not enabled -->
     @if (!archiveEnabled()) {
         <div class="card bg-base-200 shadow-sm">
             <div class="card-body p-4 text-center">
                 <i-lucide
                     name="archive"
-                    class="h-10 w-10 mx-auto opacity-30 mb-3"
+                    class="h-10 w-10 mx-auto text-base-content/30 mb-3"
                 ></i-lucide>
                 <h2 class="card-title text-base justify-center mb-2">
                     {{ t('mods.assets.onboardingTitle') }}
                 </h2>
-                <p class="text-xs opacity-70 mb-4 max-w-md mx-auto">
+                <p class="text-xs text-base-content/70 mb-4 max-w-md mx-auto">
                     {{ t('mods.assets.onboardingDesc') }}
                 </p>
                 <button class="btn btn-primary btn-sm" routerLink="/settings">
@@ -27,12 +29,12 @@
             <div class="card-body p-4 text-center">
                 <i-lucide
                     name="folder-open"
-                    class="h-10 w-10 mx-auto opacity-30 mb-3"
+                    class="h-10 w-10 mx-auto text-base-content/30 mb-3"
                 ></i-lucide>
                 <h2 class="card-title text-base justify-center mb-2">
                     {{ t('mods.assets.noDirectoryTitle') }}
                 </h2>
-                <p class="text-xs opacity-70 mb-4 max-w-md mx-auto">
+                <p class="text-xs text-base-content/70 mb-4 max-w-md mx-auto">
                     {{ t('mods.assets.noDirectoryDesc') }}
                 </p>
                 <button class="btn btn-primary btn-sm" routerLink="/settings">
@@ -46,7 +48,7 @@
     <!-- Enabled and has directory -->
     @if (archiveEnabled() && archiveDirectory()) {
         <div class="flex justify-between items-center mb-3">
-            <h2 class="text-sm font-bold opacity-70">
+            <h2 class="text-sm font-bold text-base-content/70">
                 {{ t('mods.assets.title') }}
             </h2>
             <button
@@ -65,14 +67,16 @@
 
         @if (!hasEntries && !loading()) {
             <div
-                class="text-center py-10 bg-base-200/50 rounded-lg border-2 border-dashed border-base-300"
+                class="text-center py-10 bg-base-200/50 rounded-box border-2 border-dashed border-base-300"
             >
                 <i-lucide
                     name="package"
-                    class="h-10 w-10 mx-auto opacity-20 mb-2"
+                    class="h-10 w-10 mx-auto text-base-content/30 mb-2"
                 ></i-lucide>
-                <p class="text-sm opacity-50">{{ t('mods.assets.empty') }}</p>
-                <p class="text-xs opacity-40 mt-1">
+                <p class="text-sm text-base-content/50">
+                    {{ t('mods.assets.empty') }}
+                </p>
+                <p class="text-xs text-base-content/50 mt-1">
                     {{ t('mods.assets.emptyDesc') }}
                 </p>
             </div>
@@ -84,7 +88,7 @@
             >
                 @for (entry of archiveEntries(); track entry.id) {
                     <div
-                        class="flex items-center justify-between p-3 bg-base-200/50 rounded-lg border border-transparent hover:border-base-300 hover:bg-base-200 transition-all duration-150"
+                        class="flex items-center justify-between p-3 bg-base-200/50 rounded-box border border-transparent hover:border-base-300 hover:bg-base-200 transition-all duration-150"
                     >
                         <div
                             class="flex-1 min-w-0 cursor-pointer"
@@ -93,7 +97,7 @@
                             <div class="flex items-center gap-2">
                                 <i-lucide
                                     name="package"
-                                    class="h-4 w-4 opacity-50 shrink-0"
+                                    class="h-4 w-4 text-base-content/50 shrink-0"
                                 ></i-lucide>
                                 <p
                                     class="text-sm font-medium truncate"
@@ -108,7 +112,7 @@
                                 }
                             </div>
                             <div
-                                class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[11px] opacity-60"
+                                class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-base-content/70"
                             >
                                 @if (entry.gameVersion) {
                                     <span
@@ -208,7 +212,7 @@
                         </div>
                     </div>
                     <div class="divider"></div>
-                    <div class="text-xs opacity-60 mb-2">
+                    <div class="text-xs text-base-content/70 mb-2">
                         {{ t('mods.install.file_list') }} ({{
                             detailInfo.file_log_info.length
                         }})

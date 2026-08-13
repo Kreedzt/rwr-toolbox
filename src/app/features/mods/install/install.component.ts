@@ -10,10 +10,12 @@ import {
     ModFileEntry,
 } from '../../../shared/models/mod.models';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
+import { PageHeaderComponent } from '../../../shared/components';
 
 @Component({
     selector: 'app-install',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         FormsModule,
         LucideAngularModule,

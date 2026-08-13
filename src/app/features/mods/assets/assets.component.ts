@@ -9,10 +9,12 @@ import {
     ModArchiveEntry,
     ModReadInfo,
 } from '../../../shared/models/mod.models';
+import { PageHeaderComponent } from '../../../shared/components';
 
 @Component({
     selector: 'app-assets',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         RouterLink,
         LucideAngularModule,

@@ -80,7 +80,7 @@
                             }}</span>
                             @if (item.shortcut) {
                                 <span
-                                    class="text-[10px] text-base-content/40 shrink-0"
+                                    class="text-xs text-base-content/40 shrink-0"
                                     >{{ item.shortcut }}</span
                                 >
                             }
@@ -194,10 +194,12 @@
             >
                 <!-- System Status Section -->
                 <div
-                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
                 >
                     <div class="card-body p-3">
-                        <h3 class="card-title text-xs uppercase opacity-50">
+                        <h3
+                            class="card-title text-xs uppercase text-base-content/70 tracking-wider"
+                        >
                             {{ t('common.system_status') }}
                         </h3>
                         <div class="space-y-2 text-xs">
@@ -208,7 +210,7 @@
                                     t('common.api_connection')
                                 }}</span>
                                 <span
-                                    class="badge badge-success badge-sm h-4 text-[10px] font-medium"
+                                    class="badge badge-success badge-sm h-4 text-xs font-medium"
                                     >{{ t('common.connected') }}</span
                                 >
                             </div>
@@ -219,7 +221,7 @@
                                     t('common.cache')
                                 }}</span>
                                 <span
-                                    class="badge badge-neutral badge-sm h-4 text-[10px] font-medium"
+                                    class="badge badge-neutral badge-sm h-4 text-xs font-medium"
                                     >{{ t('common.active') }}</span
                                 >
                             </div>
@@ -230,7 +232,7 @@
                                     t('common.game_path')
                                 }}</span>
                                 <span
-                                    class="badge badge-warning badge-sm h-4 text-[10px] font-medium shrink-0"
+                                    class="badge badge-warning badge-sm h-4 text-xs font-medium shrink-0"
                                     >{{ t('common.not_set') }}</span
                                 >
                             </div>
@@ -240,10 +242,12 @@
 
                 <!-- Quick Stats Section -->
                 <div
-                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
                 >
                     <div class="card-body p-3">
-                        <h3 class="card-title text-xs uppercase opacity-50">
+                        <h3
+                            class="card-title text-xs uppercase text-base-content/70 tracking-wider"
+                        >
                             {{ t('common.quick_stats') }}
                         </h3>
                         <div
@@ -255,7 +259,7 @@
                                 >
                                     --
                                 </div>
-                                <div class="stat-desc text-[10px]">
+                                <div class="stat-desc text-xs">
                                     {{ t('common.active_servers') }}
                                 </div>
                             </div>
@@ -265,7 +269,7 @@
                                 >
                                     --
                                 </div>
-                                <div class="stat-desc text-[10px]">
+                                <div class="stat-desc text-xs">
                                     {{ t('common.players_online') }}
                                 </div>
                             </div>
@@ -275,10 +279,12 @@
 
                 <!-- Recent Activity Section -->
                 <div
-                    class="card card-compact bg-base-100 shadow-sm border border-base-200"
+                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
                 >
                     <div class="card-body p-3">
-                        <h3 class="card-title text-xs uppercase opacity-50">
+                        <h3
+                            class="card-title text-xs uppercase text-base-content/70 tracking-wider"
+                        >
                             {{ t('common.recent_activity') }}
                         </h3>
                         <div class="mt-1 space-y-2">
@@ -313,7 +319,7 @@
                     <!-- Navigation Shortcuts -->
                     <div>
                         <h4
-                            class="text-xs font-semibold uppercase opacity-50 mb-2"
+                            class="text-xs font-semibold uppercase text-base-content/70 mb-2 tracking-wider"
                         >
                             {{ t('shortcuts.navigation') }}
                         </h4>
@@ -325,12 +331,11 @@
                                 ) {
                                     <tr>
                                         <td class="w-1/4 p-1">
-                                            <kbd
-                                                class="kbd kbd-xs text-[9px]"
-                                                >{{ item.shortcut }}</kbd
-                                            >
+                                            <kbd class="kbd kbd-xs text-xs">{{
+                                                item.shortcut
+                                            }}</kbd>
                                         </td>
-                                        <td class="p-1 text-[11px]">
+                                        <td class="p-1 text-xs">
                                             {{ t(item.label || '') }}
                                         </td>
                                     </tr>
@@ -342,7 +347,7 @@
                     <!-- Global Shortcuts -->
                     <div>
                         <h4
-                            class="text-xs font-semibold uppercase opacity-50 mb-2"
+                            class="text-xs font-semibold uppercase text-base-content/70 mb-2 tracking-wider"
                         >
                             {{ t('shortcuts.global') }}
                         </h4>
@@ -351,25 +356,25 @@
                                 <tr>
                                     <td class="w-1/4 p-1">
                                         <div class="flex gap-0.5">
-                                            <kbd class="kbd kbd-xs text-[9px]"
+                                            <kbd class="kbd kbd-xs text-xs"
                                                 >Ctrl</kbd
                                             >
-                                            <kbd class="kbd kbd-xs text-[9px]"
+                                            <kbd class="kbd kbd-xs text-xs"
                                                 >S</kbd
                                             >
                                         </div>
                                     </td>
-                                    <td class="p-1 text-[11px]">
+                                    <td class="p-1 text-xs">
                                         {{ t('shortcuts.toggle_status') }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="w-1/4 p-1">
-                                        <kbd class="kbd kbd-xs text-[9px]"
+                                        <kbd class="kbd kbd-xs text-xs"
                                             >Esc</kbd
                                         >
                                     </td>
-                                    <td class="p-1 text-[11px]">
+                                    <td class="p-1 text-xs">
                                         {{ t('shortcuts.close_modals') }}
                                     </td>
                                 </tr>

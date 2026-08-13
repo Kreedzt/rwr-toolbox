@@ -17,6 +17,7 @@ import { SteamLaunchService } from './services/steam-launch.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { DatePipe } from '@angular/common';
+import { PageHeaderComponent } from '../../shared/components';
 
 /**
  * Settings component
@@ -25,6 +26,7 @@ import { DatePipe } from '@angular/common';
 @Component({
     selector: 'app-settings',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         TranslocoDirective,
         TranslocoPipe,
