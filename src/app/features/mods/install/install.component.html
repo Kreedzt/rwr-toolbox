@@ -189,9 +189,11 @@
                             <span class="text-xs font-bold opacity-70">{{
                                 t('mods.install.selectedFiles')
                             }}</span>
-                            <span class="text-xs opacity-60">{{
-                                installOptions.selectedFiles.length
-                            }} / {{ modInfo.file_entries.length }} {{ t('mods.install.files') }}</span>
+                            <span class="text-xs opacity-60"
+                                >{{ installOptions.selectedFiles.length }} /
+                                {{ modInfo.file_entries.length }}
+                                {{ t('mods.install.files') }}</span
+                            >
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-xs opacity-60">{{
@@ -237,7 +239,10 @@
                     <button
                         class="btn btn-primary w-full"
                         (click)="onInstall()"
-                        [disabled]="loading() || installOptions.selectedFiles.length === 0"
+                        [disabled]="
+                            loading() ||
+                            installOptions.selectedFiles.length === 0
+                        "
                     >
                         @if (loading()) {
                             <span class="loading loading-spinner"></span>
@@ -309,10 +314,16 @@
                         }}</span>
                     </h3>
                     <div class="flex gap-1">
-                        <button class="btn btn-xs btn-ghost" (click)="selectAllFiles()">
+                        <button
+                            class="btn btn-xs btn-ghost"
+                            (click)="selectAllFiles()"
+                        >
                             {{ t('mods.install.selectAll') }}
                         </button>
-                        <button class="btn btn-xs btn-ghost" (click)="invertSelection()">
+                        <button
+                            class="btn btn-xs btn-ghost"
+                            (click)="invertSelection()"
+                        >
                             {{ t('mods.install.invertSelection') }}
                         </button>
                     </div>
@@ -320,8 +331,16 @@
                 <div class="divider"></div>
                 <!-- Estimated size bar -->
                 <div class="flex justify-between text-xs opacity-70 mb-2">
-                    <span>{{ t('mods.install.estimatedSize') }}: <span class="font-mono font-bold">{{ formatBytes(selectedSize) }}</span></span>
-                    <span>{{ installOptions.selectedFiles.length }} {{ t('mods.install.files') }}</span>
+                    <span
+                        >{{ t('mods.install.estimatedSize') }}:
+                        <span class="font-mono font-bold">{{
+                            formatBytes(selectedSize)
+                        }}</span></span
+                    >
+                    <span
+                        >{{ installOptions.selectedFiles.length }}
+                        {{ t('mods.install.files') }}</span
+                    >
                 </div>
                 <div class="h-80 overflow-y-auto bg-base-300/40 rounded-lg p-2">
                     <ul class="space-y-0.5">
@@ -337,8 +356,13 @@
                                     (click)="$event.stopPropagation()"
                                     (change)="toggleFileSelection(entry.path)"
                                 />
-                                <span class="font-mono flex-1 truncate">{{ entry.path }}</span>
-                                <span class="font-mono opacity-60 text-[10px] shrink-0">{{ formatBytes(entry.size) }}</span>
+                                <span class="font-mono flex-1 truncate">{{
+                                    entry.path
+                                }}</span>
+                                <span
+                                    class="font-mono opacity-60 text-[10px] shrink-0"
+                                    >{{ formatBytes(entry.size) }}</span
+                                >
                             </li>
                         }
                     </ul>

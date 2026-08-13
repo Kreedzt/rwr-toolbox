@@ -72,7 +72,8 @@ export class SettingsComponent implements OnInit {
 
     /** Mod archive settings */
     readonly modArchiveEnabledSig = this.settingsService.modArchiveEnabledSig;
-    readonly modArchiveDirectorySig = this.settingsService.modArchiveDirectorySig;
+    readonly modArchiveDirectorySig =
+        this.settingsService.modArchiveDirectorySig;
 
     /** T034: Directory management - readonly directories signal reference */
     readonly directoriesSig = this.directoryService.directoriesSig;
@@ -308,7 +309,9 @@ export class SettingsComponent implements OnInit {
 
     async onToggleModArchive(event: Event): Promise<void> {
         const target = event.target as HTMLInputElement;
-        await this.settingsService.setModArchiveEnabled(Boolean(target?.checked));
+        await this.settingsService.setModArchiveEnabled(
+            Boolean(target?.checked),
+        );
     }
 
     async onSelectModArchiveDirectory(): Promise<void> {

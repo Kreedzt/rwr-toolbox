@@ -27,7 +27,8 @@ export class ModService {
 
     readonly loadingSig = this.loadingState.asReadonly();
     readonly errorSig = this.errorState.asReadonly();
-    readonly pendingReinstallPathSig = this.pendingReinstallPathState.asReadonly();
+    readonly pendingReinstallPathSig =
+        this.pendingReinstallPathState.asReadonly();
 
     readModInfo(filePath: string): Observable<ModReadInfo> {
         this.loadingState.set(true);
@@ -179,9 +180,7 @@ export class ModService {
         if (!archiveDir) {
             return of(undefined);
         }
-        return from(
-            invoke<string[]>('list_mod_archives', { archiveDir }),
-        ).pipe(
+        return from(invoke<string[]>('list_mod_archives', { archiveDir })).pipe(
             switchMap((paths) => {
                 if (paths.length === 0) {
                     return of([]);
@@ -215,7 +214,9 @@ export class ModService {
                     ),
                 );
                 return forkJoin(reads).pipe(
-                    map((entries) => entries.filter((e): e is ModArchiveEntry => !!e)),
+                    map((entries) =>
+                        entries.filter((e): e is ModArchiveEntry => !!e),
+                    ),
                 );
             }),
             switchMap((entries) => {
