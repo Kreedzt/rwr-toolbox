@@ -3,7 +3,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <!-- Language Settings -->
-        <div class="card bg-base-100 shadow-sm border border-base-300/50">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body">
                 <h2
                     class="card-title text-sm uppercase text-base-content/70 mb-2 tracking-wider"
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Theme Settings -->
-        <div class="card bg-base-100 shadow-sm border border-base-300/50">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body">
                 <h2
                     class="card-title text-sm uppercase text-base-content/70 mb-2 tracking-wider"
@@ -68,7 +68,7 @@
 
     <!-- Steam Launch -->
     <div
-        class="card bg-base-100 shadow-sm border border-base-300/50 mb-6"
+        class="card bg-base-100 border border-base-300 mb-6"
         *transloco="let t"
     >
         <div class="card-body">
@@ -220,7 +220,7 @@
     </div>
 
     <!-- Mod Archive Settings -->
-    <div class="card bg-base-100 shadow-sm border border-base-300/50 mb-6">
+    <div class="card bg-base-100 border border-base-300 mb-6">
         <div class="card-body">
             <div class="flex flex-wrap justify-between items-start gap-4">
                 <div class="min-w-0 flex-1">
@@ -311,7 +311,7 @@
     </div>
 
     <!-- Directory Management (Full Width) -->
-    <div class="card bg-base-100 shadow-sm border border-base-300/50">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body">
             <!-- Game install directory -->
             <div class="flex flex-wrap justify-between items-start gap-4">
@@ -423,7 +423,7 @@
                 }
             </div>
 
-            <div class="divider my-5"></div>
+            <div class="divider my-4"></div>
 
             <div class="flex justify-between items-center mb-4">
                 <h2
@@ -460,7 +460,7 @@
             }
             @if (directoriesSig().length === 0) {
                 <div
-                    class="text-center py-10 bg-base-200/50 rounded-box border-2 border-dashed border-base-300"
+                    class="text-center py-8 bg-base-200/50 rounded-box border-2 border-dashed border-base-300"
                 >
                     <i-lucide
                         name="folder-open"
@@ -568,7 +568,7 @@
                                 </div>
 
                                 <div
-                                    class="flex gap-4 mt-1.5 text-xs text-base-content/70"
+                                    class="flex gap-4 mt-2 text-xs text-base-content/70"
                                 >
                                     @if (dir.lastScannedAt > 0) {
                                         <span class="flex items-center gap-1">
@@ -616,7 +616,7 @@
                                         <p class="font-bold">
                                             {{ dir.lastError.message }}
                                         </p>
-                                        <p class="mt-0.5 text-base-content/70">
+                                        <p class="mt-1 text-base-content/70">
                                             {{
                                                 t(
                                                     'settings.errorResolution.' +

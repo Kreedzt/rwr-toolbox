@@ -47,7 +47,7 @@
                                             [class.menu-active]="
                                                 isActive(child.link!)
                                             "
-                                            class="py-1.5 px-3 text-sm"
+                                            class="py-2 px-3 text-sm"
                                         >
                                             <i-lucide
                                                 [name]="child.icon"
@@ -193,9 +193,7 @@
                 class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 min-h-0"
             >
                 <!-- System Status Section -->
-                <div
-                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
-                >
+                <div class="card card-sm bg-base-100 border border-base-300">
                     <div class="card-body p-3">
                         <h3
                             class="card-title text-xs uppercase text-base-content/70 tracking-wider"
@@ -241,9 +239,7 @@
                 </div>
 
                 <!-- Quick Stats Section -->
-                <div
-                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
-                >
+                <div class="card card-sm bg-base-100 border border-base-300">
                     <div class="card-body p-3">
                         <h3
                             class="card-title text-xs uppercase text-base-content/70 tracking-wider"
@@ -278,9 +274,7 @@
                 </div>
 
                 <!-- Recent Activity Section -->
-                <div
-                    class="card card-sm bg-base-100 shadow-sm border border-base-200"
-                >
+                <div class="card card-sm bg-base-100 border border-base-300">
                     <div class="card-body p-3">
                         <h3
                             class="card-title text-xs uppercase text-base-content/70 tracking-wider"
@@ -288,7 +282,7 @@
                             {{ t('common.recent_activity') }}
                         </h3>
                         <div class="mt-1 space-y-2">
-                            <div class="flex gap-2.5 items-start">
+                            <div class="flex gap-2 items-start">
                                 <div class="mt-1">
                                     <i-lucide
                                         name="circle-dot"

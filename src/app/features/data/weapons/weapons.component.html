@@ -68,7 +68,7 @@
             </div>
             <ul
                 tabindex="0"
-                class="dropdown-content z-[30] menu p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300"
+                class="dropdown-content z-[30] menu p-2 shadow-lg bg-base-100 rounded-box w-52"
             >
                 <li class="menu-title">
                     <span
@@ -686,7 +686,7 @@
 @if (isDetailPanelOpen() && selectedWeapon()) {
     <aside
         @slideIn
-        class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-100 border-l border-base-300 shadow-2xl z-[100] flex flex-col"
+        class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-100 shadow-2xl z-[100] flex flex-col"
     >
         <!-- Header -->
         <div
@@ -731,7 +731,7 @@
             <div class="flex gap-6 mb-8">
                 <div class="flex-shrink-0">
                     <div
-                        class="w-32 h-32 bg-base-200 rounded-box shadow-inner border border-base-300 flex items-center justify-center p-4 relative"
+                        class="w-32 h-32 bg-base-200 rounded-box border border-base-300 flex items-center justify-center p-4 relative"
                         [class.skeleton]="
                             loadingIcons().has(selectedWeapon()?.key || '')
                         "

@@ -193,7 +193,7 @@
 
     .markdown-body code {
         background-color: var(--md-code-bg);
-        padding: 0.125rem 0.25rem;
+        padding: 0.25rem 0.5rem;
         border-radius: var(--radius-selector);
         font-family: var(--font-mono);
         font-size: 0.875rem;
