@@ -41,13 +41,19 @@
                 </h2>
 
                 <!-- File Format Note -->
-                <div class="alert alert-info mb-4">
+                <!-- A passive format hint, so it uses the soft variant: a
+                     saturated panel would outrank the action button below it.
+                     The pattern is the payload here, not the sentence, so it
+                     keeps full strength while the sentence introduces it. -->
+                <div class="alert alert-soft alert-info mb-4">
                     <i-lucide name="info" class="h-4 w-4"></i-lucide>
-                    <div class="text-xs">
-                        <p class="font-bold">
+                    <div>
+                        <p class="text-sm">
                             {{ t('mods.install.file_format_note') }}
                         </p>
-                        <p class="text-base-content/70">
+                        <p
+                            class="mt-1 font-mono text-xs break-all text-base-content select-all"
+                        >
                             [RWRMI][{{ '{' }}game_version{{ '}' }}]title v{{
                                 '{'
                             }}version{{ '}' }}.zip

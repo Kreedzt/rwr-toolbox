@@ -113,8 +113,34 @@
 
 - **`opacity-*` 只用于整块元素淡出**（禁用态、hover 显隐、装饰图标/水印）。
   文字弱化一律走颜色 alpha，否则元素内的图标和边框会跟着一起淡掉。
-- 彩色底上的次级文字用对应 content 色（`text-primary-content/70`），
-  **绝不在彩色背景上用灰色文字**。
+
+### 彩色面板上的文字（易错点）
+
+**`text-base-content/N` 只在中性底（`base-100/200/300`）上成立。**
+把它放到 `alert-info`、`badge-error`、`bg-primary` 这类饱和底上，是中性色相压彩色色相，
+必然发灰——实测 `text-base-content/70` 压 `alert-info`：亮色 **1.85:1**、暗色 **1.70:1**，
+远低于 AA 的 4.5:1（这正是本项目曾经踩过的坑，机械替换 `opacity-70` 时引入）。
+
+底色类型决定可用的文字色：
+
+| 底 | 文字 |
+|---|---|
+| 中性底 `base-*` | `base-content` + `/70` `/50` 弱化档 |
+| 饱和底 `alert-info` / `badge-error` / `bg-primary` | 对应 `*-content` 色，**且不再做弱化**（实心底上没有弱化余量） |
+| soft 底 `alert-soft` | 本质是带色相的中性底，可用 `base-content`；需要更强对比时显式写 `text-base-content` 覆盖 daisyUI 默认的主题色文字 |
+
+**要在面板内做层级，就别用实心底**——改用 `alert-soft`：
+底色是 `color-mix(色 8%, base-100)`，中性文字在上面有 8.8–13.2:1 的余量，
+弱化档也够用。
+
+### 提示面板的响度
+
+`alert-info` / `alert-success` 这类**被动提示**一律用 soft 变体（`alert alert-soft alert-info`）。
+只有需要打断用户的 `alert-error` / `alert-warning` 才用实心。
+理由：一块饱和色面板会比页面上的主操作按钮更响，而一条格式说明不该盖过「选择文件」。
+
+面板内部同样要分主次：**用户真正要用的内容（如文件名规格、命令、路径）给全强度 + `font-mono`，
+引导句反而收一档**。把 payload 弱化成灰字是把信息藏起来。
 
 ### 字重
 
@@ -277,6 +303,9 @@ grep -rn "bg-gray-|bg-red-100|bg-yellow-200|text-blue-700" src/app
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
 ```
+
+彩色底上的中性文字无法用 grep 可靠检出（要看 DOM 祖先），改完 alert / badge / 彩色面板时人工核对：
+**这块底是彩色的吗？是的话文字色必须来自同一色相。**
 
 配套静态审计与截图工具见 `.claude/skills/refactoring-ui/scripts/`。
 注意：审计脚本读源码文本而非渲染结果，它对 DaisyUI `.btn` 会误报
