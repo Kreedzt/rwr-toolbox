@@ -3,7 +3,7 @@
     <div class="flex flex-col items-center justify-center py-20 px-4">
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-24 w-24 opacity-20 mb-4"
+            class="h-24 w-24 text-base-content/30 mb-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -18,7 +18,7 @@
         <h2 class="text-2xl font-bold mb-2">
             {{ 'data.emptyState.title' | transloco }}
         </h2>
-        <p class="text opacity-70 mb-6 max-w-md text-center">
+        <p class="text text-base-content/70 mb-6 max-w-md text-center">
             {{ 'data.emptyState.message' | transloco }}
         </p>
         <a routerLink="/settings" class="btn btn-primary">
@@ -44,7 +44,7 @@
             <!-- T067: Scan progress indicator -->
             @if (scanProgressSig().state === 'scanning') {
                 <div
-                    class="flex items-center gap-2 text-xs opacity-70 flex-1 justify-end"
+                    class="flex items-center gap-2 text-xs text-base-content/70 flex-1 justify-end"
                 >
                     <span class="loading loading-spinner loading-xs"></span>
                     <span>
