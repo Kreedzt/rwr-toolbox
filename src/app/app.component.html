@@ -23,7 +23,7 @@
                     <li>
                         <details [open]="isActive(item.link!)">
                             <summary
-                                [class.active]="isActive(item.link!)"
+                                [class.menu-active]="isActive(item.link!)"
                                 class="py-2 px-3 text-sm"
                             >
                                 <i-lucide
@@ -44,7 +44,7 @@
                                     <li>
                                         <a
                                             [routerLink]="child.link!"
-                                            [class.active]="
+                                            [class.menu-active]="
                                                 isActive(child.link!)
                                             "
                                             class="py-1.5 px-3 text-sm"
@@ -67,7 +67,7 @@
                     <li>
                         <a
                             [routerLink]="item.link"
-                            [class.active]="isActive(item.link)"
+                            [class.menu-active]="isActive(item.link)"
                             class="flex items-center gap-2 py-2 px-3 text-sm"
                             [title]="t(item.description || '')"
                         >

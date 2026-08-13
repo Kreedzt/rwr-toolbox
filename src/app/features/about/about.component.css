@@ -3,7 +3,7 @@
     font-weight: 600;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
-    color: oklch(var(--p));
+    color: var(--color-primary);
 }
 
 :host ::ng-deep .changelog-body h3:first-child {
@@ -26,7 +26,7 @@
 }
 
 :host ::ng-deep .changelog-body a {
-    color: oklch(var(--p));
+    color: var(--color-primary);
     text-decoration: underline;
 }
 

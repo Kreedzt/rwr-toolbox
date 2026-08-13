@@ -6,6 +6,31 @@
         <base href="./" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>
+            /* This skeleton paints before Angular boots, so it cannot read
+               data-theme. It mirrors the app themes through prefers-color-scheme;
+               keep these values in sync with the theme blocks in styles.css. */
+            :root {
+                --sk-bg: #f9f8f4;
+                --sk-fg: #29261f;
+                --sk-sub: #8a8578;
+                --sk-r1: #486924;
+                --sk-r1-soft: rgba(72, 105, 36, 0.35);
+                --sk-r2: #d38e22;
+                --sk-r2-soft: rgba(211, 142, 34, 0.35);
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --sk-bg: #211f19;
+                    --sk-fg: #e3e1db;
+                    --sk-sub: #8f8b7e;
+                    --sk-r1: #7ea750;
+                    --sk-r1-soft: rgba(126, 167, 80, 0.35);
+                    --sk-r2: #e4ad3c;
+                    --sk-r2-soft: rgba(228, 173, 60, 0.35);
+                }
+            }
+
             .app-loading {
                 position: fixed;
                 inset: 0;
@@ -13,10 +38,21 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                background: #0f0f12;
-                color: #e2e2e2;
-                font-family: ui-sans-serif, system-ui, -apple-system,
-                    BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: var(--sk-bg);
+                color: var(--sk-fg);
+                font-family:
+                    ui-sans-serif,
+                    system-ui,
+                    -apple-system,
+                    'Segoe UI',
+                    Roboto,
+                    'Helvetica Neue',
+                    Arial,
+                    'PingFang SC',
+                    'Hiragino Sans GB',
+                    'Microsoft YaHei',
+                    'Noto Sans CJK SC',
+                    sans-serif;
                 z-index: 9999;
             }
 
@@ -36,15 +72,15 @@
             }
 
             .app-loading-spinner::before {
-                border-top-color: #6366f1;
-                border-right-color: rgba(99, 102, 241, 0.35);
+                border-top-color: var(--sk-r1);
+                border-right-color: var(--sk-r1-soft);
                 animation: app-loading-spin 0.9s linear infinite;
             }
 
             .app-loading-spinner::after {
                 inset: 8px;
-                border-bottom-color: #a855f7;
-                border-left-color: rgba(168, 85, 247, 0.35);
+                border-bottom-color: var(--sk-r2);
+                border-left-color: var(--sk-r2-soft);
                 animation: app-loading-spin 1.2s linear infinite reverse;
             }
 
@@ -59,14 +95,14 @@
                 font-size: 17px;
                 font-weight: 700;
                 letter-spacing: 0.08em;
-                color: #f0f0f0;
+                color: var(--sk-fg);
             }
 
             .app-loading-sub {
                 margin-top: 10px;
                 font-size: 12px;
                 font-weight: 500;
-                color: #888;
+                color: var(--sk-sub);
                 display: flex;
                 align-items: center;
                 gap: 6px;
@@ -80,7 +116,7 @@
             .app-loading-dots span {
                 width: 4px;
                 height: 4px;
-                background: #888;
+                background: var(--sk-sub);
                 border-radius: 50%;
                 animation: app-loading-bounce 1.4s infinite ease-in-out both;
             }
@@ -103,7 +139,6 @@
                     transform: scale(1);
                 }
             }
-
         </style>
     </head>
     <body>

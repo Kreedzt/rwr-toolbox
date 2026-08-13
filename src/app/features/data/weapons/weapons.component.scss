@@ -37,13 +37,10 @@ table {
 
     // Highlight selected row
     tr.active {
-        background-color: hsl(var(--p) / 0.1);
+        background-color: color-mix(
+            in oklab,
+            var(--color-primary) 10%,
+            transparent
+        );
     }
-}
-
-// Detail Side Panel overlay variant (Tailwind: bg-base-200 used in template)
-.detail-panel.overlay {
-    width: 100%;
-    max-width: 60%;
-    border-left: none;
 }
