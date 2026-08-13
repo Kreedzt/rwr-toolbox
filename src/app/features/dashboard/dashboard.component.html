@@ -130,9 +130,7 @@
             />
         } @else {
             <div class="custom-scrollbar mt-3 max-h-56 overflow-y-auto pr-2">
-                <ul
-                    class="timeline timeline-sm timeline-compact timeline-vertical"
-                >
+                <ul class="timeline timeline-compact timeline-vertical">
                     @for (
                         activity of activities();
                         track trackActivity($index, activity)

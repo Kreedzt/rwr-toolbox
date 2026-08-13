@@ -15,9 +15,12 @@ import { LucideAngularModule } from 'lucide-angular';
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [LucideAngularModule, TranslocoPipe],
     template: `
-        <header
-            class="flex flex-wrap items-start justify-between gap-3 border-b border-base-300 pb-3"
-        >
+        <!-- Separated by space, not a rule: the title is already the loudest
+             thing on the page, and a border here would run parallel to the
+             first card's own border a few pixels below it. pb-4 plus the
+             page's space-y-4 puts 32px under the header against 16px between
+             content blocks, so the header reads as its own group. -->
+        <header class="flex flex-wrap items-start justify-between gap-3 pb-4">
             <div class="min-w-0">
                 <h1
                     class="flex items-center gap-2 text-xl font-bold sm:text-2xl"

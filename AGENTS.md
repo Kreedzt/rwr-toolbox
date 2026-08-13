@@ -64,7 +64,8 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-08-13
     - De-emphasise with colour alpha (`text-base-content/70`, `/50`), not `opacity-*`
     - `uppercase` always carries `tracking-wider` / `tracking-wide`
 10. daisyUI v5 class blacklist
-    - `form-control`, `label-text`, `input-bordered`, `select-bordered`, `textarea-bordered`, `card-compact`, bare `active` on menu items
+    - `form-control`, `label-text`, `input-bordered`, `select-bordered`, `textarea-bordered`, `card-compact`, `tabs-boxed`, `stats-sm`, `timeline-sm`, bare `active` on menu items
+    - Check any suspect class with `grep -rl "<class>" node_modules/daisyui/` — no hit means no-op
     - These were removed in v5 and are silent no-ops
 
 ## Project Structure
@@ -142,7 +143,7 @@ After any UI change, all five must return no lines:
 
 ```bash
 grep -rEn "text-\[(9|10|11)px\]" src/app
-grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact" src/app
+grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
 grep -rn "bg-gray-|bg-red-100|bg-yellow-200|text-blue-700" src/app
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/

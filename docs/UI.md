@@ -54,7 +54,9 @@
 | `accent` | 卡其 / 沙色 | 第三级 |
 | `info / success / warning / error` | 钢蓝 / 绿 / 琥珀 / 红 | `success` 与 `primary` 拉开约 20° 色相，避免军绿与成功绿混淆 |
 
-所有 `*-content` 对其底色的对比度已验算 ≥ 4.39:1。
+全部 16 对 `*-content` / 底色的对比度已验算，最低 4.61:1（亮色 success），满足 WCAG AA。
+改动主题色时必须重新验算——注意 oklch→sRGB 后要做 gamma 编码再算相对亮度，
+漏掉这步会得出全盘偏低的假结果。
 
 ### 非颜色 token
 
@@ -190,7 +192,11 @@
 | `label-text` | 字段标题 → `fieldset-legend`；行内说明 → `<span class="label">` |
 | `input-bordered` / `select-bordered` / `textarea-bordered` | 直接删除（v5 默认带边框；需无边框用 `input-ghost`） |
 | `card-compact` | `card-sm` |
+| `tabs-boxed` | `tabs-box`（另有 `tabs-border` / `tabs-lift`） |
+| `stats-sm` / `timeline-sm` | v5 取消了这两个组件的尺寸变体，直接删除 |
 | 裸 `active`（menu 项） | `menu-active` |
+
+核对方法：`grep -rl "<类名>" node_modules/daisyui/`。查不到就是 no-op。
 
 **自定义 CSS 中引用主题色必须用 v5 变量名 `--color-*`**
 （`--color-base-200`、`--color-primary` …）。
@@ -298,7 +304,7 @@ AppComponent (app.component.html)
 
 ```bash
 grep -rEn "text-\[(9|10|11)px\]" src/app
-grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact" src/app
+grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
 grep -rn "bg-gray-|bg-red-100|bg-yellow-200|text-blue-700" src/app
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
