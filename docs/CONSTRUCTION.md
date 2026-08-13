@@ -58,17 +58,23 @@ Sync Impact Report:
 
 ### III. Theme Adaptability (NON-NEGOTIABLE)
 
-**DaisyUI Theme Support**: The application MUST support both light and dark DaisyUI themes seamlessly. All custom styles MUST use DaisyUI CSS variables for colors to ensure automatic theme adaptation.
+**Single source of colour**: The two custom `@plugin "daisyui/theme"` blocks in `src/styles.css` (the military `light` and `dark` themes) define every colour in the application. `themes: false` — DaisyUI's built-in themes are NOT bundled. Adding a colour means editing those blocks, never a component.
 
-**CSS Variable Usage**:
-- Backgrounds: Use `oklch(var(--b2))`, `oklch(var(--b3))` for base colors
-- Text: Use `oklch(var(--bc))` for base content color
-- Accents: Use `oklch(var(--p))`, `oklch(var(--pf))` for primary color variants
-- Fixed colors are ONLY permitted where semantic meaning requires specific colors independent of theme
+**CSS Variable Usage** (DaisyUI v5 names):
+- Backgrounds: `var(--color-base-100)`, `var(--color-base-200)`, `var(--color-base-300)`
+- Text: `var(--color-base-content)`
+- Accents: `var(--color-primary)`, `var(--color-primary-content)`
+- Alpha: `color-mix(in oklab, var(--color-base-content) 20%, transparent)`
+- Radii: `var(--radius-box)`, `var(--radius-field)`, `var(--radius-selector)`
+
+**Forbidden**:
+- daisyUI v4 short names — `var(--b1)`, `var(--b2)`, `var(--bc)`, `var(--p)`, `var(--rounded-box)`. They no longer exist in v5, so they fail silently and the rule renders with no colour at all.
+- Hardcoded Tailwind palette values in templates or TS (`bg-gray-100`, `text-blue-700`, `bg-yellow-200`). They do not track the theme and lose contrast in dark mode.
+- Any literal hex / oklch outside the theme blocks, except the pre-boot skeleton in `index.html`, which paints before Angular starts and therefore mirrors the themes through `prefers-color-scheme`.
 
 **Testing**: All UI components must be visually verified in both light and dark themes before merge.
 
-**Rationale**: Gamers often prefer dark themes for long sessions. DaisyUI provides a robust theming system that must be fully leveraged, not bypassed with hard-coded colors.
+**Rationale**: Gamers often prefer dark themes for long sessions. DaisyUI provides a robust theming system that must be fully leveraged, not bypassed with hard-coded colors. The v4 variable names above are called out explicitly because an earlier version of this document recommended them; every custom stylesheet in the project inherited them and broke silently on the v5 upgrade.
 
 ---
 
@@ -166,10 +172,11 @@ export const APP_ICONS = {
 **Tailwind Utility Classes Preferred**: For repeated styling patterns, prefer Tailwind CSS utility classes over creating custom CSS classes with multiple style properties.
 
 **Styling Hierarchy** (in order of preference):
-1. Tailwind utility classes directly in templates (e.g., `class="flex items-center gap-2 p-4"`)
-2. DaisyUI component classes (e.g., `class="btn btn-primary"`)
-3. Angular `@HostBinding` for dynamic style bindings
-4. Custom CSS classes ONLY when:
+1. A shared component from `src/app/shared/components/` — see the catalogue in `docs/UI.md`. Patterns it already covers (page header, section title, empty state, pagination, label/value pair, stat card, filter toolbar) MUST NOT be hand-rolled again.
+2. Tailwind utility classes directly in templates (e.g., `class="flex items-center gap-2 p-4"`)
+3. DaisyUI component classes (e.g., `class="btn btn-primary"`)
+4. Angular `@HostBinding` for dynamic style bindings
+5. Custom CSS classes ONLY when:
    - The style cannot be expressed with Tailwind utilities
    - The style involves complex pseudo-elements or animations
    - The style is truly unique and not reusable
@@ -178,12 +185,13 @@ export const APP_ICONS = {
 - Creating custom CSS classes that replicate existing Tailwind utilities
 - Custom classes with many standard CSS properties (e.g., margin, padding, flexbox, grid)
 - `styles: []` arrays in component decorators for standard styling
+- Component stylesheets that are never referenced by their component (`styleUrl` omitted) — the file silently does nothing
 
-**Allowed Exceptions**:
-- CSS for DaisyUI theme customization (using CSS variables)
-- Complex animations and transitions
-- Third-party component overrides
-- Browser-specific workarounds
+**Allowed Exceptions** — the current global component-class list in `src/styles.css`. Adding to it requires showing that utilities cannot express the rule:
+- `.markdown-body` — styles HTML generated at runtime, which utilities cannot reach
+- `.custom-scrollbar` — `::-webkit-scrollbar` pseudo-elements have no utility equivalent
+- `.table-sticky-zebra` — needs `:nth-child` plus a descendant selector, because a sticky cell does not inherit its row's background
+- `.control-area` — legacy filter toolbar, pending removal in favour of `<app-filter-toolbar>`
 
 **Rationale**: Tailwind CSS utilities provide a consistent design system, reduce bundle size through purging of unused styles, improve maintainability by making styles visible in templates, and prevent CSS bloat from custom classes. Custom CSS classes create hidden dependencies, naming conflicts, and increase the cognitive load of tracking styles across multiple files.
 

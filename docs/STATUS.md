@@ -19,8 +19,8 @@ TL;DR：
 | 前端框架 | Angular        | 20.3.15 |
 | 国际化   | Transloco      | 8.2.0   |
 | 桌面框架 | Tauri          | 2.x     |
-| 样式     | Tailwind CSS   | 4.1.18  |
-| UI 组件  | DaisyUI        | 5.5.14  |
+| 样式     | Tailwind CSS   | 4.2.4   |
+| UI 组件  | DaisyUI        | 5.5.19  |
 | 图标     | Lucide Angular | 0.562.0 |
 | 语言     | TypeScript     | 5.8.3   |
 | 包管理   | Angular CLI    | 20.3.13 |
@@ -40,6 +40,18 @@ src/app/
 │       ├── ping.service.ts          # Ping 服务
 │       └── settings.service.ts      # 设置服务（收藏夹等）
 ├── shared/                  # 共享模块
+│   ├── components/          # 共享展示型组件（barrel: index.ts）
+│   │   ├── page-header/             # 页面唯一 h1 + actions 插槽
+│   │   ├── section-title/           # 卡片/区块小标题
+│   │   ├── empty-state/             # 空状态（sm/md/lg）
+│   │   ├── pagination/              # 页码分页
+│   │   ├── label-value/             # 详情面板标签-值对
+│   │   ├── stat-card/               # 统计卡
+│   │   └── filter-toolbar/          # 表格筛选面板（纯布局）
+│   ├── pipes/
+│   │   └── highlight.pipe.ts        # 搜索词高亮（输出已转义）
+│   ├── utils/
+│   │   └── highlight.utils.ts       # 高亮实现 + 高亮标记类常量
 │   ├── constants/
 │   │   └── menu-items.ts            # 菜单配置（使用 i18n key）
 │   ├── guards/
@@ -197,23 +209,34 @@ API 限制说明：
 
 ## 设计规范（快照）
 
+> 完整规范见 `docs/UI.md`（唯一权威来源）。以下仅为要点。
+
 ### UI/UX 原则
 
 1. **Desktop-first**：针对 800x600 最低分辨率深度优化
-2. **高信息密度**：使用 `text-xs` (12px) 和 `text-[10px]` 字体
-3. **运行时切换**：语言切换无需重新构建
-4. **键盘友好**：预留 Ctrl+K（搜索）, Ctrl+S（状态面板）等快捷键
+2. **军事工具风主题**：自定义 DaisyUI `light`/`dark` 双主题（暖橄榄灰阶 + 军绿主色 + 琥珀次色 + 小圆角），
+   定义在 `src/styles.css`，是全应用唯一色彩事实源
+3. **高信息密度，但字号有下限**：最小 12px（`text-xs`），
+   **禁止任意值字号 `text-[Npx]`**——`text-xs` 只承担辅助层，正文默认 `text-sm`
+4. **弱化文字用颜色 alpha**：`text-base-content/70`（次级）、`/50`（三级）；
+   `opacity-*` 只用于整块元素淡出
+5. **共享组件优先**：页头/小节标题/空态/分页/标签值对/统计卡/筛选栏已组件化，禁止手写
+6. **运行时切换**：语言与主题切换无需重新构建
+7. **键盘友好**：Ctrl+1..8 页面切换、Ctrl+S（状态面板）等快捷键
 
 ## 开发命令（快照）
 
 ```bash
-npm start           # 开发服务器
-npm run tauri dev   # Tauri 桌面端开发
-npm run build       # 构建生产版本
+pnpm start           # 开发服务器
+pnpm tauri dev       # Tauri 桌面端开发
+pnpm build           # 构建生产版本
+pnpm format:all      # Prettier 全量格式化
 ```
 
 ## 注意事项（快照）
 
-1. **i18n**：新增文本必须在 `src/assets/i18n/` 中添加 key，不要在模板中直接写硬编码文本。
+1. **i18n**：新增文本必须在 `src/assets/i18n/` 中添加 key（中英双语），不要在模板中直接写硬编码文本。
 2. **布局**：使用 `hidden md:table-cell` 等类来控制在窄屏下的列显隐。
 3. **状态**：优先使用 Signals 管理组件内部状态。
+4. **DaisyUI v5**：`form-control` / `label-text` / `input-bordered` / `card-compact` 等 v4 类已被移除，
+   写了不生效；自定义 CSS 引用主题色必须用 `--color-*`，v4 短名 `--b2/--bc/--p` 已不存在。
