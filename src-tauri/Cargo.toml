@@ -1,6 +1,6 @@
 [package]
 name = "rwr-toolbox"
-version = "0.3.0"
+version = "0.4.0"
 description = "A Tauri App"
 authors = ["Kreedzt"]
 edition = "2021"

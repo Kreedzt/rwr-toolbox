@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-14
+
+### Changed
+
+- **New Look**: The whole app moves to a purpose-built military theme — warm olive greys, olive-drab green as the primary colour, amber as the accent, and tighter corners throughout. Light and dark are both hand-tuned rather than borrowed from a stock theme, and every colour pairing meets WCAG AA contrast (4.61:1 at the tightest).
+- **Readable Text**: Raised the minimum font size to 12px. Roughly a hundred places were previously set at 9–11px, including table cells, badges and detail-panel labels, which made dense pages hard to read on smaller screens.
+- **Calmer Pages**: Section titles, empty states, pagination and toolbars now look the same everywhere instead of drifting page by page. Removed the rule under each page title and the doubled borders around cards, so pages read with less visual noise.
+- **Chinese Text Rendering**: Added a proper CJK font stack (PingFang SC / Microsoft YaHei / Noto Sans CJK), so Chinese text no longer falls back to whatever the system picks.
+
+### Fixed
+
+- **Dark Theme**: Several elements were unreadable or lost their styling in dark mode — the sidebar's selected item used a fixed purple that ignored the theme, server capacity badges and search highlighting used fixed light-mode colours, and the changelog, markdown blocks, table row selection and custom scrollbars had silently stopped picking up any theme colour at all. All of these now follow the active theme.
+- **Mod Format Hint**: The filename pattern on the mod install page was grey text on a blue panel and effectively invisible (1.7:1 contrast). It now sits on a soft panel in a monospace face at full strength.
+- **Tab Strips**: Tab bars on the local mods, hotkeys and mods pages had lost their background and rendered as plain text.
+- **Startup Screen**: The pre-launch loading screen now matches the app's theme and follows your system's light/dark setting instead of always showing dark.
+
+### Internal
+
+- Introduced a shared component layer (page header, section title, empty state, pagination, label/value pair, stat card, filter toolbar) plus a search-highlight pipe, replacing markup that had been hand-written on every page.
+- Only the two custom themes are bundled now instead of all 35 daisyUI themes.
+- Completed the daisyUI v5 migration: removed class names and CSS variables that had silently stopped working, and dropped an unreferenced stylesheet.
+- Finished the signals migration — `BehaviorSubject` and `toSignal()` bridges are gone from the app.
+- Removed three scaffold pages that shipped as placeholder text.
+
 ## [0.3.0] - 2026-06-29
 
 ### Added
