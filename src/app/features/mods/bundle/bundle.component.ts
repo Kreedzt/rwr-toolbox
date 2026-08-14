@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ModService } from '../services/mod.service';
 import { ModBundleInfo } from '../../../shared/models/mod.models';
+import { PageHeaderComponent } from '../../../shared/components';
 
 /**
  * Example config for display
@@ -20,6 +21,7 @@ const CONFIG_EXAMPLE: ModBundleInfo = {
 @Component({
     selector: 'app-bundle',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         FormsModule,
         LucideAngularModule,

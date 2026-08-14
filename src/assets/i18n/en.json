@@ -82,7 +82,13 @@
         "last_update": "Last update: Just now",
         "close": "Close",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "empty": "No data",
+        "notFoundTitle": "Page not found",
+        "notFoundDescription": "The page you are looking for does not exist."
     },
     "scrolling": {
         "tableOnly": "Table Scroll",
@@ -91,7 +97,8 @@
     },
     "pagination": {
         "prev": "Previous page",
-        "next": "Next page"
+        "next": "Next page",
+        "label": "Pagination"
     },
     "shortcuts": {
         "title": "Keyboard Shortcuts",

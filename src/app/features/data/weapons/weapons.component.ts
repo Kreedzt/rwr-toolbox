@@ -26,6 +26,11 @@ import { ScrollingModeService } from '../../shared/services/scrolling-mode.servi
 import { GameTranslationService } from '../../../shared/services/game-translation.service';
 import type { PaginationState } from '../../../shared/models/common.models';
 import {
+    EmptyStateComponent,
+    PaginationComponent,
+} from '../../../shared/components';
+import { HighlightPipe } from '../../../shared/pipes/highlight.pipe';
+import {
     animate,
     state,
     style,
@@ -40,7 +45,15 @@ import {
  */
 @Component({
     selector: 'app-weapons',
-    imports: [TranslocoPipe, LucideAngularModule, ScrollingModule, FormsModule],
+    imports: [
+        TranslocoPipe,
+        LucideAngularModule,
+        ScrollingModule,
+        FormsModule,
+        EmptyStateComponent,
+        PaginationComponent,
+        HighlightPipe,
+    ],
     templateUrl: './weapons.component.html',
     styleUrl: './weapons.component.scss',
     animations: [
@@ -805,62 +818,6 @@ export class WeaponsComponent implements AfterViewInit {
         this.weaponsViewport?.checkViewportSize();
     }
 
-    /** T064: Get page numbers for pagination with stable 5-slot window */
-    getPageNumbers(): number[] {
-        const totalPages = this.totalPages();
-        const currentPage = this.pagination().currentPage;
-        const pages: number[] = [];
-
-        if (totalPages <= 5) {
-            // Show all pages if 5 or fewer
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            // Always show first page
-            pages.push(1);
-
-            // Calculate window start and end (5 slots, centered on current)
-            let windowStart = currentPage - 2;
-            let windowEnd = currentPage + 2;
-
-            // Adjust if window goes below 2
-            if (windowStart < 2) {
-                windowEnd += 2 - windowStart;
-                windowStart = 2;
-            }
-
-            // Adjust if window goes above totalPages - 1
-            if (windowEnd > totalPages - 1) {
-                windowStart -= windowEnd - (totalPages - 1);
-                windowEnd = totalPages - 1;
-            }
-
-            // Clamp windowStart to minimum 2
-            windowStart = this.max(2, windowStart);
-
-            // Add ellipsis before window if gap exists
-            if (windowStart > 2) {
-                pages.push(-1); // Ellipsis
-            }
-
-            // Add window pages
-            for (let i = windowStart; i <= windowEnd; i++) {
-                pages.push(i);
-            }
-
-            // Add ellipsis after window if gap exists
-            if (windowEnd < totalPages - 1) {
-                pages.push(-1); // Ellipsis
-            }
-
-            // Always show last page
-            pages.push(totalPages);
-        }
-
-        return pages;
-    }
-
     /** T065: Get display range for pagination stats */
     getDisplayRange(): { start: number; end: number } {
         const { currentPage, pageSize } = this.pagination();
@@ -876,46 +833,6 @@ export class WeaponsComponent implements AfterViewInit {
 
     private max(a: number, b: number): number {
         return a > b ? a : b;
-    }
-
-    private escapeRegExp(text: string): string {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    private escapeHtml(text: string): string {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    /**
-     * Highlight current search query inside text (case-insensitive).
-     * Returns HTML string; all non-markup content is escaped.
-     */
-    highlight(text: string | null | undefined): string {
-        const raw = (text ?? '').toString();
-        if (!raw) return '-';
-
-        const query = (this.searchTerm() ?? '').trim();
-        if (!query) return this.escapeHtml(raw);
-
-        const re = new RegExp(this.escapeRegExp(query), 'gi');
-        let result = '';
-        let lastIndex = 0;
-
-        for (const match of raw.matchAll(re)) {
-            const index = match.index ?? 0;
-            const matched = match[0] ?? '';
-            result += this.escapeHtml(raw.slice(lastIndex, index));
-            result += `<span class="bg-yellow-200/70 text-base-content px-0.5 rounded-sm">${this.escapeHtml(matched)}</span>`;
-            lastIndex = index + matched.length;
-        }
-
-        result += this.escapeHtml(raw.slice(lastIndex));
-        return result || this.escapeHtml(raw);
     }
 
     /**

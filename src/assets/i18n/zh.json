@@ -82,7 +82,13 @@
         "last_update": "最后更新：刚刚",
         "close": "关闭",
         "yes": "是",
-        "no": "否"
+        "no": "否",
+        "confirm": "确认",
+        "cancel": "取消",
+        "retry": "重试",
+        "empty": "暂无数据",
+        "notFoundTitle": "页面不存在",
+        "notFoundDescription": "你访问的页面不存在。"
     },
     "scrolling": {
         "tableOnly": "表格滚动",
@@ -91,7 +97,8 @@
     },
     "pagination": {
         "prev": "上一页",
-        "next": "下一页"
+        "next": "下一页",
+        "label": "分页"
     },
     "shortcuts": {
         "title": "键盘快捷键",

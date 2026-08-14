@@ -33,7 +33,10 @@ export class ThemeService {
                     this.applyTheme('dark');
                 } else if (stored.themeType === 'light') {
                     this.applyTheme('light');
-                } else if (stored.themeType === 'auto' && stored.autoDetectedTheme) {
+                } else if (
+                    stored.themeType === 'auto' &&
+                    stored.autoDetectedTheme
+                ) {
                     this.applyTheme(stored.autoDetectedTheme);
                 }
             } else {
@@ -81,15 +84,21 @@ export class ThemeService {
             this.applyTheme(detectedTheme);
         } catch (error) {
             console.error('Failed to detect system theme:', error);
-            this.applyTheme('light');
+            this.applyTheme(this.prefersDarkFromBrowser() ? 'dark' : 'light');
         }
     }
 
+    private prefersDarkFromBrowser(): boolean {
+        return (
+            typeof window !== 'undefined' &&
+            typeof window.matchMedia === 'function' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+        );
+    }
+
     private applyTheme(themeType: 'light' | 'dark'): void {
-        if (themeType === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
+        // Both values are set explicitly: the dark theme declares prefersdark,
+        // so an absent data-theme resolves to dark on OS dark mode.
+        document.documentElement.setAttribute('data-theme', themeType);
     }
 }

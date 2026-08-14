@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { pathDetectedGuard } from './shared/guards/path-detected.guard';
 
 export const routes: Routes = [
     // Legacy redirect
@@ -70,37 +69,11 @@ export const routes: Routes = [
         },
     },
 
-    // Legacy data routes for backward compatibility (accessible via direct URL)
+    // Legacy data route for backward compatibility (accessible via direct URL)
     {
         path: 'data/local',
         redirectTo: '/data',
         pathMatch: 'full',
-    },
-    {
-        path: 'data/extract',
-        loadComponent: () =>
-            import('./features/data/extract/extract.component').then(
-                (m) => m.ExtractComponent,
-            ),
-        data: {
-            title: 'Extract Data',
-            icon: 'database',
-            description: 'Extract and export data',
-        },
-    },
-    {
-        path: 'data/workshop',
-        loadComponent: () =>
-            import('./features/data/workshop/workshop.component').then(
-                (m) => m.WorkshopComponent,
-            ),
-        canActivate: [pathDetectedGuard],
-        data: {
-            title: 'Workshop Data',
-            icon: 'folder-open',
-            description: 'View workshop content',
-            requiresPathDetection: true,
-        },
     },
 
     // Mods Section (Parent Layout)

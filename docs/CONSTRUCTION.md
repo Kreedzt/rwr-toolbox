@@ -1,15 +1,7 @@
 # RWR Toolbox Project Constitution
 
-<!--
-Sync Impact Report:
-- Version: 1.3.0 → 1.4.0 (minor update)
-- Modified: Principle I - Desktop-First UI Design (added 4K maximum resolution support)
-- Added: Maximum Resolution guidance (3840 × 2160) with responsive scaling requirements
-- Added: Display scaling strategy for high-DPI displays
-- Templates reviewed: No changes required (templates remain generic)
-- Related files: docs/UI.md updated for consistency
-- Follow-up TODOs: None
--->
+本文件定义七条核心原则，管辖本仓库的全部开发活动。
+与之冲突的既有实践一律以本文件为准。
 
 ## Core Principles
 
@@ -58,17 +50,23 @@ Sync Impact Report:
 
 ### III. Theme Adaptability (NON-NEGOTIABLE)
 
-**DaisyUI Theme Support**: The application MUST support both light and dark DaisyUI themes seamlessly. All custom styles MUST use DaisyUI CSS variables for colors to ensure automatic theme adaptation.
+**Single source of colour**: The two custom `@plugin "daisyui/theme"` blocks in `src/styles.css` (the military `light` and `dark` themes) define every colour in the application. `themes: false` — DaisyUI's built-in themes are NOT bundled. Adding a colour means editing those blocks, never a component.
 
-**CSS Variable Usage**:
-- Backgrounds: Use `oklch(var(--b2))`, `oklch(var(--b3))` for base colors
-- Text: Use `oklch(var(--bc))` for base content color
-- Accents: Use `oklch(var(--p))`, `oklch(var(--pf))` for primary color variants
-- Fixed colors are ONLY permitted where semantic meaning requires specific colors independent of theme
+**CSS Variable Usage** (DaisyUI v5 names):
+- Backgrounds: `var(--color-base-100)`, `var(--color-base-200)`, `var(--color-base-300)`
+- Text: `var(--color-base-content)`
+- Accents: `var(--color-primary)`, `var(--color-primary-content)`
+- Alpha: `color-mix(in oklab, var(--color-base-content) 20%, transparent)`
+- Radii: `var(--radius-box)`, `var(--radius-field)`, `var(--radius-selector)`
+
+**Forbidden**:
+- daisyUI v4 short names — `var(--b1)`, `var(--b2)`, `var(--bc)`, `var(--p)`, `var(--rounded-box)`. They no longer exist in v5, so they fail silently and the rule renders with no colour at all.
+- Hardcoded Tailwind palette values in templates or TS (`bg-gray-100`, `text-blue-700`, `bg-yellow-200`). They do not track the theme and lose contrast in dark mode.
+- Any literal hex / oklch outside the theme blocks, except the pre-boot skeleton in `index.html`, which paints before Angular starts and therefore mirrors the themes through `prefers-color-scheme`.
 
 **Testing**: All UI components must be visually verified in both light and dark themes before merge.
 
-**Rationale**: Gamers often prefer dark themes for long sessions. DaisyUI provides a robust theming system that must be fully leveraged, not bypassed with hard-coded colors.
+**Rationale**: Gamers often prefer dark themes for long sessions. DaisyUI provides a robust theming system that must be fully leveraged, not bypassed with hard-coded colors. The v4 variable names above are called out explicitly because an earlier version of this document recommended them; every custom stylesheet in the project inherited them and broke silently on the v5 upgrade.
 
 ---
 
@@ -106,9 +104,9 @@ loading = this.itemService.loading;
 
 **Required Reading Order** (for any AI/developer joining):
 1. `docs/STATUS.md` - Current tech stack, directory structure, feature completion snapshot
-2. `docs/UI.md` - UI/UX principles, 800×600 constraints, component semantics, design constraints
-3. `docs/PLAN.APPENDIX.md` - Implementation references (Ping/parsing/hotkeys/mods)
-4. `docs/CONSTRUCTION.md` - Angular v20 Signals pattern migration guidance
+2. `docs/UI.md` - Design system tokens, type and de-emphasis scales, shared component catalogue, 800×600 constraints
+3. `docs/PLAN.md` - Implementation references (Ping/parsing/hotkeys/mods)
+4. `docs/CONSTRUCTION.md` - This file: the seven core principles that govern all development
 5. `docs/AI_BOOTSTRAP_PROMPT.md` - Bootstrap prompt for AI agents
 
 **Status Updates**: `docs/STATUS.md` is updated ONLY when project state snapshot materially changes (new modules, completion status shifts, tech stack changes).
@@ -166,10 +164,11 @@ export const APP_ICONS = {
 **Tailwind Utility Classes Preferred**: For repeated styling patterns, prefer Tailwind CSS utility classes over creating custom CSS classes with multiple style properties.
 
 **Styling Hierarchy** (in order of preference):
-1. Tailwind utility classes directly in templates (e.g., `class="flex items-center gap-2 p-4"`)
-2. DaisyUI component classes (e.g., `class="btn btn-primary"`)
-3. Angular `@HostBinding` for dynamic style bindings
-4. Custom CSS classes ONLY when:
+1. A shared component from `src/app/shared/components/` — see the catalogue in `docs/UI.md`. Patterns it already covers (page header, section title, empty state, pagination, label/value pair, stat card, filter toolbar) MUST NOT be hand-rolled again.
+2. Tailwind utility classes directly in templates (e.g., `class="flex items-center gap-2 p-4"`)
+3. DaisyUI component classes (e.g., `class="btn btn-primary"`)
+4. Angular `@HostBinding` for dynamic style bindings
+5. Custom CSS classes ONLY when:
    - The style cannot be expressed with Tailwind utilities
    - The style involves complex pseudo-elements or animations
    - The style is truly unique and not reusable
@@ -178,12 +177,13 @@ export const APP_ICONS = {
 - Creating custom CSS classes that replicate existing Tailwind utilities
 - Custom classes with many standard CSS properties (e.g., margin, padding, flexbox, grid)
 - `styles: []` arrays in component decorators for standard styling
+- Component stylesheets that are never referenced by their component (`styleUrl` omitted) — the file silently does nothing
 
-**Allowed Exceptions**:
-- CSS for DaisyUI theme customization (using CSS variables)
-- Complex animations and transitions
-- Third-party component overrides
-- Browser-specific workarounds
+**Allowed Exceptions** — the current global component-class list in `src/styles.css`. Adding to it requires showing that utilities cannot express the rule:
+- `.markdown-body` — styles HTML generated at runtime, which utilities cannot reach
+- `.custom-scrollbar` — `::-webkit-scrollbar` pseudo-elements have no utility equivalent
+- `.table-sticky-zebra` — needs `:nth-child` plus a descendant selector, because a sticky cell does not inherit its row's background
+- `.control-area` — legacy filter toolbar, pending removal in favour of `<app-filter-toolbar>`
 
 **Rationale**: Tailwind CSS utilities provide a consistent design system, reduce bundle size through purging of unused styles, improve maintainability by making styles visible in templates, and prevent CSS bloat from custom classes. Custom CSS classes create hidden dependencies, naming conflicts, and increase the cognitive load of tracking styles across multiple files.
 
@@ -195,7 +195,7 @@ export const APP_ICONS = {
 
 **Framework**: Angular v20.3.15 (mandatory)
 **Language**: TypeScript 5.8.3 (strict mode enabled)
-**Styling**: Tailwind CSS v4.1.18 + DaisyUI v5.5.14
+**Styling**: Tailwind CSS v4.2.4 (CSS-first, no config file) + DaisyUI v5.5.19
 **Icons**: Lucide Angular v0.562.0
 **Build**: Angular CLI v20.3.13
 **Package Manager**: pnpm (mandatory - use `pnpm` instead of `npm`)
@@ -230,7 +230,22 @@ cargo fmt           # Rust formatting
 
 ### Signal-Only State in Services
 
-All feature services (data management features) MUST use `signal()` for state. Legacy `BehaviorSubject` usage in non-data features (players, hotkeys, dashboard, mods) is permitted but marked as technical debt for future migration.
+All feature services MUST use `signal()` for state. The migration is complete: `BehaviorSubject`, `toSignal()` and state-bridging `toObservable()` are all at zero occurrences in `src/app`. Reintroducing any of them is a violation, not debt.
+
+Services compose derived state with `computed()`, and components read those signals directly:
+
+```typescript
+// service — every input is already a signal
+readonly stats = computed<DashboardStats>(() => ({
+  serverCount: this.serverService.serversSig().length,
+  apiStatus: this.apiStatusSig(),
+}));
+
+// component
+stats = this.dashboardService.stats;
+```
+
+The one legitimate use of `toObservable()` left is `shared/adapters/virtual-scroll.adapter.ts`, which feeds Angular CDK an Observable because that is the API CDK exposes. Adapting to a third-party API is not the same as publishing state.
 
 ### Immutable Data Updates
 
@@ -259,14 +274,10 @@ All Tauri command invocations MUST include error handling. User-facing error mes
 
 ### Amendment Procedure
 
-1. Propose change via pull request with rationale
-2. Update `CONSTITUTION_VERSION` following semantic versioning:
-   - MAJOR: Backward-incompatible principle changes
-   - MINOR: New principles or significant guidance additions
-   - PATCH: Clarifications, wording improvements, non-semantic changes
-3. Update `LAST_AMENDED_DATE` to ISO format (YYYY-MM-DD)
-4. Verify template alignment (plan/spec/tasks templates reflect changes)
-5. Obtain approval before merge
+1. Propose the change in a pull request, with the rationale for it
+2. Update the affected principle in place — the git history is the version record
+3. Update any document that restates the changed rule (`docs/UI.md`, `docs/STATUS.md`, `AGENTS.md`)
+4. Obtain approval before merge
 
 ### Compliance Review
 
@@ -282,10 +293,8 @@ This constitution governs all development activity for the RWR Toolbox project. 
 
 For implementation-specific guidance, see:
 - UI/UX specification: `docs/UI.md`
-- Implementation references: `docs/PLAN.APPENDIX.md`
+- Implementation references: `docs/PLAN.md`
 - Current project status: `docs/STATUS.md`
-- Signals migration guidance: `docs/CONSTRUCTION.md`
-- Angular migration: `docs/MIGRATE_ANGULAR.md`
 - AI developer bootstrap: `docs/AI_BOOTSTRAP_PROMPT.md`
 
 ---

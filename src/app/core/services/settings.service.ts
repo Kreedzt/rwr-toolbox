@@ -186,8 +186,12 @@ export class SettingsService {
             if (typeof stored.modArchiveEnabled !== 'boolean') {
                 stored.modArchiveEnabled = DEFAULT_SETTINGS.modArchiveEnabled;
             }
-            if (!stored.modArchiveDirectory && stored.modArchiveDirectory !== null) {
-                stored.modArchiveDirectory = DEFAULT_SETTINGS.modArchiveDirectory;
+            if (
+                !stored.modArchiveDirectory &&
+                stored.modArchiveDirectory !== null
+            ) {
+                stored.modArchiveDirectory =
+                    DEFAULT_SETTINGS.modArchiveDirectory;
             }
             if (!stored.modArchiveEntries) {
                 stored.modArchiveEntries = DEFAULT_SETTINGS.modArchiveEntries;
@@ -507,7 +511,9 @@ export class SettingsService {
         await this.updateSettings({ modArchiveDirectory: path });
     }
 
-    async setModArchiveEntries(entries: import('../../shared/models/mod.models').ModArchiveEntry[]): Promise<void> {
+    async setModArchiveEntries(
+        entries: import('../../shared/models/mod.models').ModArchiveEntry[],
+    ): Promise<void> {
         await this.updateSettings({ modArchiveEntries: entries });
     }
 

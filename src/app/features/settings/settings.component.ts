@@ -18,6 +18,7 @@ import { SteamLaunchService } from './services/steam-launch.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { DatePipe } from '@angular/common';
+import { PageHeaderComponent } from '../../shared/components';
 
 /**
  * Settings component
@@ -26,6 +27,7 @@ import { DatePipe } from '@angular/common';
 @Component({
     selector: 'app-settings',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         TranslocoDirective,
         TranslocoPipe,
@@ -73,7 +75,8 @@ export class SettingsComponent implements OnInit {
 
     /** Mod archive settings */
     readonly modArchiveEnabledSig = this.settingsService.modArchiveEnabledSig;
-    readonly modArchiveDirectorySig = this.settingsService.modArchiveDirectorySig;
+    readonly modArchiveDirectorySig =
+        this.settingsService.modArchiveDirectorySig;
 
     /** Game log */
     private readonly gameLogErrorKey = signal<string | null>(null);
@@ -315,7 +318,9 @@ export class SettingsComponent implements OnInit {
 
     async onToggleModArchive(event: Event): Promise<void> {
         const target = event.target as HTMLInputElement;
-        await this.settingsService.setModArchiveEnabled(Boolean(target?.checked));
+        await this.settingsService.setModArchiveEnabled(
+            Boolean(target?.checked),
+        );
     }
 
     async onSelectModArchiveDirectory(): Promise<void> {
@@ -343,12 +348,18 @@ export class SettingsComponent implements OnInit {
         this.revealingGameLog.set(true);
         this.gameLogErrorKey.set(null);
         try {
-            const res = await invoke<{ kind: string; expectedPath?: string; message?: string }>(
-                'reveal_rwr_game_log',
-            );
-            if (res.kind === 'notFound') this.gameLogErrorKey.set('settings.gameLog.notFound');
+            const res = await invoke<{
+                kind: string;
+                expectedPath?: string;
+                message?: string;
+            }>('reveal_rwr_game_log');
+            if (res.kind === 'notFound')
+                this.gameLogErrorKey.set('settings.gameLog.notFound');
             else if (res.kind === 'failed') {
-                console.error('[Settings] reveal rwr_game.log failed:', res.message);
+                console.error(
+                    '[Settings] reveal rwr_game.log failed:',
+                    res.message,
+                );
                 this.gameLogErrorKey.set('settings.gameLog.error');
             }
         } catch (e) {

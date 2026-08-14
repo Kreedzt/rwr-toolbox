@@ -2,13 +2,14 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoDirective } from '@jsverse/transloco';
 import {
-    DashboardService,
-    DashboardStats,
-    Activity,
-} from './services/dashboard.service';
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionTitleComponent,
+    StatCardComponent,
+} from '../../shared/components';
+import { DashboardService, Activity } from './services/dashboard.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -17,37 +18,19 @@ import {
         LucideAngularModule,
         RouterLink,
         TranslocoDirective,
+        EmptyStateComponent,
+        PageHeaderComponent,
+        SectionTitleComponent,
+        StatCardComponent,
     ],
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
     private dashboardService = inject(DashboardService);
 
-    // Convert observables to signals
-    stats = toSignal(this.dashboardService.getStats$(), {
-        initialValue: {
-            serverCount: 0,
-            playerCount: 0,
-            modCount: 0,
-            apiStatus: 'loading' as const,
-            apiPing: null,
-            lastUpdate: Date.now(),
-        } as DashboardStats,
-    });
-
-    activities = toSignal(this.dashboardService.getRecentActivities$(), {
-        initialValue: [],
-    });
-
-    systemStatus = toSignal(this.dashboardService.getSystemStatus$(), {
-        initialValue: {
-            apiConnected: false,
-            apiPing: null,
-            cacheEnabled: true,
-            gamePathConfigured: false,
-            lastUpdate: Date.now(),
-        },
-    });
+    stats = this.dashboardService.stats;
+    activities = this.dashboardService.activities;
+    systemStatus = this.dashboardService.systemStatus;
 
     ngOnInit(): void {
         this.dashboardService.initialize();

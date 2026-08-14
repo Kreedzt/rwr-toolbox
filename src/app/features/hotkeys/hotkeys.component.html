@@ -1,8 +1,10 @@
-<div class="container mx-auto p-2 sm:p-4" *transloco="let t">
+<div class="space-y-4 p-4" *transloco="let t">
+    <app-page-header titleKey="menu.hotkeys" icon="keyboard" />
+
     <!-- Tab Navigation -->
-    <div class="tabs tabs-boxed mb-4">
+    <div class="tabs tabs-box">
         <button
-            class="tab"
+            class="tab gap-2"
             [class.tab-active]="activeTab === 'read'"
             (click)="switchTab('read')"
         >
@@ -10,7 +12,7 @@
             <span class="hidden sm:inline">{{ t('hotkeys.tab_read') }}</span>
         </button>
         <button
-            class="tab"
+            class="tab gap-2"
             [class.tab-active]="activeTab === 'profiles'"
             (click)="switchTab('profiles')"
         >
@@ -35,7 +37,7 @@
                         {{ t('hotkeys.read_title') }}
                     </h2>
 
-                    <div class="text-xs opacity-70 mb-4">
+                    <div class="text-xs text-base-content/70 mb-4">
                         <p>{{ t('hotkeys.read_desc') }}</p>
                         @if (gamePath) {
                             <p class="mt-2">
@@ -159,14 +161,14 @@
                                 <h3 class="font-bold text-sm">
                                     {{ profile.title }}
                                 </h3>
-                                <p class="text-xs opacity-70">
+                                <p class="text-xs text-base-content/70">
                                     {{
                                         t('hotkeys.hotkeys_count', {
                                             count: profile.config.length,
                                         })
                                     }}
                                 </p>
-                                <p class="text-xs opacity-50">
+                                <p class="text-xs text-base-content/50">
                                     {{
                                         t('hotkeys.updated_at', {
                                             date: formatDate(profile.updatedAt),
@@ -187,7 +189,7 @@
                                     </button>
                                     <ul
                                         tabindex="0"
-                                        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-1 shadow-sm border border-base-300"
+                                        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-1 shadow-lg"
                                     >
                                         <li>
                                             <a
@@ -265,7 +267,7 @@
                     </div>
                 </div>
             } @empty {
-                <div class="text-center py-8 opacity-70">
+                <div class="text-center py-8 text-base-content/70">
                     <i-lucide
                         name="folder-open"
                         class="h-12 w-12 mx-auto mb-2"
@@ -279,7 +281,9 @@
     <!-- Create/Edit Profile Modal -->
     @if (showCreateModal) {
         <div class="modal modal-open">
-            <div class="modal-box max-w-4xl p-0 overflow-hidden flex flex-col max-h-[85vh]">
+            <div
+                class="modal-box max-w-4xl p-0 overflow-hidden flex flex-col max-h-[85vh]"
+            >
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-base-200 shrink-0">
                     <h3 class="font-bold text-lg">
@@ -294,27 +298,31 @@
                 <!-- Body -->
                 <div class="px-6 py-4 space-y-4 overflow-y-auto">
                     <!-- Title Input -->
-                    <div class="form-control flex gap-2">
+                    <div class="flex flex-col gap-1 flex gap-2">
                         <label class="label py-0">
-                            <span class="label-text text-xs font-medium opacity-70">{{
-                                t('hotkeys.profile_title')
-                            }}</span>
+                            <span
+                                class="text-xs font-medium text-base-content/70"
+                                >{{ t('hotkeys.profile_title') }}</span
+                            >
                         </label>
                         <input
                             type="text"
-                            class="input input-bordered input-sm"
+                            class="input input-sm"
                             [(ngModel)]="newProfileTitle"
-                            [placeholder]="t('hotkeys.profile_title_placeholder')"
+                            [placeholder]="
+                                t('hotkeys.profile_title_placeholder')
+                            "
                         />
                     </div>
 
                     <!-- Hotkeys List -->
-                    <div class="form-control">
+                    <div class="flex flex-col gap-1">
                         <div class="flex justify-between items-center mb-2">
                             <label class="label py-1">
-                                <span class="label-text text-xs font-medium opacity-70">{{
-                                    t('hotkeys.hotkeys_list')
-                                }}</span>
+                                <span
+                                    class="text-xs font-medium text-base-content/70"
+                                    >{{ t('hotkeys.hotkeys_list') }}</span
+                                >
                             </label>
                             <button
                                 class="btn btn-xs btn-primary"
@@ -329,9 +337,13 @@
                         </div>
 
                         @if (newProfileConfig.length > 0) {
-                            <div class="border border-base-300 rounded-lg overflow-hidden">
+                            <div
+                                class="border border-base-300 rounded-box overflow-hidden"
+                            >
                                 <!-- List Header -->
-                                <div class="grid grid-cols-[2rem_1fr_1fr_2.5rem] gap-2 px-3 py-2 text-xs font-medium opacity-50 bg-base-200/60 border-b border-base-300">
+                                <div
+                                    class="grid grid-cols-[2rem_1fr_1fr_2.5rem] gap-2 px-3 py-2 text-xs font-medium text-base-content/50 bg-base-200/60 border-b border-base-300"
+                                >
                                     <span class="text-center">#</span>
                                     <span>{{ t('hotkeys.remark') }}</span>
                                     <span>{{ t('hotkeys.content') }}</span>
@@ -343,19 +355,32 @@
                                         item of newProfileConfig;
                                         track $index
                                     ) {
-                                        <div class="group grid grid-cols-[2rem_1fr_1fr_2.5rem] gap-2 items-center px-3 py-2 hover:bg-base-200/40 transition-colors">
-                                            <span class="text-center text-xs font-mono opacity-40">{{ $index + 1 }}</span>
+                                        <div
+                                            class="group grid grid-cols-[2rem_1fr_1fr_2.5rem] gap-2 items-center px-3 py-2 hover:bg-base-200/40 transition-colors"
+                                        >
+                                            <span
+                                                class="text-center text-xs font-mono text-base-content/50"
+                                                >{{ $index + 1 }}</span
+                                            >
                                             <input
                                                 type="text"
-                                                class="input input-ghost input-xs w-full focus:input-bordered"
+                                                class="input input-ghost input-xs w-full"
                                                 [(ngModel)]="item.label"
-                                                [placeholder]="t('hotkeys.remark_placeholder')"
+                                                [placeholder]="
+                                                    t(
+                                                        'hotkeys.remark_placeholder'
+                                                    )
+                                                "
                                             />
                                             <input
                                                 type="text"
-                                                class="input input-ghost input-xs w-full focus:input-bordered"
+                                                class="input input-ghost input-xs w-full"
                                                 [(ngModel)]="item.value"
-                                                [placeholder]="t('hotkeys.content_placeholder')"
+                                                [placeholder]="
+                                                    t(
+                                                        'hotkeys.content_placeholder'
+                                                    )
+                                                "
                                             />
                                             <button
                                                 class="btn btn-xs btn-ghost btn-square opacity-0 group-hover:opacity-100 text-error/70 hover:text-error hover:bg-error/10 transition-all"
@@ -372,8 +397,13 @@
                                 </div>
                             </div>
                         } @else {
-                            <div class="text-center py-8 opacity-60 bg-base-200/30 rounded-lg border border-base-200 border-dashed">
-                                <i-lucide name="keyboard" class="h-8 w-8 mx-auto mb-2 opacity-30"></i-lucide>
+                            <div
+                                class="text-center py-8 text-base-content/70 bg-base-200/30 rounded-box border border-base-200 border-dashed"
+                            >
+                                <i-lucide
+                                    name="keyboard"
+                                    class="h-8 w-8 mx-auto mb-2 text-base-content/30"
+                                ></i-lucide>
                                 <p class="text-sm">
                                     {{ t('hotkeys.no_hotkeys_yet') }}
                                 </p>
@@ -383,7 +413,9 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-4 border-t border-base-200 flex justify-end gap-2 shrink-0 bg-base-100">
+                <div
+                    class="px-6 py-4 border-t border-base-200 flex justify-end gap-2 shrink-0 bg-base-100"
+                >
                     <button class="btn btn-ghost btn-sm" (click)="closeModal()">
                         {{ t('hotkeys.cancel') }}
                     </button>
@@ -483,7 +515,7 @@
                         <h3 class="font-bold text-lg text-success">
                             {{ t('hotkeys.import_success') }}
                         </h3>
-                        <p class="text-sm opacity-70">
+                        <p class="text-sm text-base-content/70">
                             {{ t('hotkeys.import_success_desc') }}
                         </p>
                     </div>
@@ -526,7 +558,7 @@
                     <h3 class="font-bold text-lg text-success">
                         {{ t('hotkeys.share_success') }}
                     </h3>
-                    <p class="text-sm opacity-70">
+                    <p class="text-sm text-base-content/70">
                         {{ t('hotkeys.share_success_desc') }}
                     </p>
                 </div>

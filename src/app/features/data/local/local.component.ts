@@ -1,6 +1,8 @@
 import { Component, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
+import { EmptyStateComponent } from '../../../shared/components';
 import { WeaponsComponent } from '../weapons/weapons.component';
 import { ItemsComponent } from '../items/items.component';
 import { DirectoryService } from '../../settings/services/directory.service';
@@ -13,7 +15,14 @@ import { SettingsService } from '../../../core/services/settings.service';
  */
 @Component({
     selector: 'app-local',
-    imports: [TranslocoPipe, WeaponsComponent, ItemsComponent, RouterLink],
+    imports: [
+        TranslocoPipe,
+        LucideAngularModule,
+        EmptyStateComponent,
+        WeaponsComponent,
+        ItemsComponent,
+        RouterLink,
+    ],
     templateUrl: './local.component.html',
 })
 export class LocalComponent {

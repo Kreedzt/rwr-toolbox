@@ -5,10 +5,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { HotkeyService } from './services/hotkey.service';
 import { IHotkeyConfigItem } from '../../shared/models/hotkeys.models';
+import { PageHeaderComponent } from '../../shared/components';
 
 @Component({
     selector: 'app-hotkeys',
     imports: [
+        PageHeaderComponent,
         CommonModule,
         FormsModule,
         LucideAngularModule,

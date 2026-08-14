@@ -1,4 +1,6 @@
-<div class="container mx-auto p-2 sm:p-4" *transloco="let t">
+<div class="space-y-4 p-4" *transloco="let t">
+    <app-page-header titleKey="mods.install.title" icon="cloud-download" />
+
     <!-- Stepper -->
     <ul class="steps w-full mb-4">
         <li class="step" [class.step-primary]="activeStep >= 0">
@@ -39,13 +41,19 @@
                 </h2>
 
                 <!-- File Format Note -->
-                <div class="alert alert-info mb-4">
+                <!-- A passive format hint, so it uses the soft variant: a
+                     saturated panel would outrank the action button below it.
+                     The pattern is the payload here, not the sentence, so it
+                     keeps full strength while the sentence introduces it. -->
+                <div class="alert alert-soft alert-info mb-4">
                     <i-lucide name="info" class="h-4 w-4"></i-lucide>
-                    <div class="text-xs">
-                        <p class="font-bold">
+                    <div>
+                        <p class="text-sm">
                             {{ t('mods.install.file_format_note') }}
                         </p>
-                        <p class="opacity-70">
+                        <p
+                            class="mt-1 font-mono text-xs break-all text-base-content select-all"
+                        >
                             [RWRMI][{{ '{' }}game_version{{ '}' }}]title v{{
                                 '{'
                             }}version{{ '}' }}.zip
@@ -69,7 +77,7 @@
                 </button>
 
                 <!-- Instructions -->
-                <div class="text-xs opacity-70 mt-4">
+                <div class="text-xs text-base-content/70 mt-4">
                     <ol class="list-decimal list-inside space-y-1">
                         <li>{{ t('mods.install.instruction1') }}</li>
                         <li>{{ t('mods.install.instruction2') }}</li>
@@ -174,7 +182,7 @@
 
                 <!-- Target Path Display -->
                 @if (gamePath) {
-                    <div class="text-xs opacity-70 mb-4">
+                    <div class="text-xs text-base-content/70 mb-4">
                         <span class="font-bold"
                             >{{ t('mods.install.target_path') }}:</span
                         >
@@ -184,17 +192,20 @@
 
                 <!-- Selected Files Summary -->
                 @if (modInfo) {
-                    <div class="bg-base-300/50 rounded-lg p-3 mb-4">
+                    <div class="bg-base-300/50 rounded-box p-3 mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold opacity-70">{{
-                                t('mods.install.selectedFiles')
-                            }}</span>
-                            <span class="text-xs opacity-60">{{
-                                installOptions.selectedFiles.length
-                            }} / {{ modInfo.file_entries.length }} {{ t('mods.install.files') }}</span>
+                            <span
+                                class="text-xs font-bold text-base-content/70"
+                                >{{ t('mods.install.selectedFiles') }}</span
+                            >
+                            <span class="text-xs text-base-content/70"
+                                >{{ installOptions.selectedFiles.length }} /
+                                {{ modInfo.file_entries.length }}
+                                {{ t('mods.install.files') }}</span
+                            >
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-xs opacity-60">{{
+                            <span class="text-xs text-base-content/70">{{
                                 t('mods.install.estimatedSize')
                             }}</span>
                             <span class="text-xs font-mono font-bold">{{
@@ -206,26 +217,26 @@
 
                 <!-- Install Options -->
                 <div class="space-y-2 mb-4">
-                    <div class="form-control">
+                    <div class="flex flex-col gap-1">
                         <label class="label cursor-pointer justify-start gap-3">
                             <input
                                 type="checkbox"
                                 class="checkbox checkbox-sm checkbox-primary"
                                 [(ngModel)]="installOptions.backup"
                             />
-                            <span class="label-text text-xs">{{
+                            <span class="text-xs">{{
                                 t('mods.install.backup_option')
                             }}</span>
                         </label>
                     </div>
-                    <div class="form-control">
+                    <div class="flex flex-col gap-1">
                         <label class="label cursor-pointer justify-start gap-3">
                             <input
                                 type="checkbox"
                                 class="checkbox checkbox-sm checkbox-primary"
                                 [(ngModel)]="installOptions.overwrite"
                             />
-                            <span class="label-text text-xs">{{
+                            <span class="text-xs">{{
                                 t('mods.install.overwrite_option')
                             }}</span>
                         </label>
@@ -237,7 +248,10 @@
                     <button
                         class="btn btn-primary w-full"
                         (click)="onInstall()"
-                        [disabled]="loading() || installOptions.selectedFiles.length === 0"
+                        [disabled]="
+                            loading() ||
+                            installOptions.selectedFiles.length === 0
+                        "
                     >
                         @if (loading()) {
                             <span class="loading loading-spinner"></span>
@@ -290,7 +304,7 @@
                 </div>
 
                 <!-- Backup Note -->
-                <div class="text-xs opacity-70 mt-4">
+                <div class="text-xs text-base-content/70 mt-4">
                     {{ t('mods.install.backup_note') }}
                 </div>
             </div>
@@ -309,21 +323,39 @@
                         }}</span>
                     </h3>
                     <div class="flex gap-1">
-                        <button class="btn btn-xs btn-ghost" (click)="selectAllFiles()">
+                        <button
+                            class="btn btn-xs btn-ghost"
+                            (click)="selectAllFiles()"
+                        >
                             {{ t('mods.install.selectAll') }}
                         </button>
-                        <button class="btn btn-xs btn-ghost" (click)="invertSelection()">
+                        <button
+                            class="btn btn-xs btn-ghost"
+                            (click)="invertSelection()"
+                        >
                             {{ t('mods.install.invertSelection') }}
                         </button>
                     </div>
                 </div>
                 <div class="divider"></div>
                 <!-- Estimated size bar -->
-                <div class="flex justify-between text-xs opacity-70 mb-2">
-                    <span>{{ t('mods.install.estimatedSize') }}: <span class="font-mono font-bold">{{ formatBytes(selectedSize) }}</span></span>
-                    <span>{{ installOptions.selectedFiles.length }} {{ t('mods.install.files') }}</span>
+                <div
+                    class="flex justify-between text-xs text-base-content/70 mb-2"
+                >
+                    <span
+                        >{{ t('mods.install.estimatedSize') }}:
+                        <span class="font-mono font-bold">{{
+                            formatBytes(selectedSize)
+                        }}</span></span
+                    >
+                    <span
+                        >{{ installOptions.selectedFiles.length }}
+                        {{ t('mods.install.files') }}</span
+                    >
                 </div>
-                <div class="h-80 overflow-y-auto bg-base-300/40 rounded-lg p-2">
+                <div
+                    class="h-80 overflow-y-auto bg-base-300/40 rounded-box p-2"
+                >
                     <ul class="space-y-0.5">
                         @for (entry of modInfo.file_entries; track entry.path) {
                             <li
@@ -337,8 +369,13 @@
                                     (click)="$event.stopPropagation()"
                                     (change)="toggleFileSelection(entry.path)"
                                 />
-                                <span class="font-mono flex-1 truncate">{{ entry.path }}</span>
-                                <span class="font-mono opacity-60 text-[10px] shrink-0">{{ formatBytes(entry.size) }}</span>
+                                <span class="font-mono flex-1 truncate">{{
+                                    entry.path
+                                }}</span>
+                                <span
+                                    class="font-mono text-base-content/70 text-xs shrink-0"
+                                    >{{ formatBytes(entry.size) }}</span
+                                >
                             </li>
                         }
                     </ul>

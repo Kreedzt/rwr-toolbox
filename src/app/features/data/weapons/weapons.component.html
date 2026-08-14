@@ -5,17 +5,20 @@
             <div
                 class="join-item flex items-center bg-base-100 border border-base-300 px-3"
             >
-                <i-lucide name="search" class="h-4 w-4 opacity-50"></i-lucide>
+                <i-lucide
+                    name="search"
+                    class="h-4 w-4 text-base-content/50"
+                ></i-lucide>
             </div>
             <input
                 type="text"
                 [placeholder]="'weapons.search' | transloco"
-                class="input input-bordered input-sm join-item flex-1"
+                class="input input-sm join-item flex-1"
                 [value]="searchTerm()"
                 (input)="onSearch($any($event.target).value)"
             />
             <select
-                class="select select-bordered select-sm join-item w-40"
+                class="select select-sm join-item w-40"
                 (change)="onTagFilter($any($event.target).value)"
             >
                 <option value="">
@@ -33,14 +36,15 @@
     <!-- Tools Group -->
     <div class="flex items-end gap-2">
         <!-- Page Size -->
-        <div class="form-control">
+        <div class="flex flex-col gap-1">
             <label class="label py-0 h-4">
-                <span class="label-text text-[10px] uppercase opacity-50">{{
-                    'weapons.page_size' | transloco
-                }}</span>
+                <span
+                    class="text-xs uppercase text-base-content/70 tracking-wider"
+                    >{{ 'weapons.page_size' | transloco }}</span
+                >
             </label>
             <select
-                class="select select-bordered select-sm"
+                class="select select-sm"
                 [value]="pagination().pageSize"
                 (change)="onPageSizeChange($event)"
             >
@@ -64,12 +68,13 @@
             </div>
             <ul
                 tabindex="0"
-                class="dropdown-content z-[30] menu p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300"
+                class="dropdown-content z-[30] menu p-2 shadow-lg bg-base-100 rounded-box w-52"
             >
                 <li class="menu-title">
-                    <span class="text-[10px] uppercase opacity-50">{{
-                        'weapons.column.selectColumns' | transloco
-                    }}</span>
+                    <span
+                        class="text-xs uppercase text-base-content/70 tracking-wider"
+                        >{{ 'weapons.column.selectColumns' | transloco }}</span
+                    >
                 </li>
                 @for (col of columns; track col.key) {
                     <li>
@@ -83,7 +88,7 @@
                                 [disabled]="isColumnDisabled(col.key)"
                                 (change)="onColumnToggle(col.key)"
                             />
-                            <span class="label-text text-xs">{{
+                            <span class="text-xs">{{
                                 col.i18nKey | transloco
                             }}</span>
                         </label>
@@ -126,7 +131,10 @@
         class="flex items-center justify-between p-4 cursor-pointer hover:bg-base-200/50 transition-colors"
     >
         <div class="text-sm font-medium flex items-center gap-2">
-            <i-lucide name="layers" class="h-4 w-4 opacity-50"></i-lucide>
+            <i-lucide
+                name="layers"
+                class="h-4 w-4 text-base-content/50"
+            ></i-lucide>
             {{ 'weapons.advancedSearch' | transloco }}
         </div>
         <i-lucide
@@ -144,17 +152,17 @@
                 class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4"
             >
                 <!-- Damage Range -->
-                <div class="form-control">
+                <div class="flex flex-col gap-1">
                     <label class="label py-1">
                         <span
-                            class="label-text text-[10px] uppercase opacity-50"
+                            class="text-xs uppercase text-base-content/70 tracking-wider"
                             >{{ 'weapons.filters.damage' | transloco }}</span
                         >
                     </label>
                     <div class="join w-full">
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Min"
                             [value]="advancedFilters().damage?.min ?? ''"
                             (input)="
@@ -167,7 +175,7 @@
                         />
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Max"
                             [value]="advancedFilters().damage?.max ?? ''"
                             (input)="
@@ -182,17 +190,17 @@
                 </div>
 
                 <!-- Fire Rate Range -->
-                <div class="form-control">
+                <div class="flex flex-col gap-1">
                     <label class="label py-1">
                         <span
-                            class="label-text text-[10px] uppercase opacity-50"
+                            class="text-xs uppercase text-base-content/70 tracking-wider"
                             >{{ 'weapons.filters.fireRate' | transloco }}</span
                         >
                     </label>
                     <div class="join w-full">
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Min"
                             [value]="advancedFilters().fireRate?.min ?? ''"
                             (input)="
@@ -205,7 +213,7 @@
                         />
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Max"
                             [value]="advancedFilters().fireRate?.max ?? ''"
                             (input)="
@@ -220,10 +228,10 @@
                 </div>
 
                 <!-- Magazine Size Range -->
-                <div class="form-control">
+                <div class="flex flex-col gap-1">
                     <label class="label py-1">
                         <span
-                            class="label-text text-[10px] uppercase opacity-50"
+                            class="text-xs uppercase text-base-content/70 tracking-wider"
                             >{{
                                 'weapons.filters.magazineSize' | transloco
                             }}</span
@@ -232,7 +240,7 @@
                     <div class="join w-full">
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Min"
                             [value]="advancedFilters().magazineSize?.min ?? ''"
                             (input)="
@@ -245,7 +253,7 @@
                         />
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Max"
                             [value]="advancedFilters().magazineSize?.max ?? ''"
                             (input)="
@@ -260,10 +268,10 @@
                 </div>
 
                 <!-- Encumbrance Range -->
-                <div class="form-control">
+                <div class="flex flex-col gap-1">
                     <label class="label py-1">
                         <span
-                            class="label-text text-[10px] uppercase opacity-50"
+                            class="text-xs uppercase text-base-content/70 tracking-wider"
                             >{{
                                 'weapons.filters.encumbrance' | transloco
                             }}</span
@@ -272,7 +280,7 @@
                     <div class="join w-full">
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Min"
                             [value]="advancedFilters().encumbrance?.min ?? ''"
                             (input)="
@@ -285,7 +293,7 @@
                         />
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Max"
                             [value]="advancedFilters().encumbrance?.max ?? ''"
                             (input)="
@@ -300,17 +308,17 @@
                 </div>
 
                 <!-- Price Range -->
-                <div class="form-control">
+                <div class="flex flex-col gap-1">
                     <label class="label py-1">
                         <span
-                            class="label-text text-[10px] uppercase opacity-50"
+                            class="text-xs uppercase text-base-content/70 tracking-wider"
                             >{{ 'weapons.filters.price' | transloco }}</span
                         >
                     </label>
                     <div class="join w-full">
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Min"
                             [value]="advancedFilters().price?.min ?? ''"
                             (input)="
@@ -323,7 +331,7 @@
                         />
                         <input
                             type="number"
-                            class="input input-bordered input-xs join-item w-full"
+                            class="input input-xs join-item w-full"
                             placeholder="Max"
                             [value]="advancedFilters().price?.max ?? ''"
                             (input)="
@@ -357,7 +365,7 @@
                                 )
                             "
                         />
-                        <span class="label-text text-xs">{{
+                        <span class="text-xs">{{
                             'weapons.filters.suppressed' | transloco
                         }}</span>
                     </label>
@@ -378,7 +386,7 @@
                                 )
                             "
                         />
-                        <span class="label-text text-xs">{{
+                        <span class="text-xs">{{
                             'weapons.filters.canRespawnWith' | transloco
                         }}</span>
                     </label>
@@ -407,9 +415,7 @@
 
 <!-- Loading State -->
 @if (loading()) {
-    <div
-        class="alert alert-info mb-4 py-2 px-3 text-sm bg-info/10 text-info border-info/20"
-    >
+    <div class="alert alert-soft alert-info mb-4 py-2 px-3 text-sm">
         <span class="loading loading-spinner h-4 w-4"></span>
         <span>{{ 'weapons.scanning' | transloco }}</span>
     </div>
@@ -454,7 +460,7 @@
                                     "
                                 >
                                     <span
-                                        class="uppercase tracking-wider text-[10px] opacity-60"
+                                        class="uppercase tracking-wider text-xs text-base-content/70"
                                         >{{ col.i18nKey | transloco }}</span
                                     >
                                     @if (
@@ -547,14 +553,14 @@
                                     ) {
                                         <i-lucide
                                             name="image-off"
-                                            class="w-5 h-5 opacity-20"
+                                            class="w-5 h-5 text-base-content/30"
                                         />
                                     }
                                 </div>
                             } @else if (col.field === 'filePath') {
                                 <div class="relative min-w-0">
                                     <span
-                                        class="block w-full pr-14 text-[10px] font-mono truncate opacity-60"
+                                        class="block w-full pr-14 text-xs font-mono truncate text-base-content/70"
                                         [title]="weapon.filePath"
                                     >
                                         {{ weapon.filePath }}
@@ -599,24 +605,32 @@
                             } @else if (col.field === 'name') {
                                 <span
                                     class="font-medium text-sm"
-                                    [innerHTML]="highlight(weapon.name)"
+                                    [innerHTML]="
+                                        weapon.name | highlight: searchTerm()
+                                    "
                                 ></span>
                                 @if (localizedName(weapon.name); as localized) {
                                     <span
-                                        class="block text-xs opacity-60"
-                                        [innerHTML]="highlight(localized)"
+                                        class="block text-xs text-base-content/70"
+                                        [innerHTML]="
+                                            localized | highlight: searchTerm()
+                                        "
                                     ></span>
                                 }
                             } @else if (col.field === 'tag') {
                                 <span
-                                    class="badge badge-ghost badge-sm font-mono text-[10px] opacity-70"
-                                    [innerHTML]="highlight(weapon.tag)"
+                                    class="badge badge-ghost badge-sm font-mono text-xs text-base-content/70"
+                                    [innerHTML]="
+                                        weapon.tag | highlight: searchTerm()
+                                    "
                                 ></span>
                             } @else if (col.field === 'key') {
                                 <span
                                     class="text-xs truncate block"
                                     [title]="weapon.key"
-                                    [innerHTML]="highlight(weapon.key)"
+                                    [innerHTML]="
+                                        weapon.key | highlight: searchTerm()
+                                    "
                                 ></span>
                             } @else {
                                 <span class="text-xs">{{
@@ -632,23 +646,17 @@
 </div>
 
 @if (weaponCount() === 0) {
-    <div class="text-center py-20">
-        <div class="flex flex-col items-center opacity-20">
-            <i-lucide name="inbox" class="h-12 w-12 mb-2"></i-lucide>
-            <p>{{ 'weapons.noWeapons' | transloco }}</p>
-        </div>
-    </div>
+    <app-empty-state icon="inbox" messageKey="weapons.noWeapons" size="lg" />
 }
 
-<!-- Pagination Controls -->
 @if (weaponCount() > 0) {
-    <div
-        class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3 px-1"
+    <app-pagination
+        [currentPage]="pagination().currentPage"
+        [totalPages]="totalPages()"
+        [hasInfo]="true"
+        (pageChange)="onPageChange($event)"
     >
-        <!-- Display Stats -->
-        <div
-            class="text-[10px] text-base-content/50 uppercase tracking-wider order-2 sm:order-1"
-        >
+        <span info>
             {{
                 'weapons.pagination_info'
                     | transloco
@@ -658,50 +666,10 @@
                               total: totalItems(),
                           }
             }}
-            <span class="mx-2">|</span>
+            <span class="mx-2 text-base-content/50">|</span>
             {{ 'weapons.weaponCount' | transloco: { count: weaponCount() } }}
-        </div>
-
-        <!-- Page Navigation -->
-        <div class="join order-1 sm:order-2 shadow-sm border border-base-300">
-            <!-- Previous Button -->
-            <button
-                class="btn btn-xs join-item bg-base-100"
-                [disabled]="pagination().currentPage === 1"
-                [title]="'pagination.prev' | transloco"
-                (click)="onPageChange(pagination().currentPage - 1)"
-            >
-                <i-lucide name="chevron-left" class="h-4 w-4"></i-lucide>
-            </button>
-            @for (page of getPageNumbers(); track page) {
-                @if (page === -1) {
-                    <button
-                        class="btn btn-xs join-item pointer-events-none opacity-50 bg-base-100"
-                    >
-                        ...
-                    </button>
-                } @else {
-                    <button
-                        class="btn btn-xs join-item bg-base-100"
-                        [class.btn-active]="page === pagination().currentPage"
-                        [class.btn-primary]="page === pagination().currentPage"
-                        (click)="onPageChange(page)"
-                    >
-                        {{ page }}
-                    </button>
-                }
-            }
-            <!-- Next Button -->
-            <button
-                class="btn btn-xs join-item bg-base-100"
-                [disabled]="pagination().currentPage === totalPages()"
-                [title]="'pagination.next' | transloco"
-                (click)="onPageChange(pagination().currentPage + 1)"
-            >
-                <i-lucide name="chevron-right" class="h-4 w-4"></i-lucide>
-            </button>
-        </div>
-    </div>
+        </span>
+    </app-pagination>
 }
 
 <!-- Drawer Overlay (click to close) -->
@@ -716,7 +684,7 @@
 @if (isDetailPanelOpen() && selectedWeapon()) {
     <aside
         @slideIn
-        class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-100 border-l border-base-300 shadow-2xl z-[100] flex flex-col"
+        class="fixed top-0 right-0 w-[75%] min-w-[400px] h-screen bg-base-100 shadow-2xl z-[100] flex flex-col"
     >
         <!-- Header -->
         <div
@@ -750,7 +718,7 @@
                             {{ 'weapons.details.title' | transloco }} - Template
                             Error
                         </h4>
-                        <p class="text-[10px]">
+                        <p class="text-xs">
                             {{ selectedWeapon()!.templateError }}
                         </p>
                     </div>
@@ -761,7 +729,7 @@
             <div class="flex gap-6 mb-8">
                 <div class="flex-shrink-0">
                     <div
-                        class="w-32 h-32 bg-base-200 rounded-xl shadow-inner border border-base-300 flex items-center justify-center p-4 relative"
+                        class="w-32 h-32 bg-base-200 rounded-box border border-base-300 flex items-center justify-center p-4 relative"
                         [class.skeleton]="
                             loadingIcons().has(selectedWeapon()?.key || '')
                         "
@@ -797,7 +765,7 @@
                 <div class="flex-1 min-w-0 grid grid-cols-1 gap-4">
                     <div>
                         <span
-                            class="text-[10px] uppercase font-bold opacity-40 block mb-1"
+                            class="text-xs uppercase font-semibold text-base-content/50 block mb-1 tracking-wider"
                             >{{ 'weapons.columns.key' | transloco }}</span
                         >
                         <div
@@ -809,7 +777,7 @@
                     <div class="flex gap-4">
                         <div class="flex-1">
                             <span
-                                class="text-[10px] uppercase font-bold opacity-40 block mb-1"
+                                class="text-xs uppercase font-semibold text-base-content/50 block mb-1 tracking-wider"
                                 >{{ 'weapons.columns.class' | transloco }}</span
                             >
                             <div class="text-sm font-medium">
@@ -818,7 +786,7 @@
                         </div>
                         <div class="flex-1">
                             <span
-                                class="text-[10px] uppercase font-bold opacity-40 block mb-1"
+                                class="text-xs uppercase font-semibold text-base-content/50 block mb-1 tracking-wider"
                                 >{{
                                     'weapons.details.package' | transloco
                                 }}</span
@@ -835,13 +803,17 @@
             </div>
 
             <!-- File Path -->
-            <div class="mb-8 p-3 bg-base-200 rounded-lg border border-base-300">
+            <div
+                class="mb-8 p-3 bg-base-200 rounded-box border border-base-300"
+            >
                 <span
-                    class="text-[10px] uppercase font-bold opacity-40 block mb-2"
+                    class="text-xs uppercase font-semibold text-base-content/50 block mb-2 tracking-wider"
                     >{{ 'weapons.columns.filePath' | transloco }}</span
                 >
                 <div class="flex items-center gap-3">
-                    <div class="text-xs font-mono break-all flex-1 opacity-70">
+                    <div
+                        class="text-xs font-mono break-all flex-1 text-base-content/70"
+                    >
                         {{ selectedWeapon()!.filePath }}
                     </div>
                     <div class="flex gap-1">
@@ -867,7 +839,7 @@
             <!-- Specifications -->
             <div class="mb-8">
                 <h4
-                    class="text-xs font-bold uppercase opacity-40 mb-3 tracking-widest"
+                    class="text-xs font-semibold uppercase text-base-content/50 mb-3 tracking-widest"
                 >
                     {{ 'weapons.details.specifications' | transloco }}
                 </h4>
@@ -875,7 +847,7 @@
                     <div
                         class="flex justify-between border-b border-base-300 py-2"
                     >
-                        <span class="text-sm opacity-70">{{
+                        <span class="text-sm text-base-content/70">{{
                             'weapons.columns.magazineSize' | transloco
                         }}</span>
                         <span class="font-mono font-bold">{{
@@ -885,7 +857,7 @@
                     <div
                         class="flex justify-between border-b border-base-300 py-2"
                     >
-                        <span class="text-sm opacity-70">{{
+                        <span class="text-sm text-base-content/70">{{
                             'weapons.columns.killProbability' | transloco
                         }}</span>
                         <span class="font-mono font-bold">{{
@@ -895,7 +867,7 @@
                     <div
                         class="flex justify-between border-b border-base-300 py-2"
                     >
-                        <span class="text-sm opacity-70">{{
+                        <span class="text-sm text-base-content/70">{{
                             'weapons.columns.retriggerTime' | transloco
                         }}</span>
                         <span class="font-mono font-bold">{{
@@ -906,7 +878,7 @@
                         <div
                             class="flex justify-between border-b border-base-300 py-2"
                         >
-                            <span class="text-sm opacity-70">{{
+                            <span class="text-sm text-base-content/70">{{
                                 'weapons.details.projectileSpeed' | transloco
                             }}</span>
                             <span class="font-mono font-bold">{{
@@ -918,7 +890,7 @@
                         <div
                             class="flex justify-between border-b border-base-300 py-2"
                         >
-                            <span class="text-sm opacity-70">{{
+                            <span class="text-sm text-base-content/70">{{
                                 'weapons.filters.encumbrance' | transloco
                             }}</span>
                             <span class="font-mono font-bold">{{
@@ -930,7 +902,7 @@
                         <div
                             class="flex justify-between border-b border-base-300 py-2"
                         >
-                            <span class="text-sm opacity-70">{{
+                            <span class="text-sm text-base-content/70">{{
                                 'weapons.filters.price' | transloco
                             }}</span>
                             <span class="font-mono font-bold text-success">{{
@@ -942,11 +914,14 @@
 
                 <div class="grid grid-cols-3 gap-4 mt-4">
                     <div
-                        class="bg-base-200 p-3 rounded-lg border border-base-300 flex flex-col items-center"
+                        class="bg-base-200 p-3 rounded-box border border-base-300 flex flex-col items-center"
                     >
-                        <span class="text-[10px] uppercase opacity-40 mb-1">{{
-                            'weapons.details.suppressed' | transloco
-                        }}</span>
+                        <span
+                            class="text-xs uppercase text-base-content/70 mb-1 tracking-wider"
+                            >{{
+                                'weapons.details.suppressed' | transloco
+                            }}</span
+                        >
                         @if (selectedWeapon()!.suppressed) {
                             <i-lucide
                                 name="check-circle"
@@ -955,16 +930,19 @@
                         } @else {
                             <i-lucide
                                 name="x-circle"
-                                class="h-5 w-5 opacity-20"
+                                class="h-5 w-5 text-base-content/30"
                             ></i-lucide>
                         }
                     </div>
                     <div
-                        class="bg-base-200 p-3 rounded-lg border border-base-300 flex flex-col items-center"
+                        class="bg-base-200 p-3 rounded-box border border-base-300 flex flex-col items-center"
                     >
-                        <span class="text-[10px] uppercase opacity-40 mb-1">{{
-                            'weapons.details.canRespawnWith' | transloco
-                        }}</span>
+                        <span
+                            class="text-xs uppercase text-base-content/70 mb-1 tracking-wider"
+                            >{{
+                                'weapons.details.canRespawnWith' | transloco
+                            }}</span
+                        >
                         @if (selectedWeapon()!.canRespawnWith) {
                             <i-lucide
                                 name="check-circle"
@@ -973,16 +951,17 @@
                         } @else {
                             <i-lucide
                                 name="x-circle"
-                                class="h-5 w-5 opacity-20"
+                                class="h-5 w-5 text-base-content/30"
                             ></i-lucide>
                         }
                     </div>
                     <div
-                        class="bg-base-200 p-3 rounded-lg border border-base-300 flex flex-col items-center"
+                        class="bg-base-200 p-3 rounded-box border border-base-300 flex flex-col items-center"
                     >
-                        <span class="text-[10px] uppercase opacity-40 mb-1">{{
-                            'weapons.details.inStock' | transloco
-                        }}</span>
+                        <span
+                            class="text-xs uppercase text-base-content/70 mb-1 tracking-wider"
+                            >{{ 'weapons.details.inStock' | transloco }}</span
+                        >
                         @if (selectedWeapon()!.inStock) {
                             <i-lucide
                                 name="check-circle"
@@ -991,7 +970,7 @@
                         } @else {
                             <i-lucide
                                 name="x-circle"
-                                class="h-5 w-5 opacity-20"
+                                class="h-5 w-5 text-base-content/30"
                             ></i-lucide>
                         }
                     </div>
@@ -1002,7 +981,7 @@
             @if (selectedWeapon()!.stanceAccuracies.length > 0) {
                 <div class="mb-8">
                     <h4
-                        class="text-xs font-bold uppercase opacity-40 mb-3 tracking-widest"
+                        class="text-xs font-semibold uppercase text-base-content/50 mb-3 tracking-widest"
                     >
                         {{ 'weapons.details.stanceAccuracies' | transloco }}
                     </h4>
@@ -1012,7 +991,7 @@
                             track stance.stance
                         ) {
                             <div
-                                class="flex justify-between items-center p-3 bg-base-200/50 rounded-lg border border-base-300"
+                                class="flex justify-between items-center p-3 bg-base-200/50 rounded-box border border-base-300"
                             >
                                 <span class="text-sm font-medium">{{
                                     'weapons.details.stances.' + stance.stance
@@ -1032,7 +1011,7 @@
             @if (selectedWeapon()!.chainVariants.length > 0) {
                 <div class="mb-8">
                     <h4
-                        class="text-xs font-bold uppercase opacity-40 mb-3 tracking-widest"
+                        class="text-xs font-semibold uppercase text-base-content/50 mb-3 tracking-widest"
                     >
                         {{ 'weapons.details.chainVariants' | transloco }}
                     </h4>

@@ -1,10 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, of, map, combineLatest } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { invoke } from '@tauri-apps/api/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { ServerService } from '../../servers/services/server.service';
-import { PlayerService } from '../../players/services/player.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { PingService } from '../../../core/services/ping.service';
 import { DirectoryService } from '../../settings/services/directory.service';
@@ -55,7 +52,6 @@ export interface SystemStatus {
 })
 export class DashboardService {
     private serverService = inject(ServerService);
-    private playerService = inject(PlayerService);
     private settingsService = inject(SettingsService);
     private pingService = inject(PingService);
     private directoryService = inject(DirectoryService);
@@ -66,7 +62,7 @@ export class DashboardService {
 
     private transloco = inject(TranslocoService);
 
-    // State management with signals (Principle IX: Signal管状态)
+    // State management with signals (Principle IV)
     private activitiesState = signal<Activity[]>([]);
     private apiStatusState = signal<'online' | 'offline' | 'loading'>(
         'loading',
@@ -78,64 +74,47 @@ export class DashboardService {
     readonly apiPingSig = this.apiPingState.asReadonly();
 
     /**
-     * Get aggregated dashboard statistics
+     * Aggregated dashboard statistics.
+     *
+     * Every input is already a signal, so this composes them directly rather
+     * than routing them through combineLatest for the component to convert
+     * back — that round trip was two sources of truth for one value.
      */
-    getStats$(): Observable<DashboardStats> {
-        return combineLatest([
-            toObservable(this.serverService.serversSig),
-            toObservable(this.apiStatusSig),
-            toObservable(this.apiPingSig),
-            toObservable(this.directoryService.directoriesSig),
-        ]).pipe(
-            map(([servers, apiStatus, apiPing, directories]) => {
-                const serverCount = servers.length;
-                const playerCount = servers.reduce(
-                    (sum: number, s: any) => sum + s.currentPlayers,
-                    0,
-                );
+    readonly stats = computed<DashboardStats>(() => {
+        const servers = this.serverService.serversSig();
+        const directories = this.directoryService.directoriesSig();
 
-                const modCount = directories.reduce(
-                    (sum, dir) => sum + (dir.packageCount || 0),
-                    0,
-                );
-
-                return {
-                    serverCount,
-                    playerCount,
-                    modCount,
-                    apiStatus,
-                    apiPing,
-                    lastUpdate: Date.now(),
-                };
-            }),
-        );
-    }
+        return {
+            serverCount: servers.length,
+            playerCount: servers.reduce(
+                (sum, server) => sum + server.currentPlayers,
+                0,
+            ),
+            modCount: directories.reduce(
+                (sum, dir) => sum + (dir.packageCount || 0),
+                0,
+            ),
+            apiStatus: this.apiStatusSig(),
+            apiPing: this.apiPingSig(),
+            lastUpdate: Date.now(),
+        };
+    });
 
     /**
-     * Get recent activities
+     * Recent activities, newest first
      */
-    getRecentActivities$(): Observable<Activity[]> {
-        return toObservable(this.activitiesSig);
-    }
+    readonly activities = this.activitiesSig;
 
     /**
-     * Get system status
+     * System status summary
      */
-    getSystemStatus$(): Observable<SystemStatus> {
-        return combineLatest([
-            toObservable(this.apiStatusSig),
-            toObservable(this.apiPingSig),
-            toObservable(this.gameDirConfiguredSig),
-        ]).pipe(
-            map(([apiStatus, apiPing, gameDirConfigured]) => ({
-                apiConnected: apiStatus === 'online',
-                apiPing,
-                cacheEnabled: true,
-                gamePathConfigured: gameDirConfigured,
-                lastUpdate: Date.now(),
-            })),
-        );
-    }
+    readonly systemStatus = computed<SystemStatus>(() => ({
+        apiConnected: this.apiStatusSig() === 'online',
+        apiPing: this.apiPingSig(),
+        cacheEnabled: true,
+        gamePathConfigured: this.gameDirConfiguredSig(),
+        lastUpdate: Date.now(),
+    }));
 
     /**
      * Add an activity to the log

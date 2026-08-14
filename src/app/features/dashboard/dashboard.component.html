@@ -1,16 +1,23 @@
-<div class="space-y-4" *transloco="let t">
+<div class="space-y-4 p-4" *transloco="let t">
+    <app-page-header titleKey="menu.dashboard" icon="layout-dashboard">
+        <button actions class="btn btn-sm gap-2" (click)="refresh()">
+            <i-lucide name="refresh-cw" class="h-4 w-4"></i-lucide>
+            {{ t('dashboard.refresh') }}
+        </button>
+    </app-page-header>
+
     @if (!systemStatus().gamePathConfigured) {
-        <div class="alert alert-warning border border-warning/20">
+        <div class="alert alert-warning">
             <i-lucide name="alert-triangle" class="h-4 w-4"></i-lucide>
             <div>
-                <h3 class="font-bold text-sm">
+                <h3 class="text-sm font-bold">
                     {{ t('dashboard.gameDirMissingTitle') }}
                 </h3>
-                <div class="text-xs">
+                <p class="text-sm">
                     {{ t('dashboard.gameDirMissingDesc') }}
-                </div>
+                </p>
             </div>
-            <a class="btn btn-sm btn-outline" routerLink="/settings">
+            <a class="btn btn-sm" routerLink="/settings">
                 <i-lucide name="settings" class="h-4 w-4"></i-lucide>
                 {{ t('dashboard.gameDirMissingCta') }}
             </a>
@@ -18,251 +25,144 @@
     }
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Active Servers -->
-        <div class="stats shadow-sm bg-base-100 border border-base-200">
-            <div class="stat p-4">
-                <div class="stat-figure text-primary opacity-50">
-                    <i-lucide name="server" class="h-6 w-6"></i-lucide>
-                </div>
-                <div
-                    class="stat-title text-xs uppercase tracking-wider font-semibold"
-                >
-                    {{ t('common.active_servers') }}
-                </div>
-                <div class="stat-value text-2xl text-primary">
-                    {{ stats().serverCount }}
-                </div>
-                <div class="stat-desc text-xs mt-1">
-                    @if (stats().apiStatus === 'loading') {
-                        <span class="loading loading-spinner loading-xs"></span>
-                    } @else if (stats().apiStatus === 'online') {
-                        <span class="text-success flex items-center gap-1">
-                            <span
-                                class="w-1.5 h-1.5 rounded-full bg-success"
-                            ></span>
-                            {{ t('dashboard.statusOnline') }}
-                        </span>
-                    } @else {
-                        <span class="text-error flex items-center gap-1">
-                            <span
-                                class="w-1.5 h-1.5 rounded-full bg-error"
-                            ></span>
-                            {{ t('dashboard.statusOffline') }}
-                        </span>
-                    }
-                </div>
-            </div>
-        </div>
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <app-stat-card labelKey="common.active_servers" icon="server">
+            <ng-container value>{{ stats().serverCount }}</ng-container>
+            <ng-container desc>
+                @if (stats().apiStatus === 'loading') {
+                    <span class="loading loading-spinner loading-xs"></span>
+                } @else if (stats().apiStatus === 'online') {
+                    <span class="flex items-center gap-1 text-success">
+                        <span
+                            class="h-1.5 w-1.5 rounded-full bg-success"
+                        ></span>
+                        {{ t('dashboard.statusOnline') }}
+                    </span>
+                } @else {
+                    <span class="flex items-center gap-1 text-error">
+                        <span class="h-1.5 w-1.5 rounded-full bg-error"></span>
+                        {{ t('dashboard.statusOffline') }}
+                    </span>
+                }
+            </ng-container>
+        </app-stat-card>
 
-        <!-- Players Online -->
-        <div class="stats shadow-sm bg-base-100 border border-base-200">
-            <div class="stat p-4">
-                <div class="stat-figure text-secondary opacity-50">
-                    <i-lucide name="users" class="h-6 w-6"></i-lucide>
-                </div>
-                <div
-                    class="stat-title text-xs uppercase tracking-wider font-semibold"
-                >
-                    {{ t('common.players_online') }}
-                </div>
-                <div class="stat-value text-2xl text-secondary">
-                    {{ stats().playerCount }}
-                </div>
-                <div class="stat-desc text-xs mt-1 truncate">
-                    {{ t('dashboard.playersScope') }}
-                </div>
-            </div>
-        </div>
+        <app-stat-card labelKey="common.players_online" icon="users">
+            <ng-container value>{{ stats().playerCount }}</ng-container>
+            <span desc class="truncate">{{ t('dashboard.playersScope') }}</span>
+        </app-stat-card>
 
-        <!-- Local Mods -->
-        <div class="stats shadow-sm bg-base-100 border border-base-200">
-            <div class="stat p-4">
-                <div class="stat-figure text-accent opacity-50">
-                    <i-lucide name="package" class="h-6 w-6"></i-lucide>
-                </div>
-                <div
-                    class="stat-title text-xs uppercase tracking-wider font-semibold"
-                >
-                    {{ t('dashboard.localModsTitle') }}
-                </div>
-                <div class="stat-value text-2xl text-accent">
-                    {{ stats().modCount }}
-                </div>
-                <div class="stat-desc text-xs mt-1 truncate">
-                    {{ t('dashboard.localModsDesc') }}
-                </div>
-            </div>
-        </div>
+        <app-stat-card labelKey="dashboard.localModsTitle" icon="package">
+            <ng-container value>{{ stats().modCount }}</ng-container>
+            <span desc class="truncate">{{
+                t('dashboard.localModsDesc')
+            }}</span>
+        </app-stat-card>
 
-        <!-- API Status -->
-        <div class="stats shadow-sm bg-base-100 border border-base-200">
-            <div class="stat p-4">
-                <div class="stat-figure opacity-50">
-                    @if (stats().apiStatus === 'loading') {
-                        <span class="loading loading-spinner loading-md"></span>
-                    } @else if (stats().apiStatus === 'online') {
-                        <i-lucide
-                            name="check-circle"
-                            class="h-6 w-6 text-success"
-                        ></i-lucide>
-                    } @else {
-                        <i-lucide
-                            name="x-circle"
-                            class="h-6 w-6 text-error"
-                        ></i-lucide>
-                    }
-                </div>
-                <div
-                    class="stat-title text-xs uppercase tracking-wider font-semibold"
-                >
-                    {{ t('common.api_connection') }}
-                </div>
-                <div class="stat-value text-lg">
-                    @if (stats().apiStatus === 'online') {
-                        <span class="text-success">{{
-                            stats().apiPing
-                                ? stats().apiPing + 'ms'
-                                : t('dashboard.statusOnline')
-                        }}</span>
-                    } @else {
-                        <span class="text-error">{{
-                            t('dashboard.statusOffline')
-                        }}</span>
-                    }
-                </div>
-                <div class="stat-desc text-xs mt-1 truncate">
-                    {{ stats().lastUpdate | date: 'HH:mm:ss' }}
-                </div>
-            </div>
-        </div>
+        <app-stat-card labelKey="common.api_connection">
+            <ng-container figure>
+                @if (stats().apiStatus === 'loading') {
+                    <span class="loading loading-spinner loading-sm"></span>
+                } @else if (stats().apiStatus === 'online') {
+                    <i-lucide
+                        name="check-circle"
+                        class="h-5 w-5 text-success"
+                    ></i-lucide>
+                } @else {
+                    <i-lucide
+                        name="x-circle"
+                        class="h-5 w-5 text-error"
+                    ></i-lucide>
+                }
+            </ng-container>
+            <ng-container value>
+                @if (stats().apiStatus === 'loading') {
+                    <span class="loading loading-spinner loading-sm"></span>
+                } @else if (stats().apiStatus === 'online') {
+                    <span class="text-success">{{
+                        stats().apiPing !== null
+                            ? stats().apiPing + 'ms'
+                            : t('dashboard.statusOnline')
+                    }}</span>
+                } @else {
+                    <span class="text-error">{{
+                        t('dashboard.statusOffline')
+                    }}</span>
+                }
+            </ng-container>
+            <span desc class="truncate">{{
+                stats().lastUpdate | date: 'HH:mm:ss'
+            }}</span>
+        </app-stat-card>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Quick Actions -->
-        <div
-            class="card card-compact bg-base-100 shadow-sm border border-base-200 lg:col-span-2"
-        >
-            <div class="card-body p-4">
-                <h2
-                    class="card-title text-xs uppercase opacity-50 font-bold mb-2"
-                >
-                    {{ t('dashboard.quickActions') }}
-                </h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-1">
-                    <button
-                        class="btn btn-primary btn-sm gap-2 h-10"
-                        routerLink="/servers"
-                    >
-                        <i-lucide name="server" class="h-4 w-4"></i-lucide>
-                        <span class="truncate">{{ t('menu.servers') }}</span>
-                    </button>
-                    <button
-                        class="btn btn-secondary btn-sm gap-2 h-10"
-                        routerLink="/players"
-                    >
-                        <i-lucide name="search" class="h-4 w-4"></i-lucide>
-                        <span class="truncate">{{ t('menu.players') }}</span>
-                    </button>
-                    <button
-                        class="btn btn-accent btn-sm gap-2 h-10"
-                        routerLink="/mods"
-                    >
-                        <i-lucide name="package" class="h-4 w-4"></i-lucide>
-                        <span class="truncate">{{ t('menu.mods') }}</span>
-                    </button>
-                    <button
-                        class="btn btn-neutral btn-sm gap-2 h-10"
-                        routerLink="/settings"
-                    >
-                        <i-lucide name="settings" class="h-4 w-4"></i-lucide>
-                        <span class="truncate">{{ t('menu.settings') }}</span>
-                    </button>
-                </div>
-            </div>
+    <!-- Quick Actions -->
+    <section class="rounded-box border border-base-300 bg-base-100 p-4">
+        <app-section-title labelKey="dashboard.quickActions" />
+        <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <a class="btn btn-sm h-10 gap-2" routerLink="/servers">
+                <i-lucide name="server" class="h-4 w-4"></i-lucide>
+                <span class="truncate">{{ t('menu.servers') }}</span>
+            </a>
+            <a class="btn btn-sm h-10 gap-2" routerLink="/players">
+                <i-lucide name="search" class="h-4 w-4"></i-lucide>
+                <span class="truncate">{{ t('menu.players') }}</span>
+            </a>
+            <a class="btn btn-sm h-10 gap-2" routerLink="/mods">
+                <i-lucide name="package" class="h-4 w-4"></i-lucide>
+                <span class="truncate">{{ t('menu.mods') }}</span>
+            </a>
+            <a class="btn btn-sm h-10 gap-2" routerLink="/settings">
+                <i-lucide name="settings" class="h-4 w-4"></i-lucide>
+                <span class="truncate">{{ t('menu.settings') }}</span>
+            </a>
         </div>
-
-        <!-- Refresh Button Card -->
-        <div
-            class="card card-compact bg-base-100 shadow-sm border border-base-200"
-        >
-            <div
-                class="card-body p-4 flex flex-row lg:flex-col items-center justify-between lg:justify-center gap-4"
-            >
-                <div class="lg:text-center">
-                    <h2
-                        class="card-title text-xs uppercase opacity-50 font-bold"
-                    >
-                        {{ t('dashboard.dataSyncTitle') }}
-                    </h2>
-                    <p class="text-xs opacity-60 hidden lg:block">
-                        {{ t('dashboard.dataSyncDesc') }}
-                    </p>
-                </div>
-                <button
-                    class="btn btn-outline btn-sm w-36 lg:w-full gap-2 h-10"
-                    (click)="refresh()"
-                >
-                    <i-lucide name="refresh-cw" class="h-4 w-4"></i-lucide>
-                    {{ t('dashboard.refresh') }}
-                </button>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <!-- Recent Activity -->
-    <div
-        class="card card-compact bg-base-100 shadow-sm border border-base-200 overflow-hidden"
+    <section
+        class="overflow-hidden rounded-box border border-base-300 bg-base-100 p-4"
     >
-        <div class="card-body p-4">
-            <h2 class="card-title text-xs uppercase opacity-50 font-bold mb-2">
-                {{ t('common.recent_activity') }}
-            </h2>
-            @if (activities().length === 0) {
-                <div class="text-center py-8 text-base-content/40 text-xs">
-                    <i-lucide
-                        name="inbox"
-                        class="h-10 w-10 mx-auto mb-2 opacity-20"
-                    ></i-lucide>
-                    {{ t('dashboard.noActivity') }}
-                </div>
-            } @else {
-                <div class="max-h-56 overflow-y-auto mt-2 pr-2">
-                    <ul
-                        class="timeline timeline-sm timeline-compact timeline-vertical"
-                    >
-                        @for (
-                            activity of activities();
-                            track trackActivity($index, activity)
-                        ) {
-                            <li class="min-h-14">
-                                <div class="timeline-middle">
-                                    <i-lucide
-                                        [name]="activity.icon"
-                                        class="h-4 w-4 text-primary opacity-70"
-                                    ></i-lucide>
-                                </div>
-                                <div
-                                    class="timeline-end timeline-box bg-base-200 text-sm p-3 border-none shadow-none w-full"
+        <app-section-title labelKey="common.recent_activity" />
+        @if (activities().length === 0) {
+            <app-empty-state
+                messageKey="dashboard.noActivity"
+                icon="inbox"
+                size="sm"
+            />
+        } @else {
+            <div class="custom-scrollbar mt-3 max-h-56 overflow-y-auto pr-2">
+                <ul class="timeline timeline-compact timeline-vertical">
+                    @for (
+                        activity of activities();
+                        track trackActivity($index, activity)
+                    ) {
+                        <li class="min-h-14">
+                            <div class="timeline-middle">
+                                <i-lucide
+                                    [name]="activity.icon"
+                                    class="h-4 w-4 text-primary"
+                                ></i-lucide>
+                            </div>
+                            <div
+                                class="timeline-end timeline-box w-full border-none bg-base-200 p-3 shadow-none"
+                            >
+                                <p class="truncate text-sm font-semibold">
+                                    {{ activity.title }}
+                                </p>
+                                <p
+                                    class="mt-1 truncate text-sm text-base-content/70"
                                 >
-                                    <div class="font-bold truncate text-sm">
-                                        {{ activity.title }}
-                                    </div>
-                                    <div
-                                        class="text-xs opacity-60 truncate mt-0.5"
-                                    >
-                                        {{ activity.description }}
-                                    </div>
-                                </div>
-                                @if (!$last) {
-                                    <hr class="bg-base-300" />
-                                }
-                            </li>
-                        }
-                    </ul>
-                </div>
-            }
-        </div>
-    </div>
+                                    {{ activity.description }}
+                                </p>
+                            </div>
+                            @if (!$last) {
+                                <hr class="bg-base-300" />
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </section>
 </div>

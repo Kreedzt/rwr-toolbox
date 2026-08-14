@@ -1,4 +1,11 @@
-import { Component, HostListener, signal, computed, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    HostListener,
+    signal,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';

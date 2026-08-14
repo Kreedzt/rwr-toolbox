@@ -5,11 +5,21 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ModService } from '../services/mod.service';
 import { SettingsService } from '../../../core/services/settings.service';
-import { ModArchiveEntry, ModReadInfo } from '../../../shared/models/mod.models';
+import {
+    ModArchiveEntry,
+    ModReadInfo,
+} from '../../../shared/models/mod.models';
+import { PageHeaderComponent } from '../../../shared/components';
 
 @Component({
     selector: 'app-assets',
-    imports: [CommonModule, RouterLink, LucideAngularModule, TranslocoDirective],
+    imports: [
+        PageHeaderComponent,
+        CommonModule,
+        RouterLink,
+        LucideAngularModule,
+        TranslocoDirective,
+    ],
     templateUrl: './assets.component.html',
 })
 export class AssetsComponent implements OnInit {
