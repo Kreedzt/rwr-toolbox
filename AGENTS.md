@@ -143,12 +143,13 @@ cargo test          # Rust tests
 
 ## UI Self-check
 
-After any UI change, all six must return no lines (kept in sync with `docs/UI.md`):
+After any UI change, all seven must return no lines (kept in sync with `docs/UI.md`):
 
 ```bash
 grep -rEn 'text-\[[0-9.]+(px|rem|em)\]' src/app
 grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
-grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|[1-9]00)' src/app
+grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|950|[1-9]00)' src/app
+grep -rnE '\[class\.active\]|class="([^"]*[[:space:]])?active([[:space:]][^"]*)?"' src/app --include="*.html"
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
 grep -rn "<svg" src/app --include="*.html" --include="*.ts"

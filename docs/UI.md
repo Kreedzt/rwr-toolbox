@@ -307,8 +307,10 @@ AppComponent (app.component.html)
 grep -rEn 'text-\[[0-9.]+(px|rem|em)\]' src/app
 # daisyUI v4 遗留类
 grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
-# 硬编码 Tailwind 调色板（全部色相 × 全部档位）
-grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|[1-9]00)' src/app
+# 硬编码 Tailwind 调色板（全部色相 × 全部档位，含 950）
+grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|950|[1-9]00)' src/app
+# 裸 active 类（v5 应为 menu-active；不能直接搜 active，会撞上 dir.active、activeTab、i18n key）
+grep -rnE '\[class\.active\]|class="([^"]*[[:space:]])?active([[:space:]][^"]*)?"' src/app --include="*.html"
 # uppercase 缺 tracking
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 # daisyUI v4 CSS 变量
