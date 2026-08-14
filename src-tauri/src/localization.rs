@@ -174,7 +174,10 @@ mod tests {
         let mut map = HashMap::new();
         parse_localization_file(&tmp.join("misc_text_vanilla.xml"), &mut map);
 
-        assert_eq!(map.get("AA-12").map(String::as_str), Some("AA-12全自动霰弹枪"));
+        assert_eq!(
+            map.get("AA-12").map(String::as_str),
+            Some("AA-12全自动霰弹枪")
+        );
         assert_eq!(map.get("Medikit").map(String::as_str), Some("医疗包"));
         assert!(!map.contains_key("Empty"));
 
@@ -185,7 +188,11 @@ mod tests {
     fn load_translations_walks_package_languages() {
         let tmp = std::env::temp_dir().join("rwr_loc_test_load");
         let _ = std::fs::remove_dir_all(&tmp);
-        let lang_dir = tmp.join("packages").join("vanilla").join("languages").join("cn");
+        let lang_dir = tmp
+            .join("packages")
+            .join("vanilla")
+            .join("languages")
+            .join("cn");
         std::fs::create_dir_all(&lang_dir).unwrap();
         write_file(
             &lang_dir,

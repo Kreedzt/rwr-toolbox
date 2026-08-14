@@ -59,6 +59,8 @@
         "title": "关于 RWR 工具箱",
         "description": "一个为《小兵步枪》(Running With Rifles) 玩家和模组开发者提供的强大桌面工具。轻松扫描、搜索和探索游戏数据，包括武器、物品和服务器信息。",
         "github_button": "在 GitHub 上查看",
+        "updateAvailable": "新版本 {{ version }} 可用！",
+        "downloadRelease": "从 GitHub Releases 下载",
         "versionHistoryTitle": "版本历史",
         "changelogUnavailable": "更新日志不可用。",
         "footer": "为 RWR 社区精心打造 ❤️"
@@ -203,6 +205,13 @@
             "selectDirectory": "选择",
             "clearDirectory": "清除",
             "selectDirectoryTitle": "选择模组归档目录"
+        },
+        "gameLog": {
+            "title": "游戏日志",
+            "description": "在文件管理器中打开 rwr_game.log（Running with rifles）所在位置",
+            "open": "打开日志位置",
+            "notFound": "未找到 rwr_game.log 所在位置，可能尚未启动过游戏。",
+            "error": "打开日志位置失败。"
         }
     },
     "servers": {

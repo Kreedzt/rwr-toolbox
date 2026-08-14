@@ -1,4 +1,11 @@
-import { Component, HostListener, signal, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    HostListener,
+    signal,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -31,6 +38,7 @@ export class AppComponent implements OnInit {
     private versionCheckService = inject(VersionCheckService);
 
     updateStatus = this.versionCheckService.updateStatus;
+    readonly hasUpdate = computed(() => this.updateStatus().isAvailable);
     readonly theme = this.themeService.theme;
 
     menuItems = MAIN_MENU_ITEMS;

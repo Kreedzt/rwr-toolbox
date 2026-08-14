@@ -16,6 +16,26 @@
         </a>
     </app-page-header>
 
+    @if (updateStatus().isAvailable) {
+        <div class="alert alert-soft alert-info">
+            <i-lucide name="download" class="h-4 w-4 shrink-0"></i-lucide>
+            <span class="flex-1 text-sm font-semibold">
+                {{
+                    t('about_page.updateAvailable', {
+                        version: updateStatus().availableVersion,
+                    })
+                }}
+            </span>
+            <button
+                class="btn btn-primary btn-sm"
+                (click)="onDownloadRelease()"
+            >
+                {{ t('about_page.downloadRelease') }}
+                <i-lucide name="external-link" class="h-4 w-4"></i-lucide>
+            </button>
+        </div>
+    }
+
     <section class="rounded-box border border-base-300 bg-base-100 p-4">
         <app-section-title labelKey="about_page.versionHistoryTitle" />
 

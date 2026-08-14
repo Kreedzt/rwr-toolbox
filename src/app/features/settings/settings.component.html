@@ -310,6 +310,49 @@
         </div>
     </div>
 
+    <!-- Game Log -->
+    <div class="card bg-base-100 border border-base-300 mb-6">
+        <div class="card-body">
+            <div class="flex flex-wrap justify-between items-start gap-4">
+                <div class="min-w-0 flex-1">
+                    <h2
+                        class="card-title text-sm uppercase text-base-content/70 tracking-wider"
+                    >
+                        {{ t('settings.gameLog.title') }}
+                    </h2>
+                    <p class="text-xs text-base-content/70 mt-1">
+                        {{ t('settings.gameLog.description') }}
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="btn btn-primary btn-sm"
+                        (click)="onOpenGameLog()"
+                        [disabled]="revealingGameLogSig()"
+                    >
+                        @if (revealingGameLogSig()) {
+                            <span
+                                class="loading loading-spinner loading-xs"
+                            ></span>
+                        }
+                        <i-lucide
+                            name="external-link"
+                            class="h-4 w-4"
+                        ></i-lucide>
+                        {{ t('settings.gameLog.open') }}
+                    </button>
+                </div>
+            </div>
+            @if (gameLogErrorKeySig(); as errKey) {
+                @if (errKey) {
+                    <div class="alert alert-error mt-4">
+                        <span class="text-sm">{{ t(errKey) }}</span>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
     <!-- Directory Management (Full Width) -->
     <div class="card bg-base-100 border border-base-300">
         <div class="card-body">
