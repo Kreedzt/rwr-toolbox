@@ -76,9 +76,11 @@
                 }
             </ng-container>
             <ng-container value>
-                @if (stats().apiStatus === 'online') {
+                @if (stats().apiStatus === 'loading') {
+                    <span class="loading loading-spinner loading-sm"></span>
+                } @else if (stats().apiStatus === 'online') {
                     <span class="text-success">{{
-                        stats().apiPing
+                        stats().apiPing !== null
                             ? stats().apiPing + 'ms'
                             : t('dashboard.statusOnline')
                     }}</span>

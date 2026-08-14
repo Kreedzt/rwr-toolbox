@@ -60,7 +60,7 @@
 
 ### 非颜色 token
 
-```
+```text
 --radius-selector: 0.25rem   徽章 / 复选框 / 小芯片
 --radius-field:    0.25rem   按钮 / 输入框 / select / tab
 --radius-box:      0.375rem  卡片 / 面板 / modal / 下拉容器
@@ -303,12 +303,21 @@ AppComponent (app.component.html)
 **自检命令**（改完 UI 应全部返回 0 行）：
 
 ```bash
-grep -rEn "text-\[(9|10|11)px\]" src/app
+# 任意值字号（不限于曾出现过的 9/10/11px）
+grep -rEn 'text-\[[0-9.]+(px|rem|em)\]' src/app
+# daisyUI v4 遗留类
 grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
-grep -rn "bg-gray-|bg-red-100|bg-yellow-200|text-blue-700" src/app
+# 硬编码 Tailwind 调色板（全部色相 × 全部档位）
+grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|[1-9]00)' src/app
+# uppercase 缺 tracking
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
+# daisyUI v4 CSS 变量
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
+# 手写 SVG（图标必须走 lucide 注册表）
+grep -rn "<svg" src/app --include="*.html" --include="*.ts"
 ```
+
+前三条刻意写成模式而非枚举：按已经犯过的错去 grep，只能挡住重犯，挡不住同类新错。
 
 彩色底上的中性文字无法用 grep 可靠检出（要看 DOM 祖先），改完 alert / badge / 彩色面板时人工核对：
 **这块底是彩色的吗？是的话文字色必须来自同一色相。**

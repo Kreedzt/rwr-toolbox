@@ -8,7 +8,7 @@ TL;DR：
 ## 项目概述
 
 - **项目名称**: RWR Toolbox
-- **版本**: 0.2.1（以 `package.json` / `src-tauri/tauri.conf.json` 为准，两者必须一致）
+- **版本**: 0.4.0（以 `package.json` / `src-tauri/tauri.conf.json` 为准，两者必须一致）
 - **类型**: Tauri + Angular 桌面客户端
 - **目标游戏**: Running With Rifles (RWR)
 

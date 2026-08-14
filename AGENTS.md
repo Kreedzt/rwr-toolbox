@@ -16,7 +16,7 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-08-13
 
 - Product: Desktop toolbox for Running With Rifles players/modders
 - App type: Angular + Tauri desktop application (not web/mobile-first)
-- Current app version: `0.2.1`
+- Current app version: `0.4.0`
 - UI baseline: 800x600 minimum, 3840x2160 maximum supported
 
 ## Active Technologies
@@ -143,14 +143,15 @@ cargo test          # Rust tests
 
 ## UI Self-check
 
-After any UI change, all five must return no lines:
+After any UI change, all six must return no lines (kept in sync with `docs/UI.md`):
 
 ```bash
-grep -rEn "text-\[(9|10|11)px\]" src/app
+grep -rEn 'text-\[[0-9.]+(px|rem|em)\]' src/app
 grep -rEn "label-text|input-bordered|select-bordered|textarea-bordered|form-control|card-compact|tabs-boxed|stats-sm|timeline-sm" src/app
-grep -rn "bg-gray-|bg-red-100|bg-yellow-200|text-blue-700" src/app
+grep -rEn '(bg|text|border|fill|stroke|ring|divide|from|to|via)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|[1-9]00)' src/app
 grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
+grep -rn "<svg" src/app --include="*.html" --include="*.ts"
 ```
 
 ## Known Technical Debt
