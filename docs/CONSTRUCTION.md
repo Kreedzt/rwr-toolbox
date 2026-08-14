@@ -1,15 +1,7 @@
 # RWR Toolbox Project Constitution
 
-<!--
-Sync Impact Report:
-- Version: 1.3.0 → 1.4.0 (minor update)
-- Modified: Principle I - Desktop-First UI Design (added 4K maximum resolution support)
-- Added: Maximum Resolution guidance (3840 × 2160) with responsive scaling requirements
-- Added: Display scaling strategy for high-DPI displays
-- Templates reviewed: No changes required (templates remain generic)
-- Related files: docs/UI.md updated for consistency
-- Follow-up TODOs: None
--->
+本文件定义七条核心原则，管辖本仓库的全部开发活动。
+与之冲突的既有实践一律以本文件为准。
 
 ## Core Principles
 
@@ -112,9 +104,9 @@ loading = this.itemService.loading;
 
 **Required Reading Order** (for any AI/developer joining):
 1. `docs/STATUS.md` - Current tech stack, directory structure, feature completion snapshot
-2. `docs/UI.md` - UI/UX principles, 800×600 constraints, component semantics, design constraints
-3. `docs/PLAN.APPENDIX.md` - Implementation references (Ping/parsing/hotkeys/mods)
-4. `docs/CONSTRUCTION.md` - Angular v20 Signals pattern migration guidance
+2. `docs/UI.md` - Design system tokens, type and de-emphasis scales, shared component catalogue, 800×600 constraints
+3. `docs/PLAN.md` - Implementation references (Ping/parsing/hotkeys/mods)
+4. `docs/CONSTRUCTION.md` - This file: the seven core principles that govern all development
 5. `docs/AI_BOOTSTRAP_PROMPT.md` - Bootstrap prompt for AI agents
 
 **Status Updates**: `docs/STATUS.md` is updated ONLY when project state snapshot materially changes (new modules, completion status shifts, tech stack changes).
@@ -203,7 +195,7 @@ export const APP_ICONS = {
 
 **Framework**: Angular v20.3.15 (mandatory)
 **Language**: TypeScript 5.8.3 (strict mode enabled)
-**Styling**: Tailwind CSS v4.1.18 + DaisyUI v5.5.14
+**Styling**: Tailwind CSS v4.2.4 (CSS-first, no config file) + DaisyUI v5.5.19
 **Icons**: Lucide Angular v0.562.0
 **Build**: Angular CLI v20.3.13
 **Package Manager**: pnpm (mandatory - use `pnpm` instead of `npm`)
@@ -238,7 +230,9 @@ cargo fmt           # Rust formatting
 
 ### Signal-Only State in Services
 
-All feature services (data management features) MUST use `signal()` for state. Legacy `BehaviorSubject` usage in non-data features (players, hotkeys, dashboard, mods) is permitted but marked as technical debt for future migration.
+All feature services MUST use `signal()` for state. The `BehaviorSubject` migration is complete — there are zero occurrences left in `src/app`, and reintroducing one is a violation, not debt.
+
+One exception remains and is tracked as debt: `DashboardService` holds its state in signals but republishes it through `toObservable()` + `combineLatest`, so `DashboardComponent` converts it back with `toSignal()`. That signal → observable → signal round trip is the dual-state pattern this principle exists to prevent. Do not copy it; new features read service signals directly.
 
 ### Immutable Data Updates
 
@@ -267,14 +261,10 @@ All Tauri command invocations MUST include error handling. User-facing error mes
 
 ### Amendment Procedure
 
-1. Propose change via pull request with rationale
-2. Update `CONSTITUTION_VERSION` following semantic versioning:
-   - MAJOR: Backward-incompatible principle changes
-   - MINOR: New principles or significant guidance additions
-   - PATCH: Clarifications, wording improvements, non-semantic changes
-3. Update `LAST_AMENDED_DATE` to ISO format (YYYY-MM-DD)
-4. Verify template alignment (plan/spec/tasks templates reflect changes)
-5. Obtain approval before merge
+1. Propose the change in a pull request, with the rationale for it
+2. Update the affected principle in place — the git history is the version record
+3. Update any document that restates the changed rule (`docs/UI.md`, `docs/STATUS.md`, `AGENTS.md`)
+4. Obtain approval before merge
 
 ### Compliance Review
 
@@ -290,10 +280,8 @@ This constitution governs all development activity for the RWR Toolbox project. 
 
 For implementation-specific guidance, see:
 - UI/UX specification: `docs/UI.md`
-- Implementation references: `docs/PLAN.APPENDIX.md`
+- Implementation references: `docs/PLAN.md`
 - Current project status: `docs/STATUS.md`
-- Signals migration guidance: `docs/CONSTRUCTION.md`
-- Angular migration: `docs/MIGRATE_ANGULAR.md`
 - AI developer bootstrap: `docs/AI_BOOTSTRAP_PROMPT.md`
 
 ---

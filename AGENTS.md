@@ -8,7 +8,7 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-08-13
 - Required reading order for new contributors/agents:
     1. `docs/STATUS.md`
     2. `docs/UI.md`
-    3. `docs/PLAN.md` (this file is currently titled `PLAN.APPENDIX`)
+    3. `docs/PLAN.md`
     4. `docs/CONSTRUCTION.md`
     5. `docs/AI_BOOTSTRAP_PROMPT.md`
 
@@ -16,7 +16,7 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-08-13
 
 - Product: Desktop toolbox for Running With Rifles players/modders
 - App type: Angular + Tauri desktop application (not web/mobile-first)
-- Current app version: `0.1.2`
+- Current app version: `0.2.1`
 - UI baseline: 800x600 minimum, 3840x2160 maximum supported
 
 ## Active Technologies
@@ -73,16 +73,20 @@ Regenerated from `docs/` authoritative sources. Last updated: 2026-08-13
 ```text
 src/
   styles.css            # daisyUI themes + @theme tokens + the four global component classes
+  index.html            # pre-boot skeleton (mirrors the themes via prefers-color-scheme)
   app/
-    core/
-      components/       # app-shell-only components
-    shared/
-      components/       # reusable presentational components (barrel: index.ts)
-      pipes/            # highlight
-      utils/
+    core/               # app-shell only, not reused
+      components/ services/ utils/ workers/
+    shared/             # reused across features
+      components/       # 7 presentational components (barrel: index.ts)
+      adapters/ constants/ guards/ icons/ interfaces/ models/ pipes/ services/ utils/
     features/
+      dashboard/ servers/ players/ hotkeys/ settings/ about/
+      data/             # local (tabs) + items + weapons
+      mods/             # mods-layout + install + bundle + assets
+      shared/services/  # cross-feature services only
 src-tauri/
-docs/
+docs/                   # STATUS · UI · PLAN · CONSTRUCTION · AI_BOOTSTRAP_PROMPT
 ```
 
 ## Development Commands
@@ -134,7 +138,7 @@ cargo test          # Rust tests
 
 - Completed: i18n migration, 800x600 layout optimization, servers, settings, dashboard, players, hotkeys
 - Completed: UI refactor to the military design system — custom light/dark themes, shared component layer, type and de-emphasis scales, removal of the daisyUI v4 leftovers
-- In progress: data management is partially complete (about 90% per `docs/STATUS.md`)
+- Completed: data management (scanning, filtering, detail panels) per `docs/STATUS.md`
 - Deferred: merging the items/weapons virtual-scroll tables into one generic data-table. The two pages still duplicate the CDK double-table header-sync implementation; the merge needs a scroll-performance comparison against real game data, which only runs in the Tauri desktop build
 
 ## UI Self-check
@@ -149,7 +153,7 @@ grep -rn "uppercase" src/app --include="*.html" | grep -v tracking
 grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
 ```
 
-## Known Documentation Notes
+## Known Technical Debt
 
-- `docs/PLAN.md` content title uses `PLAN.APPENDIX`; treat this file as the implementation-reference appendix
-- Some historical docs still show `npm` command examples; preferred baseline is `pnpm` per `docs/CONSTRUCTION.md`
+- `DashboardService` keeps its state in signals but republishes it through `toObservable()` + `combineLatest`, so `DashboardComponent` converts it back with `toSignal()`. This violates the architecture constraint above; new features read service signals directly.
+- `features/shared/` and `app/shared/` coexist with overlapping names. `features/shared/` holds only cross-feature services; put new shared code in `app/shared/`.

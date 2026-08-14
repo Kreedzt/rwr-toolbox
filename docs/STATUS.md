@@ -8,7 +8,7 @@ TL;DR：
 ## 项目概述
 
 - **项目名称**: RWR Toolbox
-- **版本**: 0.1.0
+- **版本**: 0.2.1（以 `package.json` / `src-tauri/tauri.conf.json` 为准，两者必须一致）
 - **类型**: Tauri + Angular 桌面客户端
 - **目标游戏**: Running With Rifles (RWR)
 
@@ -17,13 +17,15 @@ TL;DR：
 | 类别     | 技术           | 版本    |
 | -------- | -------------- | ------- |
 | 前端框架 | Angular        | 20.3.15 |
+| 语言     | TypeScript     | 5.8.3   |
+| 构建     | Angular CLI    | 20.3.13 |
+| 包管理   | pnpm           | —       |
 | 国际化   | Transloco      | 8.2.0   |
 | 桌面框架 | Tauri          | 2.x     |
-| 样式     | Tailwind CSS   | 4.2.4   |
+| 样式     | Tailwind CSS   | 4.2.4（CSS-first，无配置文件） |
 | UI 组件  | DaisyUI        | 5.5.19  |
 | 图标     | Lucide Angular | 0.562.0 |
-| 语言     | TypeScript     | 5.8.3   |
-| 包管理   | Angular CLI    | 20.3.13 |
+| 虚拟滚动 | Angular CDK    | 20.2.14 |
 
 ## 项目架构（快照）
 
@@ -33,13 +35,14 @@ src/app/
 ├── app.config.ts            # 全局配置（Transloco, Lucide, Router）
 ├── app.routes.ts            # 路由配置
 ├── transloco-loader.ts      # 运行时多语言加载器
-├── core/                    # 核心服务层
-│   └── services/
-│       ├── cache.service.ts         # 缓存服务
-│       ├── http-client.service.ts   # HTTP 客户端（Tauri）
-│       ├── ping.service.ts          # Ping 服务
-│       └── settings.service.ts      # 设置服务（收藏夹等）
-├── shared/                  # 共享模块
+├── notfound/                # 404 页
+├── core/                    # 应用壳专用，不对外复用
+│   ├── components/
+│   │   └── update-prompt.component.ts   # 状态栏更新提示
+│   ├── services/            # cache / http-client（Tauri）/ ping / settings / version-check
+│   ├── utils/               # performance.utils.ts
+│   └── workers/             # data-processor.worker.ts
+├── shared/                  # 跨 feature 复用
 │   ├── components/          # 共享展示型组件（barrel: index.ts）
 │   │   ├── page-header/             # 页面唯一 h1 + actions 插槽
 │   │   ├── section-title/           # 卡片/区块小标题
@@ -48,31 +51,33 @@ src/app/
 │   │   ├── label-value/             # 详情面板标签-值对
 │   │   ├── stat-card/               # 统计卡
 │   │   └── filter-toolbar/          # 表格筛选面板（纯布局）
-│   ├── pipes/
-│   │   └── highlight.pipe.ts        # 搜索词高亮（输出已转义）
-│   ├── utils/
-│   │   └── highlight.utils.ts       # 高亮实现 + 高亮标记类常量
-│   ├── constants/
-│   │   └── menu-items.ts            # 菜单配置（使用 i18n key）
-│   ├── guards/
-│   │   └── path-detected.guard.ts   # 路径检测守卫
-│   ├── interfaces/
-│   │   └── menu-item.interface.ts   # 菜单项接口
-│   └── models/
-│       ├── common.models.ts         # 通用模型
-│       ├── server.models.ts         # 服务器模型
-│       ├── hotkeys.models.ts        # 热键模型
-│       └── mod.models.ts            # Mod 模型
-└── features/                # 功能模块
-    ├── dashboard/            # 仪表板（高密度统计卡片）
-    ├── servers/              # 服务器列表（响应式表格）
-    ├── players/              # 玩家搜索（支持多数据库切换）
-    ├── data/                 # 数据管理
-    ├── mods/                 # Mod 管理
-    ├── hotkeys/              # 快捷键配置
-    ├── settings/             # 应用设置（语言、主题、路径）
-    └── about/                # 关于页面
+│   ├── adapters/            # virtual-scroll.adapter.ts
+│   ├── icons/index.ts       # lucide 图标集中注册表（用前必须注册）
+│   ├── services/            # game-translation / theme
+│   ├── pipes/               # highlight.pipe.ts（输出已转义）
+│   ├── utils/               # highlight.utils.ts（高亮实现 + 标记类常量）、hotkey-share.utils.ts
+│   ├── constants/           # menu-items.ts（i18n key 驱动）、weapon-classes.ts
+│   ├── guards/              # path-detected.guard.ts
+│   ├── interfaces/          # menu-item / route-data
+│   └── models/              # 12 个：column / common / directory / hotkeys / items /
+│                            #        mod / player / server / sort / tab / theme / weapons
+└── features/                # 功能模块（各自带 services/ 与 *-columns.ts 列配置）
+    ├── dashboard/           # 仪表板（统计卡 + 快捷操作 + 活动时间轴）
+    ├── servers/             # 服务器列表（sticky 列表格 + Ping）
+    ├── players/            # 玩家搜索（多数据库切换 + 服务端搜索）
+    ├── data/                # 数据管理
+    │   ├── local/           # tab 容器
+    │   ├── items/           # 物品表（CDK 虚拟滚动双表格）
+    │   └── weapons/         # 武器表（同上，与 items 结构重复，见下方「已知技术债」）
+    ├── mods/                # Mod 管理：mods-layout / install / bundle / assets
+    ├── hotkeys/             # 快捷键配置
+    ├── settings/            # 应用设置（语言、主题、路径）
+    ├── about/               # 关于页面
+    └── shared/services/     # scrolling-mode.service.ts
 ```
+
+> 注意：`features/shared/` 与 `app/shared/` 并存且命名重叠，容易混淆。
+> 前者只放 feature 之间共享的服务，新代码优先放 `app/shared/`。
 
 ## 功能实现状态（快照）
 
@@ -122,7 +127,6 @@ src/app/
 - [x] 游戏路径配置逻辑（支持多目录扫描）
 - [x] 主题切换集成（支持自动/浅色/深色）
 
-### ✅ 已完成
 
 #### 5. 仪表板 (100%)
 
@@ -165,7 +169,6 @@ API 限制说明：
 - `src/assets/i18n/en.json`
 - `src/assets/i18n/zh.json`
 
-### ✅ 已完成
 
 #### 7. 热键编辑器 (100%)
 
@@ -182,7 +185,6 @@ API 限制说明：
 - `src/app/features/hotkeys/services/hotkey.service.ts`
 - `src/app/features/hotkeys/hotkeys.component.ts`
 
-### ✅ 已完成
 
 #### 8. 数据管理 (100%)
 
@@ -205,7 +207,29 @@ API 限制说明：
 - `src/app/features/data/items/items.component.ts` - 物品列表组件
 - `src/app/features/settings/services/directory.service.ts` - 目录管理服务
 
-### ❌ 待实现
+#### 9. UI 重构至军事风设计系统 (100%)
+
+- [x] 自定义 DaisyUI `light`/`dark` 双主题（`themes: false`，不再打包 35 套内置主题）
+- [x] 清理 DaisyUI v4 遗留：失效的 `var(--b2)` 类变量、95 处 no-op 类、孤儿样式文件
+- [x] 建立字号阶梯（下限 12px，移除 100 处任意值字号）与 3 档弱化机制
+- [x] 建立 5 档阴影海拔与统一圆角 token
+- [x] 抽取 7 个共享展示组件 + `highlight` 管道，消除跨页重复
+- [x] 移除破坏暗色主题的硬编码调色板值
+
+关键文件：
+
+- `src/styles.css` - 主题定义 + `@theme` token + 全局组件类
+- `src/app/shared/components/` - 共享组件层
+- `docs/UI.md` - 规范权威来源
+
+### 已知技术债
+
+- **items / weapons 模板重复**：两页各约 1000 行，CDK 双表格表头同步实现逐段对应，
+  属复制粘贴分叉。合并为泛型 data-table 的方案已设计，但需要在 Tauri 桌面端用真实
+  游戏数据做滚动性能对比后才能落地（浏览器端跑不了）。
+- **DashboardService 状态往返**：内部用 signal，却经 `toObservable()` + `combineLatest`
+  暴露，组件再 `toSignal()` 转回，违反 `CONSTRUCTION.md` 原则 IV。新代码不要照抄。
+- **`features/shared/` 与 `app/shared/` 命名重叠**：见架构快照下方注释。
 
 ## 设计规范（快照）
 
