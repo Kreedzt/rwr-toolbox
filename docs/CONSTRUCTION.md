@@ -230,9 +230,22 @@ cargo fmt           # Rust formatting
 
 ### Signal-Only State in Services
 
-All feature services MUST use `signal()` for state. The `BehaviorSubject` migration is complete — there are zero occurrences left in `src/app`, and reintroducing one is a violation, not debt.
+All feature services MUST use `signal()` for state. The migration is complete: `BehaviorSubject`, `toSignal()` and state-bridging `toObservable()` are all at zero occurrences in `src/app`. Reintroducing any of them is a violation, not debt.
 
-One exception remains and is tracked as debt: `DashboardService` holds its state in signals but republishes it through `toObservable()` + `combineLatest`, so `DashboardComponent` converts it back with `toSignal()`. That signal → observable → signal round trip is the dual-state pattern this principle exists to prevent. Do not copy it; new features read service signals directly.
+Services compose derived state with `computed()`, and components read those signals directly:
+
+```typescript
+// service — every input is already a signal
+readonly stats = computed<DashboardStats>(() => ({
+  serverCount: this.serverService.serversSig().length,
+  apiStatus: this.apiStatusSig(),
+}));
+
+// component
+stats = this.dashboardService.stats;
+```
+
+The one legitimate use of `toObservable()` left is `shared/adapters/virtual-scroll.adapter.ts`, which feeds Angular CDK an Observable because that is the API CDK exposes. Adapting to a third-party API is not the same as publishing state.
 
 ### Immutable Data Updates
 

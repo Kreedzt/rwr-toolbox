@@ -122,7 +122,7 @@ cargo test          # Rust tests
 
 ## Architecture Constraints
 
-- Service-layer state should expose signals directly to components (no `toSignal()` bridge for primary state)
+- Service-layer state exposes signals directly to components; derived state uses `computed()`. `BehaviorSubject` and `toSignal()` are at zero occurrences — do not reintroduce them. The only `toObservable()` left adapts signals to Angular CDK's Observable API in `shared/adapters/virtual-scroll.adapter.ts`
 - Signal updates must follow immutable update patterns
 - Tauri command calls must include explicit error handling
 - User-facing error messages should be i18n keys, not hardcoded strings
@@ -155,5 +155,4 @@ grep -rEn "var\(--b[123]\)|var\(--bc\)|var\(--p\)|--rounded-box" src/
 
 ## Known Technical Debt
 
-- `DashboardService` keeps its state in signals but republishes it through `toObservable()` + `combineLatest`, so `DashboardComponent` converts it back with `toSignal()`. This violates the architecture constraint above; new features read service signals directly.
 - `features/shared/` and `app/shared/` coexist with overlapping names. `features/shared/` holds only cross-feature services; put new shared code in `app/shared/`.

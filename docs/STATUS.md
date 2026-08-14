@@ -227,8 +227,6 @@ API 限制说明：
 - **items / weapons 模板重复**：两页各约 1000 行，CDK 双表格表头同步实现逐段对应，
   属复制粘贴分叉。合并为泛型 data-table 的方案已设计，但需要在 Tauri 桌面端用真实
   游戏数据做滚动性能对比后才能落地（浏览器端跑不了）。
-- **DashboardService 状态往返**：内部用 signal，却经 `toObservable()` + `combineLatest`
-  暴露，组件再 `toSignal()` 转回，违反 `CONSTRUCTION.md` 原则 IV。新代码不要照抄。
 - **`features/shared/` 与 `app/shared/` 命名重叠**：见架构快照下方注释。
 
 ## 设计规范（快照）
